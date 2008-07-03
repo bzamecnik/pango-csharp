@@ -5,68 +5,93 @@ using System.Text;
 namespace libpango
 {
     public class Schedule {
+        // TODO
         int time;
+        // there should be a priority queue inside
         public void add(EventHandler e, int timeoffset) { }
-        public EventHandler get() { }
+        //public EventHandler pop() { } 
     }
-    public class Game {}
+    public class Game {
+        // TODO
+        // can contain: quotas for monsters
+        // atEnd()
+    }
     public class Map {
         List<Entity>[,] map;
 
-        Map(int width, int height) {
+        public Map(int width, int height)
+        {
             map = new List<Entity>[width,height];
         }
 
-        bool add(Entity ent, Coordinates coords) {
-            if (ent.isWalkable() || isWalkable(coords)) {
+        // add entity to a given place
+        public bool add(ref Entity ent, Coordinates coords)
+        {
+            if (ent.isWalkable() || (isWalkable(coords) && !hasEntity(ent,coords))) {
                 map[coords.x, coords.y].Add(ent);
                 return true;
             }
             return false;
         }
-        bool remove(Entity ent, Coordinates coords) {
+        // remove entity from given place
+        public bool remove(ref Entity ent, Coordinates coords)
+        {
             if(hasEntity(ent,coords)) {
                 return map[coords.x, coords.y].Remove(ent);
             }
             return false;
         }
-        bool remove(Entity ent) {
+        // remove entity from map
+        public bool remove(ref Entity ent)
+        {
             Coordinates coords = find(ent);
             if (!coords.Equals(Coordinates.invalid)) {
-                return remove(ent, coords);
+                return remove(ref ent, coords);
             }
             return false;
         }
         // field is walkable, if all entities there are walkable
-        bool isWalkable(Coordinates coords) {
+        public bool isWalkable(Coordinates coords) {
             foreach (Entity ent in map[coords.x, coords.y]) {
                 if (!ent.isWalkable()) { return false; }
             }
             return true;
         }
-        void move(Entity ent, Coordinates from, Coordinates to) { }
+        public bool move(ref Entity ent, Coordinates from, Coordinates to) {
+            // TODO: this is a bit ugly
+            if (remove(ref ent, from)) {
+                add(ref ent, to);
+                return true;
+            }
+            return false;
+        }
         // search for entity in the whole map
-        Coordinates find(Entity ent) {
-            for (int y = 0; y < map.GetUpperBound(0); y++) {
-                for(int x = 0; x < map.GetUpperBound(1); x++) {            
-                    if (map[y, x].Contains(ent)) {
-                        return new Coordinates(y, x);
+        public Coordinates find(Entity ent)
+        {
+            for(int x = 0; x < map.GetUpperBound(0); x++) {            
+                for (int y = 0; y < map.GetUpperBound(1); y++) {
+                    if (map[x, y].Contains(ent)) {
+                        return new Coordinates(x, y);
                     }
                 }
             }
             return Coordinates.invalid;
         }
         // search in the whole map
-        bool hasEntity(Entity ent) {
+        public bool hasEntity(Entity ent)
+        {
             return (!find(ent).Equals(Coordinates.invalid));
         }
         // search in list
-        bool hasEntity(Entity ent, Coordinates coords) {
+        public bool hasEntity(Entity ent, Coordinates coords)
+        {
             return map[coords.x, coords.y].Contains(ent);
         }
     }
 
     // Counted from [0,0]
+    // x - vertical (goes from to to down)
+    // y - horisontal (goes left to right)
     public struct Coordinates {
         public int x, y;
         public static Coordinates invalid = new Coordinates(-1,-1);
@@ -74,14 +99,30 @@ namespace libpango
             this.x = x;
             this.y = y;
         }
+        public static Coordinates step(Coordinates c, Direction dir) {
+            switch (dir) {
+                case Direction.Up:
+                    return new Coordinates(c.x - 1, c.y);
+                case Direction.Right:
+                    return new Coordinates(c.x, c.y + 1);
+                case Direction.Down:
+                    return new Coordinates(c.x + 1, c.y);
+                case Direction.Left:
+                    return new Coordinates(c.x, c.y - 1);
+            }
+            return c;
+        }
+        public Coordinates step(Direction dir) {
+            return Coordinates.step(this, dir);
+        }
     }
-    public enum Direction { Up, Right, Left, Down }
-    public enum Rotation { Forward, CW, Backwards, CCW }
+    public enum Direction { Up = 0, Right, Left, Down };
+    public enum Rotation { Forward = 0, CW, Backwards, CCW }
 
     public abstract class Entity {
         // Coordinates will be both in map and in entity.
         // We'll need to synchronize this.
-        Coordinates coords;
+        protected Coordinates coords;
 
         public virtual bool isWalkable() { return false; }
         public abstract void turn();
@@ -92,23 +133,34 @@ namespace libpango
     // but how to incorporate new fields into interface???
     public abstract class MovableEntity : Entity
     {
-        Direction direction;
+        protected Direction direction;
 
-        public bool go(Direction dir) { } // true, if step was made
-        public void rotate(Rotation rot) { }
+        // true, if step was made
+        //public bool go(Map map)
+        //{
+        //    Coordinates step = coords.step(direction);
+        //    if (map.isWalkable(step)) {
+        //        map.move(this, coords, step); // TODO
+        //        coords = step;
+        //        return true;
+        //    }
+        //    return false;
+        //}
+        public void rotate(Rotation rot) {
+            direction = (Direction)(((int)direction + (int)rot) % 4);
+        }
     }
 
     public abstract class LiveEntity : MovableEntity {
-        int health;
-        int maxHealth;
-        int lives;
-        int defaultLives;
+        protected int health;
+        protected int maxHealth;
+        protected int lives;
+        protected int defaultLives;
 
         // change < 0 ... hurt
         // change > 0 ... stimpack
-        // Take care of correct lives count when health goes
-        // throuh 0 or maxHealth.
-        // returns true, if still alive
+        // Take care of correct lives count when health goes through 0 or maxHealth.
+        // Returns true, if still alive.
         public virtual bool changeHealth(int change) {
             health += change;
             if (health > maxHealth) {
@@ -118,20 +170,20 @@ namespace libpango
                 if (lives > 0) {
                     lives--;
                     health += maxHealth;
-                } else {
-                    die();
-                    return false;
                 }
+                die();
+                return false;
             }
             return true;
         }
-
         public abstract void die();
-        public abstract void attack(Entity e, int hitcount);
+        public void attack(Entity e, int hitcount) {
+            e.acceptAttack(hitcount);
+        }
     }
 
     public abstract class WalkableEntity : Entity {
-        // other entities walk through this one
+        // other entities can walk through this one
         public override bool isWalkable() { return true; }
     }
 
@@ -139,30 +191,58 @@ namespace libpango
         // money for killing monsters, gathering bonuses, aligning diamonds, ...
         int money;
         public override void turn() { }
-        public override void acceptAttack(int hitcount) { }
+        public override void acceptAttack(int hitcount) {
+            changeHealth(hitcount);
+        }
+        public override void die() {
+            if ((lives >= 0) && (health >= 0)) {
+                // TODO: respawn with the same entity
+            } else {
+                // TODO: end of game
+            }
+        }
     }
     // maybe think of multiple types of mosters
     public class MonsterEntity : LiveEntity {
         public override void turn() { }
-        public override void acceptAttack(int hitcount) { }
+        public override void acceptAttack(int hitcount) {
+            changeHealth(hitcount);
+        }
+        public override void die() {
+            // TODO: schedule respawning, make new entity
+        }
     }
 
     public class Stone : Entity {
-        public override void turn() { }
-        public override void acceptAttack(int hitcount) { }
+        public override void turn() { } // empty
+        public override void acceptAttack(int hitcount) { } // empty
+        // does not interact, except it is non-walkable
     }
+
     public class IceBlock : MovableEntity {
-        public override void turn() { }
-        public override void acceptAttack(int hitcount) { }
+        public override void turn() {
+            // TODO: make step, if in movement; stop when encountering non-walkable place
+        } 
+        public override void acceptAttack(int hitcount) {
+            // TODO: melt
+        }
     }
 
     public class FreePlace : WalkableEntity {
-        public override void turn() { }
-        public override void acceptAttack(int hitcount) { }
+        public override void turn() { } // empty
+        public override void acceptAttack(int hitcount) { } // empty
+        // does not interact, except it is walkable
     }
-    // multiple bonuses
+
+    // TODO: classes for various bonuses
     public class Bonus : WalkableEntity {
+        public Bonus() {
+            // TODO: schedule vanishing in given time
+        }
         public override void turn() { }
         public override void acceptAttack(int hitcount) { }
+
+        // TODO: Resolve, how to give player the bonus content,
+        // if he steps on the same place as this bonus.
     }
 }
