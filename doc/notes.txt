@@ -1,0 +1,8 @@
+===== Poznámky =====
+
+- jazyk: C#
+- vývojové prostředí: MS Visual Studio
+- knihovny -> asi XNA
+	- GUI
+	- grafika
+	- [zvuk (MIDI hudba na pozadí, případně další zvuky)]

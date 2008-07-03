@@ -1,0 +1,68 @@
+Hra Pango - specifikace zápočtového programu na Programování II
+Bohumír Zámečník
+
+2D bludiště s potvorami. Remake hry Pango, což byl klon videohry Pengo
+
+- hraje se na kola (levely)
+	- tahy hráčů v pravidelných intervalech (spojitá simulace)
+	- levely postupně nabírají na obtížnosti
+	- kola mají časový limit
+	- končí, když vyprší limit, nebo všecha monstra jsou zabita
+	- každé kolo má svou mapu - bludiště s políčky
+		- na každém políčku může být:
+			- hráč
+			- protivník (monstrum)
+			- prázdné políčko
+			- kámen - obyčejný, speciální (diamant)
+			- bonusový předmět
+		- mapy definovány ručně nebo generovány automaticky
+- hráč (člověk)
+	- chodí po volných políčkách
+	- může strkat do kamenů
+		- snaží se pomocí kamenů pozabíjet monstra
+		- snaží se sestavit diamanty do řady
+			- za to je hodně bodů a na chvíli se omráčí všechny monstra v bludišti
+	- může kopat do zdi a omráčit tak monstrum
+		- dotýká-li se monstrum stejné zdi v okamžiku kopnutí
+	- má volné životy a zdraví (hit body)
+		- útočí-li na něj někdo, ubírá mu zdraví
+		- když zdraví dojde na minimum, hráč umře a ubere se mu život
+			(má-li ještě) a zase ožije na jiném místě
+    - pomocí některých bonusových předmětů by si mohl doplnit zdraví a životy
+  - sbírá body
+    - cíl hry - přežít co nejdéle a nasbírat co nejvíc bodů
+    - body může hráč získat za:
+      - zabití nebo omráčení monstra
+      - seskupení diamantů do řady (nebo nějakého obrazce)
+      - úspěšným dokončením kola
+      - sebráním některých bonusových předmětů
+- kámen
+  - kopne-li do něj hráč, dá se do pohybu
+    - zastaví se až o stěnu nebo jiný kámen
+    - narazíli-li po cestě na monstrum, zabije ho a pokračuje
+- monstrum
+  - chodí po své trase, je-li chytřejší pak chodí směrem za hráčem
+  - když narazí na hráče, útočí na něj
+    - ubírá mu postupně zdraví, dokud hráč ne umře nebo neuteče
+  - je-li zabito, někde ožije nové monstrum, aby doplnilo
+    počet monster v daném levelu
+  - může být omráčeno
+    - když hráč kopne do zdi, u níž stojí monstrum, nebo když narovná diamanty
+    - omráčení chvíli trvá
+    - je-li omráčeno, hráč se k němu může bez bez obav přiblížit a dorazit jej
+- obtížnost:
+  - rychlost hry (pohybu nepřátel)
+    - počet monster (kvóta)
+    - rychlost oživování monster
+    - počet diamantů
+    - počet bonusových předmětů
+    - inteligence monster
+- bonusové předměty
+  - stimpacky - doplnění zdraví a životů
+  [- vyšší odolnost - útok monstra ubere méně zdraví]
+  [- zbraně - zabíjení monster na blízko či na dálku]
+  [- neviditelnost - chytřejší monstra nebudou moci sledovat hráče]
+[- další vybavení]
+  - teleporty
+  - nástrahy - pícháče, které občas propíchnou postavičku, která na ně stoupla
+- interface by byl grafický a možná k tomu bude hrát hudba a zvuky akcí

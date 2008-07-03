@@ -1,0 +1,28 @@
+===== Pango - objektový model =====
+
+třídy:
+- Hra
+- Mapa
+- Entita
+	- Živá entita
+		- Hráč
+		- Monstrum
+			- Obyčejné monstrum
+			- [další monstra]
+	- Neživá entita
+		- Průchozí entita
+			- Volné políčko
+			- Bonusový předmět
+				- Stimpack (+zdraví)
+				- Živá voda (+život)
+			- [Teleport]
+			- [Špičáky]
+		- Neprůchozí entita
+			- Led - lze jím hýbat a kopnutím rozpustit
+			- Diamant - lze jím hýbat
+			- Kámen - nelze jím hýbat
+
+rozhraní:
+- Pohyblivá entita
+- Útočná enetita
+- Živá entita
