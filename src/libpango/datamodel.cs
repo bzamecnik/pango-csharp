@@ -25,7 +25,7 @@ namespace libpango
         }
 
         // add entity to a given place
-        public bool add(ref Entity ent, Coordinates coords)
+        public bool add(Entity ent, Coordinates coords)
         {
             if (ent.isWalkable() || (isWalkable(coords) && !hasEntity(ent,coords))) {
                 map[coords.x, coords.y].Add(ent);
@@ -34,7 +34,7 @@ namespace libpango
             return false;
         }
         // remove entity from given place
-        public bool remove(ref Entity ent, Coordinates coords)
+        public bool remove(Entity ent, Coordinates coords)
         {
             if(hasEntity(ent,coords)) {
                 return map[coords.x, coords.y].Remove(ent);
@@ -42,11 +42,11 @@ namespace libpango
             return false;
         }
         // remove entity from map
-        public bool remove(ref Entity ent)
+        public bool remove(Entity ent)
         {
             Coordinates coords = find(ent);
             if (!coords.Equals(Coordinates.invalid)) {
-                return remove(ref ent, coords);
+                return remove(ent, coords);
             }
             return false;
         }
@@ -57,10 +57,11 @@ namespace libpango
             }
             return true;
         }
-        public bool move(ref Entity ent, Coordinates from, Coordinates to) {
+        public bool move(Entity ent, Coordinates from, Coordinates to) {
             // TODO: this is a bit ugly
-            if (remove(ref ent, from)) {
-                add(ref ent, to);
+            if (hasEntity(ent)) {
+                remove(ent, from);
+                add(ent, to);
                 return true;
             }
             return false;
@@ -136,16 +137,15 @@ namespace libpango
         protected Direction direction;
 
         // true, if step was made
-        //public bool go(Map map)
-        //{
-        //    Coordinates step = coords.step(direction);
-        //    if (map.isWalkable(step)) {
-        //        map.move(this, coords, step); // TODO
-        //        coords = step;
-        //        return true;
-        //    }
-        //    return false;
-        //}
+        public bool go(Map map) {
+            Coordinates step = coords.step(direction);
+            if (map.isWalkable(step)) {
+                map.move(this, coords, step); // TODO
+                coords = step;
+                return true;
+            }
+            return false;
+        }
         public void rotate(Rotation rot) {
             direction = (Direction)(((int)direction + (int)rot) % 4);
         }
