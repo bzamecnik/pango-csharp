@@ -5,6 +5,7 @@ using System.Text;
 namespace libpango
 {
     public class Schedule {
+        // * maybe make it a singleton
         // TODO
         int time;
         // there should be a priority queue inside
@@ -13,17 +14,47 @@ namespace libpango
     }
     public class Game {
         // TODO
-        // can contain: quotas for monsters
-        // atEnd()
+        // * maybe make it a singleton
+        // can contain:
+        // * quotas for monsters
+        // * atEnd()
+        // * game loop
+        // * time limit (?)
+        private static Game instance = null;
+        Map map;
+        private Game() {
+            map = new Map();
+        }
+        public static Game getInstance() {
+            if (instance == null) {
+                instance = new Game();
+            }
+            return instance;
+        }
     }
     public class Map {
         List<Entity>[,] map;
+        private static Map instance = null; // a singleton
+        // TODO: put these constants somewhere else!
+        private int defaultWidth = 10;
+        private int defaultHeight = 10;
 
+        public Map() {
+            // better: call Map(int width, int height)
+            if (instance == null) { // OK?
+                map = new List<Entity>[defaultWidth, defaultHeight];
+            }
+        }
         public Map(int width, int height)
         {
-            map = new List<Entity>[width,height];
+            if (instance == null) { // OK?
+                map = new List<Entity>[width, height];
+            }
         }
 
+        public static Map getInstance() {
+            return instance;
+        }
         // add entity to a given place
         public bool add(Entity ent, Coordinates coords)
         {
@@ -127,7 +158,8 @@ namespace libpango
 
         public virtual bool isWalkable() { return false; }
         public abstract void turn();
-        public abstract void acceptAttack(int hitcount);
+        // returns money for attack
+        public abstract int acceptAttack(int hitcount);
     }
 
     // Better would be to use iterfaces in place of abstract classes,
@@ -137,10 +169,11 @@ namespace libpango
         protected Direction direction;
 
         // true, if step was made
-        public bool go(Map map) {
+        public bool go() {
+            Map map = Map.getInstance();
             Coordinates step = coords.step(direction);
             if (map.isWalkable(step)) {
-                map.move(this, coords, step); // TODO
+                map.move(this, coords, step);
                 coords = step;
                 return true;
             }
@@ -177,7 +210,7 @@ namespace libpango
             return true;
         }
         public abstract void die();
-        public void attack(Entity e, int hitcount) {
+        public virtual void attack(Entity e, int hitcount) {
             e.acceptAttack(hitcount);
         }
     }
@@ -191,8 +224,9 @@ namespace libpango
         // money for killing monsters, gathering bonuses, aligning diamonds, ...
         int money;
         public override void turn() { }
-        public override void acceptAttack(int hitcount) {
+        public override int acceptAttack(int hitcount) {
             changeHealth(hitcount);
+            return 0;
         }
         public override void die() {
             if ((lives >= 0) && (health >= 0)) {
@@ -201,12 +235,29 @@ namespace libpango
                 // TODO: end of game
             }
         }
+        public override void attack(Entity e, int hitcount) {
+            money += e.acceptAttack(hitcount);
+        }
     }
     // maybe think of multiple types of mosters
     public class MonsterEntity : LiveEntity {
-        public override void turn() { }
-        public override void acceptAttack(int hitcount) {
-            changeHealth(hitcount);
+        protected enum States { Normal, Stunned }
+        protected States state; // maybe better would be design patter State
+        // TODO: put this constant somewhere else (eg. into a config file)
+        static int moneyForKilling = 1;
+
+        public MonsterEntity() {
+            state = States.Normal;
+        }
+        public override void turn() {
+            // chase the player nad try to kill him
+        }
+        public override int acceptAttack(int hitcount) {
+            if (!changeHealth(hitcount)) {
+                // it died, give money to the killer
+                return moneyForKilling;
+            }
+            return 0;
         }
         public override void die() {
             // TODO: schedule respawning, make new entity
@@ -215,22 +266,32 @@ namespace libpango
 
     public class Stone : Entity {
         public override void turn() { } // empty
-        public override void acceptAttack(int hitcount) { } // empty
+        public override int acceptAttack(int hitcount) { return 0; } // empty
         // does not interact, except it is non-walkable
     }
 
     public class IceBlock : MovableEntity {
+        protected enum States { Rest, Movement }
+        protected States state;
+        public IceBlock() {
+            state = States.Rest;
+        }
         public override void turn() {
-            // TODO: make step, if in movement; stop when encountering non-walkable place
+            if (state == States.Movement) {
+                if (!go()) { // make step, if in movement
+                    state = States.Rest; // stop when encountering non-walkable place
+                }
+            }
         } 
-        public override void acceptAttack(int hitcount) {
+        public override int acceptAttack(int hitcount) {
             // TODO: melt
+            return 0;
         }
     }
 
     public class FreePlace : WalkableEntity {
         public override void turn() { } // empty
-        public override void acceptAttack(int hitcount) { } // empty
+        public override int acceptAttack(int hitcount) { return 0; } // empty
         // does not interact, except it is walkable
     }
 
@@ -240,7 +301,7 @@ namespace libpango
             // TODO: schedule vanishing in given time
         }
         public override void turn() { }
-        public override void acceptAttack(int hitcount) { }
+        public override int acceptAttack(int hitcount) { return 0; }
 
         // TODO: Resolve, how to give player the bonus content,
         // if he steps on the same place as this bonus.
