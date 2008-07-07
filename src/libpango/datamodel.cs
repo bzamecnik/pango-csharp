@@ -6,21 +6,41 @@ namespace libpango
 {
     public class Schedule {
         // * maybe make it a singleton
-        // TODO
         int time;
-        // there should be a priority queue inside
-        public void add(EventHandler e, int timeoffset) { }
-        //public EventHandler pop() { } 
+        // priority queue
+        SortedList<int, Queue<EventHandler>> pqueue;
+
+        public Schedule() {
+            time = 0;
+            pqueue = new SortedList<int, Queue<EventHandler>>();
+        }
+        public void add(EventHandler eh, int timeoffset) {
+            int priority = time + timeoffset;
+            if (!pqueue.ContainsKey(priority)) {
+                pqueue.Add(priority, new Queue<EventHandler>());
+                pqueue[priority].Enqueue(eh);
+            }
+        }
+        public void callCurrentEvents() {
+            if (pqueue.ContainsKey(time)) {
+                EventHandler eh;
+                Queue<EventHandler> queue = pqueue[time];
+                while(queue.Count > 0) {
+                    eh = queue.Dequeue();
+                    //eh.Invoke(...)
+                }
+                pqueue.Remove(time);
+            }
+        }
     }
     public class Game {
         // TODO
-        // * maybe make it a singleton
         // can contain:
         // * quotas for monsters
         // * atEnd()
         // * game loop
         // * time limit (?)
-        private static Game instance = null;
+        private static Game instance = null; // // a singleton
         Map map;
         private Game() {
             map = new Map();
@@ -59,6 +79,7 @@ namespace libpango
         public bool add(Entity ent, Coordinates coords)
         {
             if (ent.isWalkable() || (isWalkable(coords) && !hasEntity(ent,coords))) {
+                ent.Coords = coords;
                 map[coords.x, coords.y].Add(ent);
                 return true;
             }
@@ -119,6 +140,15 @@ namespace libpango
         {
             return map[coords.x, coords.y].Contains(ent);
         }
+        public List<Entity>.Enumerator getEntitiesByCoordsEnumerator(Coordinates coords) {
+            return map[coords.x, coords.y].GetEnumerator();
+        }
+
+        // TODO: select random walkable field (for placing new entities, eg.
+        // respawning or placing bonuses)
+        public Coordinates getRandomWalkableField() {
+            return Coordinates.invalid; // stub
+        }
     }
 
     // Counted from [0,0]
@@ -147,6 +177,13 @@ namespace libpango
         public Coordinates step(Direction dir) {
             return Coordinates.step(this, dir);
         }
+        public bool areNeighbors(Coordinates coords1, Coordinates coords2) {
+            return (((coords1.x == coords2.x) && (Math.Abs(coords1.y - coords2.y) == 1)) ||
+                ((coords1.y == coords2.y) && (Math.Abs(coords1.x - coords2.x) == 1)));
+        }
+        public bool Equals(Coordinates other) {
+            return ((x == other.x) && (y == other.y));
+        }
     }
     public enum Direction { Up = 0, Right, Left, Down };
     public enum Rotation { Forward = 0, CW, Backwards, CCW }
@@ -156,10 +193,20 @@ namespace libpango
         // We'll need to synchronize this.
         protected Coordinates coords;
 
+        public Entity() {
+            coords = Coordinates.invalid;
+        }
         public virtual bool isWalkable() { return false; }
         public abstract void turn();
         // returns money for attack
         public abstract int acceptAttack(int hitcount);
+        public void vanish() {
+            Map.getInstance().remove(this, coords);
+        }
+        public Coordinates Coords {
+            get { return coords; }
+            set { coords = value; }
+        }
     }
 
     // Better would be to use iterfaces in place of abstract classes,
@@ -167,6 +214,10 @@ namespace libpango
     public abstract class MovableEntity : Entity
     {
         protected Direction direction;
+
+        public MovableEntity() {
+            direction = Direction.Down;
+        }
 
         // true, if step was made
         public bool go() {
@@ -179,8 +230,14 @@ namespace libpango
             }
             return false;
         }
+
         public void rotate(Rotation rot) {
             direction = (Direction)(((int)direction + (int)rot) % 4);
+        }
+
+        public Direction Direction {
+            get { return direction; }
+            set { direction = value; }
         }
     }
 
@@ -209,9 +266,11 @@ namespace libpango
             }
             return true;
         }
+
         public abstract void die();
-        public virtual void attack(Entity e, int hitcount) {
-            e.acceptAttack(hitcount);
+
+        public virtual void attack(Entity ent, int hitcount) {
+            ent.acceptAttack(hitcount);
         }
     }
 
@@ -223,7 +282,22 @@ namespace libpango
     public class PlayerEntity : LiveEntity {
         // money for killing monsters, gathering bonuses, aligning diamonds, ...
         int money;
-        public override void turn() { }
+
+        public PlayerEntity() {
+            // TODO: put these constants somewhere else
+            health = maxHealth = 100;
+            lives = defaultLives = 3;
+        }
+
+        public override void turn() {
+            // user's input will be processed here
+            //Map map = Map.getInstance();
+            //List<Entity>.Enumerator ents = map.getEntitiesByCoordsEnumerator();
+            //foreach (Entity ent in ents) {
+            //    if (ent.Equals(this)) { continue; }
+            //    //...
+            //}
+        }
         public override int acceptAttack(int hitcount) {
             changeHealth(hitcount);
             return 0;
@@ -231,12 +305,16 @@ namespace libpango
         public override void die() {
             if ((lives >= 0) && (health >= 0)) {
                 // TODO: respawn with the same entity
+                vanish();
             } else {
                 // TODO: end of game
             }
         }
-        public override void attack(Entity e, int hitcount) {
-            money += e.acceptAttack(hitcount);
+        public override void attack(Entity ent, int hitcount) {
+            receiveMoney(ent.acceptAttack(hitcount));
+        }
+        public void receiveMoney(int amount) {
+            money += amount;
         }
     }
     // maybe think of multiple types of mosters
@@ -244,13 +322,16 @@ namespace libpango
         protected enum States { Normal, Stunned }
         protected States state; // maybe better would be design patter State
         // TODO: put this constant somewhere else (eg. into a config file)
-        static int moneyForKilling = 1;
+        static int moneyForKilling = 10;
 
         public MonsterEntity() {
             state = States.Normal;
+            // TODO: put these constants somewhere else
+            health = maxHealth = 50;
+            lives = defaultLives = 1;
         }
         public override void turn() {
-            // chase the player nad try to kill him
+            // chase the player nad try to kill him (a kind of simple "AI")
         }
         public override int acceptAttack(int hitcount) {
             if (!changeHealth(hitcount)) {
@@ -261,6 +342,7 @@ namespace libpango
         }
         public override void die() {
             // TODO: schedule respawning, make new entity
+            vanish();
         }
     }
 
@@ -284,7 +366,14 @@ namespace libpango
             }
         } 
         public override int acceptAttack(int hitcount) {
-            // TODO: melt
+            Map map = Map.getInstance();
+            
+            if (map.isWalkable(coords.step(direction))) {
+                state = States.Movement;
+            } else {
+                // melt
+                vanish();
+            }
             return 0;
         }
     }
