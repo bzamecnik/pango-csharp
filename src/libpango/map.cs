@@ -48,8 +48,8 @@ namespace libpango
         List<Entity>[,] map;
         private static Map instance = null; // a singleton
         // TODO: put these constants somewhere else!
-        private int defaultWidth = 10;
-        private int defaultHeight = 10;
+        private static int defaultWidth = 10;
+        private static int defaultHeight = 10;
 
         // TODO: singleton shouldn't expose its constructors
         // * but how to pass the arguments (map size) when creating the map?
@@ -61,12 +61,17 @@ namespace libpango
         }
         private void createMap(int width, int height) {
             // for sharing code in both constructors
-            if (instance == null) { // OK?
+            if (instance == null) {
                 map = new List<Entity>[width, height];
             }
         }
-        public static Map getInstance() {
-            return instance;
+        public static Map Instance {
+            get {
+                if (instance == null) {
+                    instance = new Map();
+                }
+                return instance;
+            }
         }
         // add entity to a given place
         public bool add(Entity ent, Coordinates coords) {

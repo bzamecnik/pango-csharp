@@ -18,7 +18,7 @@ namespace libpango
         // returns money for attack
         public abstract int acceptAttack(int hitcount);
         public void vanish() {
-            Map.getInstance().remove(this, coords);
+            Map.Instance.remove(this, coords);
         }
         public Coordinates Coords {
             get { return coords; }
@@ -38,7 +38,7 @@ namespace libpango
 
         // true, if step was made
         public bool go() {
-            Map map = Map.getInstance();
+            Map map = Map.Instance;
             Coordinates step = coords.step(direction);
             if (map.isWalkable(step)) {
                 map.move(this, coords, step);
@@ -64,6 +64,7 @@ namespace libpango
         protected int maxHealth;
         protected int lives;
         protected int defaultLives;
+        protected int timeToRespawn;
 
         // change < 0 ... hurt
         // change > 0 ... stimpack
@@ -91,7 +92,7 @@ namespace libpango
             ent.acceptAttack(hitcount);
         }
         public virtual void respawn(LiveEntity newborn) {
-            Map map = Map.getInstance();
+            Map map = Map.Instance;
             // move to random (walkable) field
             // maybe casting newborn would be needed (?)
             map.add(newborn, map.getRandomWalkableField());
@@ -113,6 +114,7 @@ namespace libpango
             // TODO: put these constants somewhere else
             health = maxHealth = 100;
             lives = defaultLives = 3;
+            timeToRespawn = 2;
         }
         public PlayerEntity(PlayerEntity p) {
             coords = p.coords;
@@ -126,7 +128,7 @@ namespace libpango
 
         public override void turn() {
             // user's input will be processed here
-            //Map map = Map.getInstance();
+            //Map map = Map.Instance;
             //List<Entity>.Enumerator ents = map.getEntitiesByCoordsEnumerator();
             //foreach (Entity ent in ents) {
             //    if (ent.Equals(this)) { continue; }
@@ -139,11 +141,13 @@ namespace libpango
         }
         public override void die() {
             if ((lives >= 0) && (health >= 0)) {
-                // respawn with a copy of this entity
-                respawn(new PlayerEntity(this)); // schedule
+                // schedule respawning with a copy of this entity
+                Schedule.Instance.add(delegate() {
+                        respawn(new PlayerEntity(this));
+                    }, timeToRespawn);
                 vanish();
             } else {
-                Game.getInstance().end(); // end of the game
+                Game.Instance.end(); // end of the game
             }
         }
         public override void attack(Entity ent, int hitcount) {
@@ -166,6 +170,7 @@ namespace libpango
             // TODO: put these constants somewhere else
             health = maxHealth = 50;
             lives = defaultLives = 1;
+            timeToRespawn = 5;
         }
         public override void turn() {
             // chase the player nad try to kill him (a kind of simple "AI")
@@ -179,7 +184,9 @@ namespace libpango
         }
         public override void die() {
             // schedule respawning, make new entity
-            respawn(new MonsterEntity()); // schedule
+            Schedule.Instance.add(delegate() {
+                    respawn(new MonsterEntity());
+                }, timeToRespawn);
             vanish();
         }
     }
@@ -206,7 +213,7 @@ namespace libpango
             }
         }
         public override int acceptAttack(int hitcount) {
-            Map map = Map.getInstance();
+            Map map = Map.Instance;
 
             if (map.isWalkable(coords.step(direction))) {
                 state = States.Movement;
@@ -228,8 +235,13 @@ namespace libpango
     // TODO: classes for various bonuses
     public class Bonus : WalkableEntity
     {
+        int timeToLive;
+
         public Bonus() {
-            // TODO: schedule vanishing in given time
+            // TODO: put this constant somewhere else
+            timeToLive = 20; 
+            // schedule vanishing in given time
+            Schedule.Instance.add(delegate() { vanish();  }, timeToLive);
         }
         public override void turn() { }
         public override int acceptAttack(int hitcount) { return 0; }
