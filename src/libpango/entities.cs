@@ -27,7 +27,7 @@ namespace libpango
     }
 
     // Better would be to use iterfaces in place of abstract classes,
-    // but how to incorporate new fields into interface???
+    // but how to incorporate new fields into an interface???
     public abstract class MovableEntity : Entity
     {
         protected Direction direction;
@@ -90,6 +90,12 @@ namespace libpango
         public virtual void attack(Entity ent, int hitcount) {
             ent.acceptAttack(hitcount);
         }
+        public virtual void respawn(LiveEntity newborn) {
+            Map map = Map.getInstance();
+            // move to random (walkable) field
+            // maybe casting newborn would be needed (?)
+            map.add(newborn, map.getRandomWalkableField());
+        }
     }
 
     public abstract class WalkableEntity : Entity
@@ -101,12 +107,21 @@ namespace libpango
     public class PlayerEntity : LiveEntity
     {
         // money for killing monsters, gathering bonuses, aligning diamonds, ...
-        int money;
+        protected int money;
 
         public PlayerEntity() {
             // TODO: put these constants somewhere else
             health = maxHealth = 100;
             lives = defaultLives = 3;
+        }
+        public PlayerEntity(PlayerEntity p) {
+            coords = p.coords;
+            direction = p.direction;
+            health = p.health;
+            maxHealth = p.maxHealth;
+            lives = p.lives;
+            defaultLives = p.defaultLives;
+            money = p.money;
         }
 
         public override void turn() {
@@ -124,10 +139,11 @@ namespace libpango
         }
         public override void die() {
             if ((lives >= 0) && (health >= 0)) {
-                // TODO: respawn with the same entity
+                // respawn with a copy of this entity
+                respawn(new PlayerEntity(this)); // schedule
                 vanish();
             } else {
-                // TODO: end of game
+                Game.getInstance().end(); // end of the game
             }
         }
         public override void attack(Entity ent, int hitcount) {
@@ -141,7 +157,7 @@ namespace libpango
     public class MonsterEntity : LiveEntity
     {
         protected enum States { Normal, Stunned }
-        protected States state; // maybe better would be design patter State
+        protected States state; // maybe better would be State design pattern
         // TODO: put this constant somewhere else (eg. into a config file)
         static int moneyForKilling = 10;
 
@@ -162,7 +178,8 @@ namespace libpango
             return 0;
         }
         public override void die() {
-            // TODO: schedule respawning, make new entity
+            // schedule respawning, make new entity
+            respawn(new MonsterEntity()); // schedule
             vanish();
         }
     }

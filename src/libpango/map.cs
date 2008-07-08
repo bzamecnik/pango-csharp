@@ -51,6 +51,8 @@ namespace libpango
         private int defaultWidth = 10;
         private int defaultHeight = 10;
 
+        // TODO: singleton shouldn't expose its constructors
+        // * but how to pass the arguments (map size) when creating the map?
         public Map() {
             createMap(defaultWidth, defaultHeight);
         }
@@ -124,6 +126,13 @@ namespace libpango
         // search in list
         public bool hasEntity(Entity ent, Coordinates coords) {
             return map[coords.x, coords.y].Contains(ent);
+        }
+        public IEnumerator<Entity> GetEnumerator() {
+            foreach (List<Entity> listent in map) {
+                foreach (Entity ent in listent) {
+                    yield return ent;
+                }
+            }
         }
         public List<Entity>.Enumerator getEntitiesByCoordsEnumerator(Coordinates coords) {
             return map[coords.x, coords.y].GetEnumerator();

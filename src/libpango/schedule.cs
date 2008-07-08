@@ -6,14 +6,20 @@ namespace libpango
 {
     public class Schedule
     {
-        // * maybe make it a singleton
-        int time;
+        private static Schedule instance; // a singleton
+        private int time;
         // priority queue
         SortedList<int, Queue<EventHandler>> pqueue;
 
-        public Schedule() {
+        private Schedule() {
             time = 0;
             pqueue = new SortedList<int, Queue<EventHandler>>();
+        }
+        public static Schedule getInstance() {
+            if(instance == null) {
+                instance = new Schedule();
+            }
+            return instance;
         }
         public void add(EventHandler eh, int timeoffset) {
             int priority = time + timeoffset;
@@ -32,6 +38,12 @@ namespace libpango
                 }
                 pqueue.Remove(time);
             }
+        }
+        public int Time {
+            get { return time; }
+        }
+        public void increaseTime() {
+            time++;
         }
     }
 }
