@@ -50,6 +50,24 @@ namespace libpango
         // TODO: put these constants somewhere else!
         private static int defaultWidth = 20;
         private static int defaultHeight = 20;
+        public int Height {
+            get {
+                if (map != null) {
+                    return map.GetUpperBound(0);
+                } else {
+                    return 0;
+                }
+            }
+        }
+        public int Width {
+            get {
+                if (map != null) {
+                    return map.GetUpperBound(1);
+                } else {
+                    return 0;
+                }
+            }
+        }
 
         // TODO: singleton shouldn't expose its constructors
         // * but how to pass the arguments (map size) when creating the map?
@@ -62,7 +80,7 @@ namespace libpango
         private void createMap(int width, int height) {
             // for sharing code in both constructors
             if (instance == null) {
-                map = new List<Entity>[width, height];
+                map = new List<Entity>[height, width];
             }
         }
         public static Map Instance {
@@ -126,8 +144,8 @@ namespace libpango
         }
         // search for entity in the whole map
         public Coordinates find(Entity ent) {
-            for (int x = 0; x < map.GetUpperBound(0); x++) {
-                for (int y = 0; y < map.GetUpperBound(1); y++) {
+            for (int x = 0; x < Height; x++) {
+                for (int y = 0; y < Width; y++) {
                     if (map[x, y].Contains(ent)) {
                         return new Coordinates(x, y);
                     }
@@ -150,8 +168,51 @@ namespace libpango
                 }
             }
         }
-        public List<Entity>.Enumerator getEntitiesByCoordsEnumerator(Coordinates coords) {
-            return map[coords.x, coords.y].GetEnumerator();
+        public List<Entity> getEntitiesByCoords(Coordinates coords) {
+            // TODO: is this efficient? doesn't is return a copy of the list?
+            return map[coords.x, coords.y];
+        }
+
+        //public Dictionary<Coordinates, List<Entity>> getNeighbors(Coordinates coords) {
+        //    // TODO: is this efficient? doesn't is return copies?
+        //    Dictionary<Coordinates, List<Entity>> neighbors = new Dictionary<Coordinates, List<Entity>>();
+        //    Direction[] dirs = new Direction[] {
+        //        Direction.Up,
+        //        Direction.Right,
+        //        Direction.Down,
+        //        Direction.Left
+        //    };
+        //    foreach (Direction dir in dirs) {
+        //        Coordinates step = coords.step(dir);
+        //        if (validCoordinates(step)) {
+        //            neighbors.Add(step, map[step.x, step.y]);
+        //        }
+        //    }
+        //    return neighbors;
+        //}
+        public List<Entity> getNeighbors(Coordinates coords) {
+            // TODO: is this efficient? doesn't is return copies?
+            List<Entity> neighbors = new List<Entity>();
+            Direction[] dirs = new Direction[] {
+                Direction.Up,
+                Direction.Right,
+                Direction.Down,
+                Direction.Left
+            };
+            foreach (Direction dir in dirs) {
+                Coordinates step = coords.step(dir);
+                if (validCoordinates(step)) {
+                    foreach (Entity ent in map[step.x, step.y]) {
+                        neighbors.Add(ent);
+                    }
+                }
+            }
+            return neighbors;
+        }
+        public bool validCoordinates(Coordinates coords) {
+            return ((!coords.Equals(Coordinates.invalid)) &&
+                    (coords.x >= 0) && (coords.x < Height) &&
+                    (coords.y >= 0) && (coords.y < Width));
         }
 
         // TODO: select random walkable place (for placing new entities, eg.

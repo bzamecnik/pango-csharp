@@ -7,7 +7,7 @@ namespace libpango
     public abstract class Entity
     {
         // Coordinates will be both in map and in entity.
-        // We'll need to synchronize this.
+        // It's synchronized in Map.add().
         protected Coordinates coords;
 
         public Entity() {
@@ -38,7 +38,7 @@ namespace libpango
         public bool go() {
             Map map = Map.Instance;
             Coordinates step = coords.step(direction);
-            if (canGo(step)) {
+            if (map.validCoordinates(step) && canGo(step)) {
                 map.move(this, coords, step);
                 coords = step;
                 return true;
@@ -72,7 +72,7 @@ namespace libpango
         // change > 0 ... stimpack
         // Take care of correct lives count when health goes through 0 or maxHealth.
         // Returns true, if still alive.
-        // TODO: better would be to make this an accessor (get/set)
+        // TODO: meybe better would be to make this an accessor (get/set)
         public virtual bool changeHealth(int change) {
             health += change;
             if (health > maxHealth) {
@@ -88,7 +88,9 @@ namespace libpango
             }
             return true;
         }
-
+        public int Health {
+            get { return health; }
+        }
         public int MaxHealth {
             get { return maxHealth; }
         }
@@ -99,9 +101,6 @@ namespace libpango
 
         public abstract void die();
 
-        public virtual void attack(Entity ent, int hitcount) {
-            ent.acceptAttack(hitcount);
-        }
         public virtual void respawn(LiveEntity newborn) {
             Map map = Map.Instance;
             // move to random (walkable) place
@@ -137,30 +136,38 @@ namespace libpango
         }
 
         public override void turn() {
-            // user's input will be processed here
-            //Map map = Map.Instance;
-            //List<Entity>.Enumerator ents = map.getEntitiesByCoordsEnumerator();
-            //foreach (Entity ent in ents) {
-            //    if (ent.Equals(this)) { continue; }
-            //    //...
-            //}
+            // User's input will be processed here:
+
+            // * find out the requested action
+            //   * rotate/move
+            //   * attack
+            // * perform the action
+            //   * make a step, if needed
+
+            // * interact with entities on the same place
+            Map map = Map.Instance;
+            foreach (Entity ent in map.getEntitiesByCoords(coords)) {
+                if (ent.Equals(this)) {
+                    continue;
+                } else if (ent is Bonus) {
+                    // Take a bonus
+                    ((Bonus)ent).giveBonus(this);
+                }
+            }
         }
         public override void acceptAttack(int hitcount) {
             changeHealth(hitcount);
         }
         public override void die() {
             if ((lives >= 0) && (health >= 0)) {
-                // schedule respawning with a copy of this entity
+                // Schedule respawning with a copy of this entity
                 Schedule.Instance.add(delegate() {
                         respawn(new PlayerEntity(this));
                     }, timeToRespawn);
                 vanish();
             } else {
-                Game.Instance.end(); // end of the game
+                Game.Instance.end(); // End of the game
             }
-        }
-        public override void attack(Entity ent, int hitcount) {
-            ent.acceptAttack(hitcount);
         }
     }
     // TODO: maybe think of multiple types of mosters
@@ -170,6 +177,7 @@ namespace libpango
         protected States state; // maybe better would be State design pattern
         // TODO: put this constant somewhere else (eg. into a config file)
         static int moneyForKilling = 10;
+        static int attackHitcount = 50;
 
         public MonsterEntity() {
             state = States.Normal;
@@ -180,12 +188,21 @@ namespace libpango
         }
         public override void turn() {
             // TODO: chase the player (a kind of simple "AI")
-            // attack him if he is in neighboring place
-            
+            // If the player is at a distant place, go in his direction.
+
+            // Attack player if he is at a neighboring place.
+            Map map = Map.Instance;
+            foreach (Entity ent in map.getNeighbors(coords)) {
+                if (ent is PlayerEntity) {
+                    ent.acceptAttack(attackHitcount);
+                    // turn in player's direction
+                    break;
+                }
+            }
         }
         public override void acceptAttack(int hitcount) {
             if (!changeHealth(hitcount)) {
-                // it died, give money to the killer
+                // it died, give money to the player
                 Game.Instance.receiveMoney(moneyForKilling);
             }
         }
@@ -198,6 +215,7 @@ namespace libpango
         }
     }
     public class MovableBlock : MovableEntity {
+        // TODO: move code specific to DiamondBlock or IceBlock into suitable classes.
         protected enum States { Rest, Movement }
         protected States state;
 
@@ -206,10 +224,21 @@ namespace libpango
         }
         public override void turn() {
             if (state == States.Movement) {
-                if (!go()) { // make step, if in movement
-                    state = States.Rest; // stop when encountering non-walkable place
+                // make a step, if in movement
+                if (go()) {
+                    Map map = Map.Instance;
+                    foreach (Entity ent in map.getEntitiesByCoords(coords)) {
+                        if (ent is LiveEntity) {
+                            // set health to zero, effectively killing the entity
+                            ((LiveEntity)ent).changeHealth(-((LiveEntity)ent).Health);
+                        }
+                    }
+                } else {
+                    // stop when encountering a non-walkable place
+                    state = States.Rest;
                 }
-                // DiamondBlock: check alingning
+
+                // TODO: DiamondBlock: check alingning
                 // if aligned, stun all monsters & give money to the player
             }
         }
@@ -233,7 +262,8 @@ namespace libpango
     {
         public override void turn() { } // empty
         public override void acceptAttack(int hitcount) { } // empty
-        // does not interact, except it is non-walkable
+        // Does not interact, except it is non-walkable.
+        // Can be used for building a border around the map.
     }
 
     public class DiamondBlock : MovableBlock {
