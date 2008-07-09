@@ -16,10 +16,15 @@ namespace libpango
         enum States { Prepared, Running, Paused, Finished };
         States state;
 
+        // Money that player collected for killing monsters,
+        // collecting bonuses, aligning diamonds, etc.
+        int money; 
+
         private Game() {
             state = States.Prepared;
             map = new Map();
             schedule = Schedule.Instance;
+            money = 0;
         }
         public static Game Instance {
             get {
@@ -46,7 +51,7 @@ namespace libpango
         }
         public void loop() {
             // loop
-            while (state != States.Finished){ // TODO: while game not ended yet
+            while (state != States.Finished){
                 // call events for this time in the queue
                 schedule.callCurrentEvents();
 
@@ -60,6 +65,9 @@ namespace libpango
 
                 schedule.increaseTime();
             }
+        }
+        public void receiveMoney(int amount) {
+            money += amount;
         }
     }
 }

@@ -13,10 +13,8 @@ namespace libpango
         public Entity() {
             coords = Coordinates.invalid;
         }
-        public virtual bool isWalkable() { return false; }
         public abstract void turn();
-        // returns money for attack
-        public abstract int acceptAttack(int hitcount);
+        public abstract void acceptAttack(int hitcount);
         public void vanish() {
             Map.Instance.remove(this, coords);
         }
@@ -27,7 +25,7 @@ namespace libpango
     }
 
     // Better would be to use iterfaces in place of abstract classes,
-    // but how to incorporate new fields into an interface???
+    // but how to incorporate new places into an interface???
     public abstract class MovableEntity : Entity
     {
         protected Direction direction;
@@ -40,12 +38,16 @@ namespace libpango
         public bool go() {
             Map map = Map.Instance;
             Coordinates step = coords.step(direction);
-            if (map.isWalkable(step)) {
+            if (canGo(step)) {
                 map.move(this, coords, step);
                 coords = step;
                 return true;
             }
             return false;
+        }
+        public virtual bool canGo(Coordinates coords) {
+            Map map = Map.Instance;
+            return map.isWalkable(coords);
         }
 
         public void rotate(Rotation rot) {
@@ -70,6 +72,7 @@ namespace libpango
         // change > 0 ... stimpack
         // Take care of correct lives count when health goes through 0 or maxHealth.
         // Returns true, if still alive.
+        // TODO: better would be to make this an accessor (get/set)
         public virtual bool changeHealth(int change) {
             health += change;
             if (health > maxHealth) {
@@ -86,6 +89,14 @@ namespace libpango
             return true;
         }
 
+        public int MaxHealth {
+            get { return maxHealth; }
+        }
+        public int Lives {
+            get { return lives; }
+            set { lives = value; }
+        }
+
         public abstract void die();
 
         public virtual void attack(Entity ent, int hitcount) {
@@ -93,23 +104,23 @@ namespace libpango
         }
         public virtual void respawn(LiveEntity newborn) {
             Map map = Map.Instance;
-            // move to random (walkable) field
+            // move to random (walkable) place
             // maybe casting newborn would be needed (?)
-            map.add(newborn, map.getRandomWalkableField());
+            map.add(newborn, map.getRandomWalkablePlace());
         }
     }
 
     public abstract class WalkableEntity : Entity
     {
-        // other entities can walk through this one
-        public override bool isWalkable() { return true; }
+        // Other entities can walk through this one.
+        //
+        // This class adds no methods or properties,
+        // its purpose is just to identify walkable entities
+        // using 'is' keyword.
     }
 
     public class PlayerEntity : LiveEntity
     {
-        // money for killing monsters, gathering bonuses, aligning diamonds, ...
-        protected int money;
-
         public PlayerEntity() {
             // TODO: put these constants somewhere else
             health = maxHealth = 100;
@@ -123,7 +134,6 @@ namespace libpango
             maxHealth = p.maxHealth;
             lives = p.lives;
             defaultLives = p.defaultLives;
-            money = p.money;
         }
 
         public override void turn() {
@@ -135,9 +145,8 @@ namespace libpango
             //    //...
             //}
         }
-        public override int acceptAttack(int hitcount) {
+        public override void acceptAttack(int hitcount) {
             changeHealth(hitcount);
-            return 0;
         }
         public override void die() {
             if ((lives >= 0) && (health >= 0)) {
@@ -151,16 +160,13 @@ namespace libpango
             }
         }
         public override void attack(Entity ent, int hitcount) {
-            receiveMoney(ent.acceptAttack(hitcount));
-        }
-        public void receiveMoney(int amount) {
-            money += amount;
+            ent.acceptAttack(hitcount);
         }
     }
-    // maybe think of multiple types of mosters
+    // TODO: maybe think of multiple types of mosters
     public class MonsterEntity : LiveEntity
     {
-        protected enum States { Normal, Stunned }
+        protected enum States { Normal, Stunned } // + Egg
         protected States state; // maybe better would be State design pattern
         // TODO: put this constant somewhere else (eg. into a config file)
         static int moneyForKilling = 10;
@@ -173,14 +179,15 @@ namespace libpango
             timeToRespawn = 5;
         }
         public override void turn() {
-            // chase the player nad try to kill him (a kind of simple "AI")
+            // TODO: chase the player (a kind of simple "AI")
+            // attack him if he is in neighboring place
+            
         }
-        public override int acceptAttack(int hitcount) {
+        public override void acceptAttack(int hitcount) {
             if (!changeHealth(hitcount)) {
                 // it died, give money to the killer
-                return moneyForKilling;
+                Game.Instance.receiveMoney(moneyForKilling);
             }
-            return 0;
         }
         public override void die() {
             // schedule respawning, make new entity
@@ -190,19 +197,11 @@ namespace libpango
             vanish();
         }
     }
-
-    public class Stone : Entity
-    {
-        public override void turn() { } // empty
-        public override int acceptAttack(int hitcount) { return 0; } // empty
-        // does not interact, except it is non-walkable
-    }
-
-    public class IceBlock : MovableEntity
-    {
+    public class MovableBlock : MovableEntity {
         protected enum States { Rest, Movement }
         protected States state;
-        public IceBlock() {
+
+        public MovableBlock() {
             state = States.Rest;
         }
         public override void turn() {
@@ -210,30 +209,54 @@ namespace libpango
                 if (!go()) { // make step, if in movement
                     state = States.Rest; // stop when encountering non-walkable place
                 }
+                // DiamondBlock: check alingning
+                // if aligned, stun all monsters & give money to the player
             }
         }
-        public override int acceptAttack(int hitcount) {
+        public override bool canGo(Coordinates coords) {
+            Map map = Map.Instance;
+            return map.isSmitable(coords);
+        }
+        public override void acceptAttack(int hitcount) {
             Map map = Map.Instance;
 
-            if (map.isWalkable(coords.step(direction))) {
+            if (canGo(coords.step(direction))) {
                 state = States.Movement;
             } else {
                 // melt
-                vanish();
+                vanish(); // IceBlock
             }
-            return 0;
         }
+    }
+
+    public class StoneBlock : Entity
+    {
+        public override void turn() { } // empty
+        public override void acceptAttack(int hitcount) { } // empty
+        // does not interact, except it is non-walkable
+    }
+
+    public class DiamondBlock : MovableBlock {
+        // TODO: alingning Diamonds gives money and stunns monsters
+        // does not melt
+    }
+    public class IceBlock : MovableBlock
+    {
+        // does melt
     }
 
     public class FreePlace : WalkableEntity
     {
         public override void turn() { } // empty
-        public override int acceptAttack(int hitcount) { return 0; } // empty
+        public override void acceptAttack(int hitcount) { } // empty
         // does not interact, except it is walkable
     }
 
     // TODO: classes for various bonuses
-    public class Bonus : WalkableEntity
+    // * give money
+    // * give health
+    // * give live
+    public abstract class Bonus : WalkableEntity
     {
         int timeToLive;
 
@@ -244,9 +267,41 @@ namespace libpango
             Schedule.Instance.add(delegate() { vanish();  }, timeToLive);
         }
         public override void turn() { }
-        public override int acceptAttack(int hitcount) { return 0; }
+        public override void acceptAttack(int hitcount) { }
+        public abstract void giveBonus(PlayerEntity player);
 
         // TODO: Resolve, how to give player the bonus content,
         // if he steps on the same place as this bonus.
+        // * Player will detect it himself in his turn.
+    }
+
+    public class MoneyBonus : Bonus {
+        int bonusMoney;
+        
+        public MoneyBonus() {
+            bonusMoney = 50;
+        }
+        public override void giveBonus(PlayerEntity player) {
+            Game.Instance.receiveMoney(bonusMoney);
+            vanish();
+        }
+    }
+
+    public class HealthBonus: Bonus
+    {
+        public override void giveBonus(PlayerEntity player) {
+            // increase health by 25%
+            // TODO: put this constant somewhere else
+            player.changeHealth(player.MaxHealth / 4);
+            vanish();
+        }
+    }
+
+    public class LiveBonus : Bonus
+    {
+        public override void giveBonus(PlayerEntity player) {
+            player.Lives += 1; // add 1 life
+            vanish();
+        }
     }
 }

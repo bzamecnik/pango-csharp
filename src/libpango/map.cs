@@ -48,8 +48,8 @@ namespace libpango
         List<Entity>[,] map;
         private static Map instance = null; // a singleton
         // TODO: put these constants somewhere else!
-        private static int defaultWidth = 10;
-        private static int defaultHeight = 10;
+        private static int defaultWidth = 20;
+        private static int defaultHeight = 20;
 
         // TODO: singleton shouldn't expose its constructors
         // * but how to pass the arguments (map size) when creating the map?
@@ -75,7 +75,7 @@ namespace libpango
         }
         // add entity to a given place
         public bool add(Entity ent, Coordinates coords) {
-            if (ent.isWalkable() || (isWalkable(coords) && !hasEntity(ent, coords))) {
+            if ((ent is WalkableEntity) || (isWalkable(coords) && !hasEntity(ent, coords))) {
                 ent.Coords = coords;
                 map[coords.x, coords.y].Add(ent);
                 return true;
@@ -97,10 +97,21 @@ namespace libpango
             }
             return false;
         }
-        // field is walkable, if all entities there are walkable
+        // place is walkable, if all entities there are walkable
         public bool isWalkable(Coordinates coords) {
             foreach (Entity ent in map[coords.x, coords.y]) {
-                if (!ent.isWalkable()) { return false; }
+                //if (!ent.isWalkable()) { return false; }
+                if (!(ent is WalkableEntity)) { return false; }
+            }
+            return true;
+        }
+        // place is smitable (moving block can smite it),
+        // if there is no other block (i.e. all entities are either
+        // walkable or live)
+        public bool isSmitable(Coordinates coords) {
+            foreach (Entity ent in map[coords.x, coords.y]) {
+                if (!((ent is WalkableEntity) || (ent is LiveEntity)))
+                    { return false; }
             }
             return true;
         }
@@ -143,9 +154,9 @@ namespace libpango
             return map[coords.x, coords.y].GetEnumerator();
         }
 
-        // TODO: select random walkable field (for placing new entities, eg.
+        // TODO: select random walkable place (for placing new entities, eg.
         // respawning or placing bonuses)
-        public Coordinates getRandomWalkableField() {
+        public Coordinates getRandomWalkablePlace() {
             return Coordinates.invalid; // stub
         }
     }
