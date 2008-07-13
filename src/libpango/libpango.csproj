@@ -33,6 +33,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="config.cs" />
     <Compile Include="entities.cs" />
     <Compile Include="game.cs" />
     <Compile Include="map.cs" />

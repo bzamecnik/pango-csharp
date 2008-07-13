@@ -18,11 +18,14 @@ namespace libpango
 
         // Money that player collected for killing monsters,
         // collecting bonuses, aligning diamonds, etc.
-        int money; 
+        int money;
 
         private Game() {
+            int mapWidth = Config.Instance.getInt("Game.mapWidth");
+            int mapHeight = Config.Instance.getInt("Game.mapHeight");
+
             state = States.Prepared;
-            map = new Map();
+            map = new Map(mapWidth, mapHeight);
             schedule = Schedule.Instance;
             money = 0;
         }
@@ -33,6 +36,10 @@ namespace libpango
                 }
                 return instance;
             }
+        }
+        public static Map Map {
+            get { return Instance.map; }
+            // THINK: maybe delete this shortcut and use Game.Instance.Map
         }
         public void start() {
             if ((state == States.Prepared) || (state == States.Paused)) {
