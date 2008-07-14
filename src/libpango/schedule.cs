@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace libpango
+namespace Pango
 {
     public class Schedule
     {
@@ -29,8 +29,8 @@ namespace libpango
             int priority = time + timeoffset;
             if (!pqueue.ContainsKey(priority)) {
                 pqueue.Add(priority, new Queue<EventDelegate>());
-                pqueue[priority].Enqueue(eh);
             }
+            pqueue[priority].Enqueue(eh);
         }
         public void callCurrentEvents() {
             if (pqueue.ContainsKey(time)) {
@@ -48,6 +48,9 @@ namespace libpango
         }
         public void increaseTime() {
             time++;
+        }
+        public bool empty() {
+            return (pqueue.Count > 0);
         }
     }
 }

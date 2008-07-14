@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace libpango
+namespace Pango
 {
     public class Game
     {
-        // TODO
-        // can contain:
+        // TODO: Game can contain:
         // * quotas for monsters (initial), bonuses, etc.
         // * time limit (?)
         private static Game instance = null; // a singleton
@@ -37,9 +36,8 @@ namespace libpango
                 return instance;
             }
         }
-        public static Map Map {
-            get { return Instance.map; }
-            // THINK: maybe delete this shortcut and use Game.Instance.Map
+        public Map Map {
+            get { return map; }
         }
         public void start() {
             if ((state == States.Prepared) || (state == States.Paused)) {
@@ -57,6 +55,8 @@ namespace libpango
             }
         }
         public void loop() {
+            bool turnNotEmpty = false;
+
             // loop
             while (state != States.Finished){
                 // call events for this time in the queue
@@ -64,13 +64,20 @@ namespace libpango
 
                 // let all entities in the map perform their turn
                 foreach (Entity ent in map) {
-                    ent.turn();
+                    // if something was made turnNotEmpty is set true
+                    turnNotEmpty |= ent.turn();
                 }
                 
                 // Probably wait some time not to make the game so fast.
                 // Think of how to make the turns last the same time.
+                System.Threading.Thread.Sleep(10);
 
                 schedule.increaseTime();
+                if (!turnNotEmpty && schedule.empty()) {
+                    // empty loop detected (and nothing left in the schedule)
+                    // -> exit game
+                    end();
+                }
             }
         }
         public void receiveMoney(int amount) {

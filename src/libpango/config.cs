@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace libpango
+namespace Pango
 {
     public class Config
     {
@@ -21,9 +21,10 @@ namespace libpango
             addInt("PlayerEntity.maxHealth", 100);
             addInt("PlayerEntity.defaultLives", 3);
             addInt("PlayerEntity.timeToRespawn", 2);
+            addInt("PlayerEntity.attackHitcount", 25);
 
             addInt("MonsterEntity.moneyForKilling", 10);
-            addInt("MonsterEntity.attackHitcount", 50);
+            addInt("MonsterEntity.attackHitcount", 40);
             addInt("MonsterEntity.maxHealth", 50);
             addInt("MonsterEntity.defaultLives", 1);
             addInt("MonsterEntity.timeToRespawn", 5);

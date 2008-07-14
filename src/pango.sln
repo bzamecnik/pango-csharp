@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual C# Express 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libpango", "libpango\libpango.csproj", "{798EBF73-E8B1-4229-8D37-00A6C479221E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "testing", "testing\testing.csproj", "{7259E139-A082-40B0-B1EA-D2E050B55216}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{798EBF73-E8B1-4229-8D37-00A6C479221E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{798EBF73-E8B1-4229-8D37-00A6C479221E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{798EBF73-E8B1-4229-8D37-00A6C479221E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7259E139-A082-40B0-B1EA-D2E050B55216}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7259E139-A082-40B0-B1EA-D2E050B55216}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7259E139-A082-40B0-B1EA-D2E050B55216}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7259E139-A082-40B0-B1EA-D2E050B55216}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

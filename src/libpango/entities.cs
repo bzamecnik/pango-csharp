@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace libpango
+namespace Pango
 {
     public abstract class Entity
     {
@@ -13,10 +13,10 @@ namespace libpango
         public Entity() {
             coords = Coordinates.invalid;
         }
-        public abstract void turn();
+        public abstract bool turn(); // returns true if something was done
         public abstract void acceptAttack(int hitcount);
         public void vanish() {
-            Game.Map.remove(this, coords);
+            Game.Instance.Map.remove(this, coords);
         }
         public Coordinates Coords {
             get { return coords; }
@@ -36,7 +36,7 @@ namespace libpango
 
         // true, if step was made
         public bool go() {
-            Map map = Game.Map;
+            Map map = Game.Instance.Map;
             Coordinates step = coords.step(direction);
             if (map.validCoordinates(step) && canGo(step)) {
                 map.move(this, coords, step);
@@ -46,7 +46,7 @@ namespace libpango
             return false;
         }
         public virtual bool canGo(Coordinates coords) {
-            Map map = Game.Map;
+            Map map = Game.Instance.Map;
             return map.isWalkable(coords);
         }
 
@@ -79,7 +79,7 @@ namespace libpango
                 lives += health / maxHealth;
                 health %= maxHealth;
             } else if (health < 0) {
-                if (lives > 0) {
+                if (lives >= 0) {
                     lives--;
                     health += maxHealth;
                 }
@@ -102,7 +102,7 @@ namespace libpango
         public abstract void die();
 
         public virtual void respawn(LiveEntity newborn) {
-            Map map = Game.Map;
+            Map map = Game.Instance.Map;
             // move to random (walkable) place
             // maybe casting newborn would be needed (?)
             map.add(newborn, map.getRandomWalkablePlace());
@@ -120,11 +120,23 @@ namespace libpango
 
     public class PlayerEntity : LiveEntity
     {
+        private Direction requestedDirection; // for user input
+        // these flags are true if an action is scheduled for the next turn
+        private bool requestedMovement;
+        private bool requestedAttack;
+
+        private int attackHitcount;
+        
         public PlayerEntity() {
             // TODO: Handle exceptions
             health = maxHealth = Config.Instance.getInt("PlayerEntity.maxHealth");
             lives = defaultLives = Config.Instance.getInt("PlayerEntity.defaultLives");
             timeToRespawn = Config.Instance.getInt("PlayerEntity.timeToRespawn");
+            attackHitcount = Config.Instance.getInt("PlayerEntity.attackHitcount");
+
+            requestedDirection = direction;
+            requestedMovement = false;
+            requestedAttack = false;
         }
         public PlayerEntity(PlayerEntity p) {
             coords = p.coords;
@@ -133,20 +145,46 @@ namespace libpango
             maxHealth = p.maxHealth;
             lives = p.lives;
             defaultLives = p.defaultLives;
+            timeToRespawn = p.timeToRespawn;
+
+            requestedDirection = direction;
+            requestedMovement = false;
+            requestedAttack = false;
         }
 
-        public override void turn() {
-            // User's input will be processed here:
+        public override bool turn() {
+            // User's input is processed here.
+            // In one turn player can rotate/move and/or attack.
+            // * Note: player should be faster than monsters
 
-            // * find out the requested action
-            //   * rotate/move
-            //     * Note: player should be faster than monsters
-            //   * attack
-            // * perform the action
-            //   * make a step, if needed
+            Map map = Game.Instance.Map;
 
-            // * interact with entities on the same place
-            Map map = Game.Map;
+            // rotate/move
+            if (requestedMovement) {
+                if (requestedDirection == direction) {
+                    go(); // move
+                } else {
+                    direction = requestedDirection; // rotate
+                }
+                requestedMovement = false; // clear
+            }
+
+            // attack
+            if (requestedAttack) {
+                // attack entities on the place ahead
+                Coordinates step = coords.step(direction);
+                if (map.validCoordinates(step)) {
+                    foreach (Entity ent in map.getEntitiesByCoords(step)) {
+                        if (ent.Equals(this)) {
+                            ent.acceptAttack(attackHitcount);
+                        }
+                    }
+                }
+                requestedAttack = false; // clear
+            }
+
+            
+            // interact with entities on the same place
             foreach (Entity ent in map.getEntitiesByCoords(coords)) {
                 if (ent.Equals(this)) {
                     continue;
@@ -155,12 +193,13 @@ namespace libpango
                     ((Bonus)ent).giveBonus(this);
                 }
             }
+            return true;
         }
         public override void acceptAttack(int hitcount) {
-            changeHealth(hitcount);
+            changeHealth(-hitcount);
         }
         public override void die() {
-            if ((lives >= 0) && (health >= 0)) {
+            if (lives >= 0) {
                 // Schedule respawning with a copy of this entity
                 Schedule.Instance.add(delegate() {
                         respawn(new PlayerEntity(this));
@@ -169,6 +208,15 @@ namespace libpango
             } else {
                 Game.Instance.end(); // End of the game
             }
+        }
+        // this will be called when an arrow key is pressed
+        public void requestMovement(Direction dir) {
+            requestedMovement = true;
+            requestedDirection = dir;
+        }
+        // this will be called when ATTACK key is pressed
+        public void requestAttack() {
+            requestedAttack = true;
         }
     }
 
@@ -186,12 +234,12 @@ namespace libpango
             lives = defaultLives = Config.Instance.getInt("MonsterEntity.defaultLives");
             timeToRespawn = Config.Instance.getInt("MonsterEntity.timeToRespawn");
         }
-        public override void turn() {
+        public override bool turn() {
             // TODO: chase the player (a kind of simple "AI")
             // If the player is at a distant place, go in his direction.
 
             // Attack player if he is at a neighboring place.
-            Map map = Game.Map;
+            Map map = Game.Instance.Map;
             foreach (Entity ent in map.getNeighbors(coords)) {
                 if (ent is PlayerEntity) {
                     // TODO: turn in player's direction
@@ -199,9 +247,10 @@ namespace libpango
                     break;
                 }
             }
+            return true;
         }
         public override void acceptAttack(int hitcount) {
-            if (!changeHealth(hitcount)) {
+            if (!changeHealth(-hitcount)) {
                 // it died, give money to the player
                 Game.Instance.receiveMoney(moneyForKilling);
             }
@@ -220,7 +269,7 @@ namespace libpango
         // Does not interact, except it is non-walkable.
         // Can be used for building a border around the map.
 
-        public override void turn() { } // empty
+        public override bool turn() { return false; } // empty
         public override void acceptAttack(int hitcount) { } // empty
 
     }
@@ -232,11 +281,11 @@ namespace libpango
         public MovableBlock() {
             state = States.Rest;
         }
-        public override void turn() {
+        public override bool turn() {
             if (state == States.Movement) {
                 // make a step, if in movement
                 if (go()) {
-                    Map map = Game.Map;
+                    Map map = Game.Instance.Map;
                     foreach (Entity ent in map.getEntitiesByCoords(coords)) {
                         if (ent is LiveEntity) {
                             // set health to zero, effectively killing the entity
@@ -248,15 +297,17 @@ namespace libpango
                     state = States.Rest;
                 }
                 postTurnHook();
-                
+                return true;
+            } else {
+                return false;
             }
         }
         public override bool canGo(Coordinates coords) {
-            Map map = Game.Map;
+            Map map = Game.Instance.Map;
             return map.isSmitable(coords);
         }
         public override void acceptAttack(int hitcount) {
-            Map map = Game.Map;
+            Map map = Game.Instance.Map;
 
             if (canGo(coords.step(direction))) {
                 state = States.Movement;
@@ -293,7 +344,7 @@ namespace libpango
     {
         // Does not interact, except it is walkable
 
-        public override void turn() { } // empty
+        public override bool turn() { return false; } // empty
         public override void acceptAttack(int hitcount) { } // empty
     }
 
@@ -307,7 +358,7 @@ namespace libpango
             // schedule vanishing in given time
             Schedule.Instance.add(delegate() { vanish();  }, timeToLive);
         }
-        public override void turn() { }
+        public override bool turn() { return false; }
         public override void acceptAttack(int hitcount) { }
         // Player detects stepping on the bonus himself in his turn.
         public abstract void giveBonus(PlayerEntity player);

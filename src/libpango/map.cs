@@ -1,9 +1,10 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace libpango
+namespace Pango
 {
+    // TODO: organize directions better
     public enum Direction { Up = 0, Right, Left, Down };
     public enum Rotation { Forward = 0, CW, Backwards, CCW }
 
@@ -73,26 +74,48 @@ namespace libpango
         // count number of walkable places (for getRandomWalkablePlace())
         int walkablePlaces;
 
+        public List<Entity>[,] Places {
+            get { return map; }
+        }
+
         public int Height {
             get {
-                if (map != null) { return map.GetUpperBound(0); }
+                if (map != null) {
+                    // map.GetUpperBound(int) -> [0,n-1]
+                    return map.GetUpperBound(0) + 1;
+                }
                 else { return 0; }
             }
         }
         public int Width {
             get {
-                if (map != null) { return map.GetUpperBound(1); }
+                if (map != null) { return map.GetUpperBound(1) + 1; }
                 else { return 0; }
             }
         }
 
         public Map(int width, int height) {
             map = new List<Entity>[height, width];
+            // initialize places
+            for (int x = 0; x < Height; x++) {
+                for (int y = 0; y < Width; y++) {
+                    map[x, y] = new List<Entity>();
+                }
+            }
             walkablePlaces = height * width;
         }
         // load an existing map
         public Map(List<Entity>[,] map) {
             this.map = map; // ok?
+            // initialize possibly non-initialized places
+            for (int x = 0; x < Height; x++) {
+                for (int y = 0; y < Width; y++) {
+                    List<Entity> l = map[x, y];
+                    if (l == null) {
+                        l = new List<Entity>();
+                    }
+                }
+            }
         }
 
         // TODO: randomly generate map
@@ -109,10 +132,14 @@ namespace libpango
             if ((ent is WalkableEntity) || (isWalkable(coords) && !hasEntity(ent, coords))) {
                 if (!(ent is WalkableEntity) && isWalkable(coords)) {
                     // this place is beeing made non-walkable
-                    walkablePlaces++;
+                    walkablePlaces--;
                 }
                 ent.Coords = coords;
-                map[coords.x, coords.y].Add(ent);
+                List<Entity> l = map[coords.x, coords.y];
+                if (l == null) {
+                    l = new List<Entity>();
+                }
+                l.Add(ent);
                 return true;
             }
             return false;
@@ -120,7 +147,16 @@ namespace libpango
         // Remove entity from given place
         public bool remove(Entity ent, Coordinates coords) {
             if (hasEntity(ent, coords)) {
-                return map[coords.x, coords.y].Remove(ent);
+                List<Entity> l = map[coords.x, coords.y];
+                if (l != null) {
+                    bool entWasNonWalkable = !(ent is WalkableEntity);
+                    bool removeReturnValue = l.Remove(ent);
+                    if (entWasNonWalkable && isWalkable(coords)) {
+                        // this place was made walkable again
+                        walkablePlaces++;
+                    }
+                    return removeReturnValue;
+                }
             }
             return false;
         }
@@ -128,16 +164,13 @@ namespace libpango
         public bool remove(Entity ent) {
             Coordinates coords = find(ent);
             if (!coords.Equals(Coordinates.invalid)) {
-                if (!(ent is WalkableEntity) && isWalkable(coords)) {
-                    // this place is beeing made non-walkable
-                    walkablePlaces++;
-                }
                 return remove(ent, coords);
             }
             return false;
         }
         // Place is walkable if all entities there are walkable
         public bool isWalkable(Coordinates coords) {
+            if (coords.isInvalid) { return false; } // better: expception
             foreach (Entity ent in map[coords.x, coords.y]) {
                 //if (!ent.isWalkable()) { return false; }
                 if (!(ent is WalkableEntity)) { return false; }
@@ -156,7 +189,7 @@ namespace libpango
         }
         // Move an entity from one place to another
         public bool move(Entity ent, Coordinates from, Coordinates to) {
-            // TODO: this is a bit ugly
+            // TODO: this is a bit ugly, isn't it
             if (hasEntity(ent)) {
                 remove(ent, from);
                 add(ent, to);
@@ -168,7 +201,8 @@ namespace libpango
         public Coordinates find(Entity ent) {
             for (int x = 0; x < Height; x++) {
                 for (int y = 0; y < Width; y++) {
-                    if (map[x, y].Contains(ent)) {
+                    List<Entity> l = map[x, y];
+                    if ((l != null) && l.Contains(ent)) {
                         return new Coordinates(x, y);
                     }
                 }
@@ -181,12 +215,15 @@ namespace libpango
         }
         // Search on a place (in a list)
         public bool hasEntity(Entity ent, Coordinates coords) {
-            return map[coords.x, coords.y].Contains(ent);
+            List<Entity> l = map[coords.x, coords.y];
+            return ((l != null) && l.Contains(ent));
         }
         public IEnumerator<Entity> GetEnumerator() {
-            foreach (List<Entity> listent in map) {
-                foreach (Entity ent in listent) {
-                    yield return ent;
+            foreach (List<Entity> l in map) {
+                if (l != null) {
+                    foreach (Entity ent in l) {
+                        yield return ent;
+                    }
                 }
             }
         }
@@ -215,6 +252,7 @@ namespace libpango
         public List<Entity> getNeighbors(Coordinates coords) {
             // TODO: is this efficient? doesn't is return copies?
             List<Entity> neighbors = new List<Entity>();
+            // TODO: make an iterator for directions
             Direction[] dirs = new Direction[] {
                 Direction.Up,
                 Direction.Right,
@@ -244,15 +282,15 @@ namespace libpango
                 return Coordinates.invalid;
             }
             Random rand = new Random();
-            Map map = Game.Map;
+            Map map = Game.Instance.Map;
             int randomX, randomY;
             do {
                 randomX = rand.Next(map.Height);
                 randomY = rand.Next(map.Width);
             } while(!map.isWalkable(new Coordinates(randomX, randomY)));
-            // * There IS a walkable place, so the cycle will eventually finish.
-            // * Think of a better way.
-            // * Maybe split this function into two:
+            // * Note: there IS a walkable place, so the cycle will eventually finish.
+            // * Think of a better algorithm.
+            // * THINK: Maybe split this function into two:
             //   * select random place
             //   * check if it is walkable (in a cycle)
             return new Coordinates(randomX, randomY);
