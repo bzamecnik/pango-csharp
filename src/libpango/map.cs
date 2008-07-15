@@ -86,13 +86,13 @@ namespace Pango
         }
         public bool add(Entity ent) {
             if (ent is WalkableEntity) {
-                if (Walkable == null) {
-                    Walkable = ent;
+                if (walkable == null) {
+                    walkable = ent;
                     return true;
                 }
             } else {
-                if (NonWalkable == null) {
-                    NonWalkable = ent;
+                if (nonWalkable == null) {
+                    nonWalkable = ent;
                     return true;
                 }
             }
@@ -100,31 +100,31 @@ namespace Pango
         }
         public bool remove(Entity ent) {
             if (ent is WalkableEntity) {
-                if (Walkable != null) {
-                    Walkable = null;
+                if (walkable != null) {
+                    walkable = null;
                     return true;
                 }
             } else {
-                if (NonWalkable != null) {
-                    NonWalkable = null;
+                if (nonWalkable != null) {
+                    nonWalkable = null;
                     return true;
                 }
             }
             return false;
         }
         public bool isWalkable() {
-            return (walkable != null);
+            return (nonWalkable == null);
         }
         public bool contains(Entity ent) {
-            return (((Walkable != null) && Walkable.Equals(ent))
-                    || ((NonWalkable != null) && NonWalkable.Equals(ent)));
+            return (((walkable != null) && walkable.Equals(ent))
+                    || ((nonWalkable != null) && nonWalkable.Equals(ent)));
         }
         public IEnumerator<Entity> GetEnumerator() {
-            if (Walkable != null) {
-                yield return Walkable;
+            if (walkable != null) {
+                yield return walkable;
             }
-            if (NonWalkable != null) {
-                yield return NonWalkable;
+            if (nonWalkable != null) {
+                yield return nonWalkable;
             }
         }
     }
@@ -168,6 +168,7 @@ namespace Pango
         // load an existing map
         public Map(Entity[,] array) {
             map = new Place[array.GetUpperBound(0) + 1, array.GetUpperBound(1) + 1];
+            walkablePlaces = Height * Width;
             for (int x = 0; x < Height; x++) {
                 for (int y = 0; y < Width; y++) {
                     Place place = new Place();
@@ -177,6 +178,7 @@ namespace Pango
                             place.Walkable = ent;
                         } else {
                             place.NonWalkable = ent;
+                            walkablePlaces--;
                         }
                     }
                     map[x, y] = place;
@@ -358,8 +360,8 @@ namespace Pango
         static Dictionary<char, string> charEntityTable = initCharEntityTable();
         static Dictionary<string, char> initEntityCharTable() {
             Dictionary<string, char> table = new Dictionary<string, char>();
-            table["FreePlace"] = ' '; // TODO: remove
-            table["PlayerEntity"] = '&';
+            table["null"] = ' ';
+            table["PlayerEntity"] = '@';
             table["MonsterEntity"] = 'Q';
             table["StoneBlock"] = 'X';
             table["IceBlock"] = '#';
@@ -377,10 +379,15 @@ namespace Pango
             return table;
         }
         static char entityToChar(Entity ent) {
-            string type = ent.GetType().ToString();
-            type = type.Substring(type.LastIndexOf('.') + 1);
+            string type;
+            if (ent == null) {
+                type = "null";
+            } else {
+                type = ent.GetType().ToString();
+                type = type.Substring(type.LastIndexOf('.') + 1);
+            }
             if (!entityCharTable.ContainsKey(type)) {
-                type = "FreePlace";
+                type = string.Empty;
             }
             return entityCharTable[type];
         }
@@ -411,7 +418,7 @@ namespace Pango
             // X@  LQX
             // X   Q X
             // XXXXXXX
-            string[] lines = text.Split(null);
+            string[] lines = text.Split('\n');
             int mapWidth = 0;
             foreach (string line in lines) {
                 // find longest line -> width

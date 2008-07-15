@@ -11,7 +11,7 @@ namespace testing
             
             Dictionary<string, char> entityChars = new Dictionary<string, char>();
             entityChars["FreePlace"] = ' ';
-            entityChars["PlayerEntity"] = '&';
+            entityChars["PlayerEntity"] = '@';
             entityChars["MonsterEntity"] = 'Q';
             entityChars["StoneBlock"] = 'X';
             entityChars["IceBlock"] = '#';
@@ -68,7 +68,10 @@ namespace testing
             */
         }
         static void Main(string[] args) {
-            
+            string[] maplines = { "XXXXX", "X*#@X", "XQ #X", "XH$LX", "     ", "XXXXX" };
+            string maptext = string.Join("\n", maplines);
+
+            Map map = MapPersistence.createMapFromText(maptext);
         }
     }
 }

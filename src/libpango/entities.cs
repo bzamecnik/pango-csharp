@@ -343,14 +343,6 @@ namespace Pango
         protected override void postTurnHook() { } // empty
     }
 
-    public class FreePlace : WalkableEntity
-    {
-        // Does not interact, except it is walkable
-
-        public override bool turn() { return false; } // empty
-        public override void acceptAttack(int hitcount) { } // empty
-    }
-
     // Base class for various bonuses
     public abstract class Bonus : WalkableEntity
     {
