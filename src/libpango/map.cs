@@ -1,4 +1,4 @@
-﻿ using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -294,6 +294,90 @@ namespace Pango
             //   * select random place
             //   * check if it is walkable (in a cycle)
             return new Coordinates(randomX, randomY);
+        }
+    }
+
+    public class MapPersistence {
+        static Dictionary<string, char> entityCharTable = initEntityCharTable();
+        static Dictionary<char, string> charEntityTable = initCharEntityTable();
+        static Dictionary<string, char> initEntityCharTable() {
+            Dictionary<string, char> table = new Dictionary<string, char>();
+            table["FreePlace"] = ' '; // TODO: remove
+            table["PlayerEntity"] = '&';
+            table["MonsterEntity"] = 'Q';
+            table["StoneBlock"] = 'X';
+            table["IceBlock"] = '#';
+            table["DiamondBlock"] = '*';
+            table["HealthBonus"] = 'H';
+            table["MoneyBonus"] = '$';
+            table["LiveBonus"] = 'L';
+            return table;
+        }
+        static Dictionary<char, string> initCharEntityTable() {
+            Dictionary<char, string> table = new Dictionary<char, string>();
+            foreach (KeyValuePair<string, char> pair in entityCharTable) {
+                table[pair.Value] = pair.Key;
+            }
+            return table;
+        }
+        static char entityToChar(Entity ent) {
+            string type = ent.GetType().ToString();
+            type = type.Substring(type.LastIndexOf('.') + 1);
+            if (!entityCharTable.ContainsKey(type)) {
+                type = "FreePlace";
+            }
+            return entityCharTable[type];
+        }
+        static string charToEntity(char c) {
+            if (charEntityTable.ContainsKey(c)) {
+                return charEntityTable[c];
+            } else {
+                return string.Empty;
+            }
+        }
+        static Entity createEntity(string entityName) {
+            // create only known entity types
+            switch(entityName){
+                case "PlayerEntity": return new PlayerEntity();
+                case "MonsterEntity": return new MonsterEntity();
+                case "StoneBlock": return new StoneBlock();
+                case "IceBlock": return new IceBlock();
+                case "DiamondBlock": return new DiamondBlock();
+                case "HealthBonus": return new HealthBonus();
+                case "MoneyBonus": return new MoneyBonus();
+                case "LiveBonus": return new LiveBonus();
+                default: return null;
+            }
+        }
+        public static Map createMapFromText(string text) {
+            // eg:
+            // XXXXXXX
+            // X@  LQX
+            // X   Q X
+            // XXXXXXX
+            string[] lines = text.Split(null);
+            int mapWidth = 0;
+            foreach (string line in lines) {
+                // find longest line -> width
+                mapWidth = Math.Max(mapWidth, line.Length);
+            }
+            int mapHeight = lines.Length;
+            List<Entity>[,] map = new List<Entity>[mapHeight, mapWidth];
+            for (int x = 0; x < mapHeight; x++) {
+                string line = lines[x];
+                for (int y = 0; y < mapWidth; y++) {
+                    char c;
+                    if(y <= line.Length) {
+                        c = line[y];
+                    } else {
+                        c = ' ';
+                    }
+                    Entity ent = createEntity(charToEntity(c));
+                    map[x, y].Add(ent);
+                }
+            }
+
+            return new Map(map);
         }
     }
 }

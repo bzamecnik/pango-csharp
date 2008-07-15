@@ -45,6 +45,7 @@ namespace gui
                             game.start();
                             break;
                     }
+                    break;
             }
             switch (e.KeyCode) {
                 case Keys.P:
