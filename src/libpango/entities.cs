@@ -174,7 +174,7 @@ namespace Pango
                 // attack entities on the place ahead
                 Coordinates step = coords.step(direction);
                 if (map.validCoordinates(step)) {
-                    foreach (Entity ent in map.getEntitiesByCoords(step)) {
+                    foreach (Entity ent in map.getPlace(step)) {
                         if (ent.Equals(this)) {
                             ent.acceptAttack(attackHitcount);
                         }
@@ -185,7 +185,7 @@ namespace Pango
 
             
             // interact with entities on the same place
-            foreach (Entity ent in map.getEntitiesByCoords(coords)) {
+            foreach (Entity ent in map.getPlace(coords)) {
                 if (ent.Equals(this)) {
                     continue;
                 } else if (ent is Bonus) {
@@ -289,7 +289,7 @@ namespace Pango
                 // make a step, if in movement
                 if (go()) {
                     Map map = Game.Instance.Map;
-                    foreach (Entity ent in map.getEntitiesByCoords(coords)) {
+                    foreach (Entity ent in map.getPlace(coords)) {
                         if (ent is LiveEntity) {
                             // set health to zero, effectively killing the entity
                             ((LiveEntity)ent).changeHealth(-((LiveEntity)ent).Health);

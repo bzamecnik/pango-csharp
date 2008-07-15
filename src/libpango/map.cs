@@ -68,13 +68,74 @@ namespace Pango
         }
     }
 
+    public class Place {
+        Entity walkable;
+        Entity nonWalkable;
+        public Entity Walkable {
+            get { return walkable; }
+            set { walkable = value; }
+        }
+        public Entity NonWalkable {
+            get { return nonWalkable; }
+            set { nonWalkable = value; }
+        }
+
+        public Place() {
+            walkable = null;
+            nonWalkable = null;
+        }
+        public bool add(Entity ent) {
+            if (ent is WalkableEntity) {
+                if (Walkable == null) {
+                    Walkable = ent;
+                    return true;
+                }
+            } else {
+                if (NonWalkable == null) {
+                    NonWalkable = ent;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public bool remove(Entity ent) {
+            if (ent is WalkableEntity) {
+                if (Walkable != null) {
+                    Walkable = null;
+                    return true;
+                }
+            } else {
+                if (NonWalkable != null) {
+                    NonWalkable = null;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public bool isWalkable() {
+            return (walkable != null);
+        }
+        public bool contains(Entity ent) {
+            return (((Walkable != null) && Walkable.Equals(ent))
+                    || ((NonWalkable != null) && NonWalkable.Equals(ent)));
+        }
+        public IEnumerator<Entity> GetEnumerator() {
+            if (Walkable != null) {
+                yield return Walkable;
+            }
+            if (NonWalkable != null) {
+                yield return NonWalkable;
+            }
+        }
+    }
+
     public class Map
     {
-        List<Entity>[,] map;
+        Place[,] map;
         // count number of walkable places (for getRandomWalkablePlace())
         int walkablePlaces;
 
-        public List<Entity>[,] Places {
+        public Place[,] Places {
             get { return map; }
         }
 
@@ -95,25 +156,30 @@ namespace Pango
         }
 
         public Map(int width, int height) {
-            map = new List<Entity>[height, width];
+            map = new Place[height, width];
             // initialize places
             for (int x = 0; x < Height; x++) {
                 for (int y = 0; y < Width; y++) {
-                    map[x, y] = new List<Entity>();
+                    map[x, y] = new Place();
                 }
             }
             walkablePlaces = height * width;
         }
         // load an existing map
-        public Map(List<Entity>[,] map) {
-            this.map = map; // ok?
-            // initialize possibly non-initialized places
+        public Map(Entity[,] array) {
+            map = new Place[array.GetUpperBound(0) + 1, array.GetUpperBound(1) + 1];
             for (int x = 0; x < Height; x++) {
                 for (int y = 0; y < Width; y++) {
-                    List<Entity> l = map[x, y];
-                    if (l == null) {
-                        l = new List<Entity>();
+                    Place place = new Place();
+                    Entity ent = array[x, y];
+                    if (ent != null) {
+                        if (ent is WalkableEntity) {
+                            place.Walkable = ent;
+                        } else {
+                            place.NonWalkable = ent;
+                        }
                     }
+                    map[x, y] = place;
                 }
             }
         }
@@ -129,28 +195,21 @@ namespace Pango
         // Add an entity to a given place
         public bool add(Entity ent, Coordinates coords) {
             if (coords.isInvalid) { return false; }
-            if ((ent is WalkableEntity) || (isWalkable(coords) && !hasEntity(ent, coords))) {
-                if (!(ent is WalkableEntity) && isWalkable(coords)) {
-                    // this place is beeing made non-walkable
-                    walkablePlaces--;
-                }
-                ent.Coords = coords;
-                List<Entity> l = map[coords.x, coords.y];
-                if (l == null) {
-                    l = new List<Entity>();
-                }
-                l.Add(ent);
-                return true;
+            Place place = getPlace(coords);
+            bool added = place.add(ent);
+            if (added && !(ent is WalkableEntity)) {
+                // this place was made non-walkable
+                walkablePlaces--;
             }
-            return false;
+            return added;
         }
         // Remove entity from given place
         public bool remove(Entity ent, Coordinates coords) {
             if (hasEntity(ent, coords)) {
-                List<Entity> l = map[coords.x, coords.y];
-                if (l != null) {
+                Place place = getPlace(coords);
+                if (place != null) {
                     bool entWasNonWalkable = !(ent is WalkableEntity);
-                    bool removeReturnValue = l.Remove(ent);
+                    bool removeReturnValue = place.remove(ent);
                     if (entWasNonWalkable && isWalkable(coords)) {
                         // this place was made walkable again
                         walkablePlaces++;
@@ -171,25 +230,23 @@ namespace Pango
         // Place is walkable if all entities there are walkable
         public bool isWalkable(Coordinates coords) {
             if (coords.isInvalid) { return false; } // better: expception
-            foreach (Entity ent in map[coords.x, coords.y]) {
-                //if (!ent.isWalkable()) { return false; }
-                if (!(ent is WalkableEntity)) { return false; }
-            }
-            return true;
+            return map[coords.x, coords.y].isWalkable();
         }
         // Place is smitable (moving block can smite it)
         // if there is no other block (i.e. all entities are either
         // walkable or live)
         public bool isSmitable(Coordinates coords) {
-            foreach (Entity ent in map[coords.x, coords.y]) {
-                if (!((ent is WalkableEntity) || (ent is LiveEntity)))
-                    { return false; }
+            Place place = map[coords.x, coords.y];
+            if (place.isWalkable()) { return true; }
+            if (((place.Walkable != null) && (place.Walkable is LiveEntity))
+                || ((place.NonWalkable != null) && (place.NonWalkable is LiveEntity))) {
+                return true;
             }
-            return true;
+            return false;
         }
         // Move an entity from one place to another
         public bool move(Entity ent, Coordinates from, Coordinates to) {
-            // TODO: this is a bit ugly, isn't it
+            // TODO: isn't it a bit ugly?
             if (hasEntity(ent)) {
                 remove(ent, from);
                 add(ent, to);
@@ -201,34 +258,33 @@ namespace Pango
         public Coordinates find(Entity ent) {
             for (int x = 0; x < Height; x++) {
                 for (int y = 0; y < Width; y++) {
-                    List<Entity> l = map[x, y];
-                    if ((l != null) && l.Contains(ent)) {
+                    Place place = map[x, y];
+                    if ((place != null) && place.contains(ent)) {
                         return new Coordinates(x, y);
                     }
                 }
             }
             return Coordinates.invalid;
         }
-        // Search in the whole map
+        // Search an entity in the whole map
         public bool hasEntity(Entity ent) {
             return (!find(ent).Equals(Coordinates.invalid));
         }
-        // Search on a place (in a list)
+        // Search an entity at a place given by its coordinates
         public bool hasEntity(Entity ent, Coordinates coords) {
-            List<Entity> l = map[coords.x, coords.y];
-            return ((l != null) && l.Contains(ent));
+            Place place = getPlace(coords);
+            return ((place != null) && place.contains(ent));
         }
         public IEnumerator<Entity> GetEnumerator() {
-            foreach (List<Entity> l in map) {
-                if (l != null) {
-                    foreach (Entity ent in l) {
+            foreach (Place place in map) {
+                if (place != null) {
+                    foreach (Entity ent in place) {
                         yield return ent;
                     }
                 }
             }
         }
-        public List<Entity> getEntitiesByCoords(Coordinates coords) {
-            // TODO: is this efficient? doesn't is return a copy of the list?
+        public Place getPlace(Coordinates coords) {
             return map[coords.x, coords.y];
         }
 
@@ -362,7 +418,7 @@ namespace Pango
                 mapWidth = Math.Max(mapWidth, line.Length);
             }
             int mapHeight = lines.Length;
-            List<Entity>[,] map = new List<Entity>[mapHeight, mapWidth];
+            Entity[,] map = new Entity[mapHeight, mapWidth];
             for (int x = 0; x < mapHeight; x++) {
                 string line = lines[x];
                 for (int y = 0; y < mapWidth; y++) {
@@ -373,7 +429,7 @@ namespace Pango
                         c = ' ';
                     }
                     Entity ent = createEntity(charToEntity(c));
-                    map[x, y].Add(ent);
+                    map[x, y] = ent;
                 }
             }
 

@@ -31,18 +31,25 @@ namespace testing
             
             for (int x = 0; x < map.Height; x++) {
                 for (int y = 0; y < map.Width; y++) {
-                    List<Entity> l = map.Places[x, y];
-                    if ((l == null) || (l.Count == 0)) {
+                    Place place = map.Places[x, y];
+                    if (place == null) {
                         System.Console.Write(" ");
                     } else {
-                        System.Console.Write(entityToChar(l[l.Count-1]));
+                        Entity ent;
+                        if (place.isWalkable()) {
+                            ent = place.Walkable;
+                        } else {
+                            ent = place.NonWalkable;
+                        }
+                        System.Console.Write(entityToChar(ent));
                     }
                 }
                 System.Console.WriteLine();
             }
         }
 
-        static void Main(string[] args) {
+        void test1() {
+            /*
             Config.Instance["Game.mapWidth"] = "3";
             Config.Instance["Game.mapHeight"] = "3";
             Game game = Game.Instance;
@@ -52,11 +59,16 @@ namespace testing
             game.Map.add(new MonsterEntity(), new Coordinates(1, 0));
             game.Map.add(new FreePlace(), new Coordinates(1, 1));
             game.Map.add(new PlayerEntity(), new Coordinates(1, 1));
+            
 
             printMap(game.Map);
             //game.start();
 
             System.Console.ReadKey();
+            */
+        }
+        static void Main(string[] args) {
+            
         }
     }
 }
