@@ -5,6 +5,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libpango", "libpango\libpan
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "testing", "testing\testing.csproj", "{7259E139-A082-40B0-B1EA-D2E050B55216}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gui", "gui\gui.csproj", "{73625139-E280-4606-A227-E26C7A2A8BB2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{798EBF73-E8B1-4229-8D37-00A6C479221E} = {798EBF73-E8B1-4229-8D37-00A6C479221E}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +24,10 @@ Global
 		{7259E139-A082-40B0-B1EA-D2E050B55216}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7259E139-A082-40B0-B1EA-D2E050B55216}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7259E139-A082-40B0-B1EA-D2E050B55216}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73625139-E280-4606-A227-E26C7A2A8BB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73625139-E280-4606-A227-E26C7A2A8BB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73625139-E280-4606-A227-E26C7A2A8BB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73625139-E280-4606-A227-E26C7A2A8BB2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

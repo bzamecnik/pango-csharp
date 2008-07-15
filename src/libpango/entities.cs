@@ -202,10 +202,13 @@ namespace Pango
             if (lives >= 0) {
                 // Schedule respawning with a copy of this entity
                 Schedule.Instance.add(delegate() {
-                        respawn(new PlayerEntity(this));
+                        PlayerEntity player = new PlayerEntity(this);    
+                        respawn(player);
+                        Game.Instance.Player = player;
                     }, timeToRespawn);
                 vanish();
             } else {
+                Game.Instance.Player = null;
                 Game.Instance.end(); // End of the game
             }
         }
