@@ -1,6 +1,4 @@
 ===== Pango TODO =====
 
-- promyslet základní objektový model
-- vytvořit SVN repositář (asi lokální)
 - prozoumat XNA
-- začít kódovat
+- promyslet grafick� rozhran� a jeho napojen� na knihovnu

@@ -197,6 +197,7 @@ namespace Pango
         // Add an entity to a given place
         public bool add(Entity ent, Coordinates coords) {
             if (coords.isInvalid) { return false; }
+            ent.Coords = coords;
             Place place = getPlace(coords);
             bool added = place.add(ent);
             if (added && !(ent is WalkableEntity)) {

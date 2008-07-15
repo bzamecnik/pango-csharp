@@ -6,3 +6,36 @@
 	- GUI
 	- grafika
 	- [zvuk (MIDI hudba na pozadí, případně další zvuky)]
+
+- omráčení potvor nastane, když:
+	- hráč kopne do stěny, vedle níž stojí potvora
+	- hráč seřadí diamanty do řady
+
+- mapa
+	- kolem dokola jsou bloky z kamenů, se kterými nelze hýbat
+	- při přechodu do dalšího levelu by šlo udělat slidování
+	- opravdu je třeba FreePlace místo prázdného listu?
+		* NE, stačí null
+
+====  grafické rozhraní ====
+
+=== problémy k vyřešení === 
+
+- překreslování mapy (v každém kroku herní smyčky)
+	- možnosti:
+		- smyčku hodit do GUI, v knihovně jen krok smyčky
+		- nahookovat event
+- tlačítka na ovládání hráče (PlayerEntity)
+	- jak se pozná, které entitě to patří (kdyby jich bylo víc)?
+		- natvrdo odkaz na jediného hráče (* zatím)
+		- profily pro více hráčů
+	- co když hráč respawnuje? (-> než obživne, podrží se odkaz)
+- animace mezi kroky smyčky
+- jak zajistit stejnou dobu kroků?
+- hráč by se měl pohybovat rychleji než monstra
+
+=== poznámky ===
+
+- sledování:
+	- herního času (případně i tahů): celkem, v jednom levelu
+	- skóre: celkem
