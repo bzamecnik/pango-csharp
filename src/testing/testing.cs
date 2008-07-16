@@ -7,46 +7,7 @@ namespace testing
 {
     class testing
     {
-        static char entityToChar(Entity ent) {
-            
-            Dictionary<string, char> entityChars = new Dictionary<string, char>();
-            entityChars["FreePlace"] = ' ';
-            entityChars["PlayerEntity"] = '@';
-            entityChars["MonsterEntity"] = 'Q';
-            entityChars["StoneBlock"] = 'X';
-            entityChars["IceBlock"] = '#';
-            entityChars["DiamondBlock"] = '*';
-            entityChars["HealthBonus"] = 'H';
-            entityChars["MoneyBonus"] = '$';
-            entityChars["LiveBonus"] = 'L';
-
-            string type = ent.GetType().ToString();
-            type = type.Substring(type.LastIndexOf('.')+1);
-            if (!entityChars.ContainsKey(type)) {
-                type = "FreePlace";
-            }
-            return entityChars[type];
-        }
-        static void printMap(Map map) {
-            
-            for (int x = 0; x < map.Height; x++) {
-                for (int y = 0; y < map.Width; y++) {
-                    Place place = map.Places[x, y];
-                    if (place == null) {
-                        System.Console.Write(" ");
-                    } else {
-                        Entity ent;
-                        if (place.isWalkable()) {
-                            ent = place.Walkable;
-                        } else {
-                            ent = place.NonWalkable;
-                        }
-                        System.Console.Write(entityToChar(ent));
-                    }
-                }
-                System.Console.WriteLine();
-            }
-        }
+        
 
         void test1() {
             /*
@@ -67,11 +28,28 @@ namespace testing
             System.Console.ReadKey();
             */
         }
+        public static void lookHook(object sender, EventArgs e) {
+            System.Console.WriteLine(Game.Instance.Map.ToString());
+            System.ConsoleKeyInfo cki = System.Console.ReadKey(true);
+            if (cki.Key == System.ConsoleKey.Escape) {
+                Game.Instance.end();
+            }
+        }
+
         static void Main(string[] args) {
-            string[] maplines = { "XXXXX", "X*#@X", "XQ #X", "XH$LX", "     ", "XXXXX" };
+            string[] maplines = { "XXXXX", "X*#@X", "XQ #X", "XH$LX", "XX", "XXXXX" };
             string maptext = string.Join("\n", maplines);
 
             Map map = MapPersistence.createMapFromText(maptext);
+            Game game = Game.Instance;
+            game.Map = map;
+            Entity ent = map.Places[2, 1].NonWalkable;
+            if ((ent != null) && (ent is MonsterEntity)) {
+                ((MonsterEntity)ent).stun();
+            }
+            game.loopStep += new EventHandler(lookHook);
+            game.start();
+            
         }
     }
 }

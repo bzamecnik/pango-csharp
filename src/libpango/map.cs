@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using CodEx;
 
 namespace Pango
 {
@@ -354,6 +355,9 @@ namespace Pango
             //   * check if it is walkable (in a cycle)
             return new Coordinates(randomX, randomY);
         }
+        public override string ToString() {
+            return MapPersistence.mapToString(this);
+        }
     }
 
     public class MapPersistence {
@@ -421,27 +425,75 @@ namespace Pango
             // XXXXXXX
             string[] lines = text.Split('\n');
             int mapWidth = 0;
-            foreach (string line in lines) {
+            int mapHeight = 0;
+            for (int x = 0; x < lines.Length; x++) {
                 // find longest line -> width
-                mapWidth = Math.Max(mapWidth, line.Length);
+                mapWidth = Math.Max(mapWidth, lines[x].Length);
+                if (lines[x].Length > 0) {
+                    mapHeight++; // don't count empty lines
+                } else {
+                    break;
+                }
             }
-            int mapHeight = lines.Length;
             Entity[,] map = new Entity[mapHeight, mapWidth];
             for (int x = 0; x < mapHeight; x++) {
                 string line = lines[x];
+                if (line.Length <= 0) {
+                    // stop on first empty line
+                    break;
+                }
                 for (int y = 0; y < mapWidth; y++) {
                     char c;
-                    if(y <= line.Length) {
+                    if(y < line.Length) {
                         c = line[y];
                     } else {
+                        // fill short lines - maybe redundant
                         c = ' ';
                     }
                     Entity ent = createEntity(charToEntity(c));
+                    if (ent != null) {
+                        ent.Coords = new Coordinates(x, y);
+                    }
                     map[x, y] = ent;
                 }
             }
-
             return new Map(map);
+        }
+        public static string mapToString(Map map){
+            StringBuilder sb = new StringBuilder();
+
+            for (int x = 0; x < map.Height; x++) {
+                for (int y = 0; y < map.Width; y++) {
+                    Place place = map.Places[x, y];
+                    if (place != null) {
+                        Entity ent;
+                        if (place.isWalkable()) {
+                            ent = place.Walkable;
+                        } else {
+                            ent = place.NonWalkable;
+                        }
+                        sb.Append(entityToChar(ent));
+                    } else {
+                        sb.Append(' ');
+                        
+                    }
+                }
+                sb.AppendLine();
+            }
+            return sb.ToString();
+        }
+        public static string readMapFromFile(string fileName) {
+            StringBuilder sb = new StringBuilder();
+            Reader r = new Reader(fileName);
+            while (!r.EOF()) {
+                string line = r.Line().Trim(new char[] { '\r','\t' });
+                if (line.Length > 0) {
+                    sb.Append(line + '\n');
+                } else {
+                    break;
+                }
+            }
+            return sb.ToString();
         }
     }
 }

@@ -20,6 +20,9 @@ namespace Pango
         // * No multiplayer for now.
         int money;
         PlayerEntity player;
+        public event EventHandler loopStep;
+        public event EventHandler onStart;
+        public event EventHandler onPause;
 
         private Game() {
             schedule = Schedule.Instance;
@@ -27,7 +30,7 @@ namespace Pango
             level = 1;
             money = 0;
             player = null;
-            loadMap();
+            map = null;
         }
         public static Game Instance {
             get {
@@ -39,35 +42,45 @@ namespace Pango
         }
         public Map Map {
             get { return map; }
+            set {
+                if ((Game.Instance.State != Game.States.Running)
+                  || (Game.Instance.State != Game.States.Paused)) {
+                    map = value;
+                }
+            }
         }
         public States State {
             get { return state; }
+        }
+        public int Time {
+            get { return schedule.Time; }
+        }
+        public int Money {
+            get { return money; }
         }
         public PlayerEntity Player {
             get { return player; }
             set { player = value; }
         }
-        private void loadMap() {
-            //int mapWidth = Config.Instance.getInt("Game.mapWidth");
-            //int mapHeight = Config.Instance.getInt("Game.mapHeight");
-            //map = new Map(mapWidth, mapHeight);
-            
-            //List<Entity>[,] loadedMap = new List<Entity>[,];
-            
-            // load from file or generate randomly
-            
-            //map = new Map(loadedMap);
-
+        public void loadMap(Map loadedMap) {
+            map = loadedMap;
             // set player reference
+            foreach (Entity ent in map) {
+                if ((ent != null) && (ent is PlayerEntity)) {
+                    player = (PlayerEntity)ent;
+                    break;
+                }
+            }
         }
         private void nextLevel() {
             level++;
             // loadMap();
+            state = States.Prepared;
         }
         public void start() {
             if ((state == States.Prepared) || (state == States.Paused)) {
                 state = States.Running;
-                loop();
+                onStart(this, new EventArgs());
             }
         }
         public void end() {
@@ -79,25 +92,28 @@ namespace Pango
             } else {
                 // all monster were killed (and all remaining bonuses collected)
                 // * start a new game (next level)
-                nextLevel();
-                start();
+                //nextLevel(); // TODO: call it manually
+                //start();
             }
         }
         public void pause() {
             switch (state) {
                 case States.Running: 
                     state = States.Paused;
-                    // TODO: pause the loop (maybe wait()?)
+                    onPause(this, new EventArgs());
                     break;
                 case States.Paused:
                     start();
                     break;
             }
         }
-        private void loop() {
+        // returns true if game continues
+        public bool step() {
             bool turnNotEmpty = false;
 
-            while (state != States.Finished){
+            loopStep(this, new EventArgs());
+
+            if (state != States.Finished){
                 // TODO: hook place for refreshing the map in the GUI
                 // * OR: make s call for a step only
 
@@ -116,12 +132,11 @@ namespace Pango
                     // empty loop detected (and nothing left in the schedule)
                     // -> exit game
                     end();
-                } else {
-                    // Wait some time not to make the game so fast.
-                    System.Threading.Thread.Sleep(200);
-                    // Think of how to make the turns last the same time.
+                    return false;
                 }
+                return true;
             }
+            return false;
         }
         public void receiveMoney(int amount) {
             money += amount;

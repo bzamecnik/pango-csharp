@@ -55,6 +55,22 @@ namespace gui
                     game.end();
                     break;
             }
+            refreshStatusLabels(this, new EventArgs());
+        }
+        public void repaintMap(object sender, EventArgs e) {
+            mapLabel.Text = Game.Instance.Map.ToString();
+            mapLabel.Refresh();
+        }
+        public void refreshStatusLabels(object sender, EventArgs e) {
+            timeLabel.Text = Game.Instance.Time.ToString();
+            gameStateLabel.Text = Game.Instance.State.ToString();
+            moneyLabel.Text = Game.Instance.Money.ToString();
+            PlayerEntity player = Game.Instance.Player;
+            if (player != null) {
+                healthLabel.Text = Game.Instance.Player.Health.ToString();
+                livesLabel.Text = Game.Instance.Player.Lives.ToString();
+            }
+            Refresh();
         }
     }
 }

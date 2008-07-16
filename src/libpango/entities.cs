@@ -157,7 +157,7 @@ namespace Pango
             // In one turn player can rotate/move and/or attack.
             // * Note: player should be faster than monsters
 
-            Map map = Game.Instance.Map;
+             Map map = Game.Instance.Map;
 
             // rotate/move
             if (requestedMovement) {
@@ -175,7 +175,7 @@ namespace Pango
                 Coordinates step = coords.step(direction);
                 if (map.validCoordinates(step)) {
                     foreach (Entity ent in map.getPlace(step)) {
-                        if (ent.Equals(this)) {
+                        if (!ent.Equals(this)) {
                             ent.acceptAttack(attackHitcount);
                         }
                     }
@@ -230,14 +230,17 @@ namespace Pango
         protected States state; // THINK: maybe better would be State design pattern
         static int moneyForKilling = Config.Instance.getInt("MonsterEntity.moneyForKilling");
         static int attackHitcount = Config.Instance.getInt("MonsterEntity.attackHitcount");
+        int timeToWakeup;
 
         public MonsterEntity() {
             state = States.Normal;
             health = maxHealth = Config.Instance.getInt("MonsterEntity.maxHealth");
             lives = defaultLives = Config.Instance.getInt("MonsterEntity.defaultLives");
             timeToRespawn = Config.Instance.getInt("MonsterEntity.timeToRespawn");
+            timeToWakeup = Config.Instance.getInt("MonsterEntity.timeToWakeup");
         }
         public override bool turn() {
+            if (state == States.Stunned) { return false; }
             // TODO: chase the player (a kind of simple "AI")
             // If the player is at a distant place, go in his direction.
 
@@ -265,6 +268,12 @@ namespace Pango
                 }, timeToRespawn);
             vanish();
         }
+        public void stun() {
+            state = States.Stunned;
+            Schedule.Instance.add(delegate() {
+                state = States.Normal; // ok?
+            }, timeToRespawn);
+        }
     }
 
     public class StoneBlock : Entity
@@ -290,7 +299,7 @@ namespace Pango
                 if (go()) {
                     Map map = Game.Instance.Map;
                     foreach (Entity ent in map.getPlace(coords)) {
-                        if (ent is LiveEntity) {
+                        if ((ent != null) && (ent != this) && (ent is LiveEntity)) {
                             // set health to zero, effectively killing the entity
                             ((LiveEntity)ent).changeHealth(-((LiveEntity)ent).Health);
                         }
@@ -311,6 +320,8 @@ namespace Pango
         }
         public override void acceptAttack(int hitcount) {
             Map map = Game.Instance.Map;
+
+            // TODO: set direction according to attacker's position
 
             if (canGo(coords.step(direction))) {
                 state = States.Movement;

@@ -26,8 +26,9 @@ namespace Pango
             addInt("MonsterEntity.moneyForKilling", 10);
             addInt("MonsterEntity.attackHitcount", 40);
             addInt("MonsterEntity.maxHealth", 50);
-            addInt("MonsterEntity.defaultLives", 1);
+            addInt("MonsterEntity.defaultLives", 0);
             addInt("MonsterEntity.timeToRespawn", 5);
+            addInt("MonsterEntity.timeToWakeup", 7);
 
             addInt("Bonus.timeToLive", 20);
 
