@@ -23,21 +23,20 @@ namespace Pango
             addInt("PlayerEntity.timeToRespawn", 2);
             addInt("PlayerEntity.attackHitcount", 25);
 
-            addInt("MonsterEntity.moneyForKilling", 10);
+            addInt("MonsterEntity.moneyForKilling", 50);
             addInt("MonsterEntity.attackHitcount", 40);
             addInt("MonsterEntity.maxHealth", 50);
             addInt("MonsterEntity.defaultLives", 0);
             addInt("MonsterEntity.timeToRespawn", 5);
-            addInt("MonsterEntity.timeToWakeup", 7);
+            addInt("MonsterEntity.timeToWakeupDiamond", 30);
+            addInt("MonsterEntity.timeToWakeupWall", 10);
 
-            addInt("Bonus.timeToLive", 20);
-
-            addInt("MoneyBonus.bonusMoney", 50);
-
+            addInt("Bonus.timeToLive", 40);
+            addInt("MoneyBonus.bonusMoney", 100);
             addInt("HealthBonus.changeHealthPercent", 25);
+            addInt("DiamondBlock.bonusMoney", 1000);
 
-            addInt("Game.mapWidth", 20);
-            addInt("Game.mapHeight", 20);
+            addInt("Game.StepInterval", 250); // better 100
         }
         public static Config Instance {
             get {

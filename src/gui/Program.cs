@@ -20,10 +20,9 @@ namespace gui
             Application.Run(form);
         }
         private static void initializeGame(PangoGameForm form) {
-            //string[] maplines = { "XXXXX", "XX#@X", "XQ  X", "XH$LX", "XX", "XXXXX" };
-            //string maptext = string.Join("\n", maplines);
-
-            Map map = MapPersistence.FromString(MapPersistence.readMapFromFile("../../../testing/testmap.txt"));
+            // TODO: break this function into two
+            // TODO: put the filename info config
+            Map map = MapPersistence.FromString(MapPersistence.readMapFromFile("../../../gui/testmap.txt"));
             Game game = Game.Instance;
             game.loadMap(map);
             game.loopStep += new EventHandler(form.repaintMap);
@@ -44,7 +43,7 @@ namespace gui
             // Wait some time not to make the game so fast.
             timer = new Timer();
             timer.Tick += new EventHandler(gameStep);
-            timer.Interval = 250;
+            timer.Interval = Config.Instance.getInt("Game.StepInterval");
             timer.Start();
             // Think of how to make the turns last the same time.
         }

@@ -26,9 +26,12 @@
 	- okraj ze StoneBlock
 		- stačilo by načíst jen vnitřek a okraj automaticky doplnit
 
+- potvora se při vytvoření chvíli líhne a není aktivní
+- když hrář vybije všechny potvory
+
 === problémy k vyřešení === 
 
-- překreslování mapy (v každém kroku herní smyčky)
+*- překreslování mapy (v každém kroku herní smyčky)
 	- možnosti:
 		*- smyčku hodit do GUI, v knihovně jen krok smyčky
 		*- nahookovat event
@@ -38,10 +41,20 @@
 	- časovačem pouštět kroky hry a doufat, že se provedou rychleji než interval
 		časovače
 - hráč by se měl pohybovat rychleji než monstra
-- při pohybu entity se může její turn() provést v jednom kroku vícekrát
+*- při pohybu entity se může její turn() provést v jednom kroku vícekrát
 	- např: IceBlock nebo MonsterEntity se při pohybu dolů posune až dolů
 *- jak IceBlock zjistí, ze které strany byl zatlačen?
 	- aby si mohl nastavit směr, kterým pak bude uhánět
 - vyřesit omráčení potvor, to nastane, když:
 	- hráč kopne do stěny, vedle níž stojí potvora
-	- hráč seřadí diamanty do řady
+*	- hráč seřadí diamanty do řady
+- načítání map
+	- uložit více map do jednoho souboru a z něj to rozkouskovat a načíst
+*- v kroku hry jednou za čas náhodně umístit nějaký bonus
+- rozmyslet - potvory
+	- budou se líhnout z předem připravených vajec
+		- konec hry, když hráč všechny vybije (+chvíle zpoždění jako bonus)
+		- omezený počet potvor
+	- budou se respawnovat do vyrovnání kvóty
+		- nevýhoda: když hráč všechny vybije, ještě jsou naplánovány respawny
+		- řešení: časový limit

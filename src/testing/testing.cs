@@ -45,6 +45,7 @@ namespace testing
             game.Map = map;
             Entity ent = map.Places[2, 1].NonWalkable;
             if ((ent != null) && (ent is MonsterEntity)) {
+                int time = Config.Instance.getInt("MonsterEntity.timeToWakeupDiamond");
                 ((MonsterEntity)ent).stun();
             }
             game.loopStep += new EventHandler(lookHook);

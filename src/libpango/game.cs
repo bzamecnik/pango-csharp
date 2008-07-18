@@ -114,18 +114,31 @@ namespace Pango
             loopStep(this, new EventArgs());
 
             if (state != States.Finished){
-                // TODO: hook place for refreshing the map in the GUI
-                // * OR: make s call for a step only
-
                 // call events for this time in the queue
                 schedule.callCurrentEvents();
+
+                // prevent multiple turn() calls in one step for entities
+                // which moved forward
+                foreach (Entity ent in map) {
+                    ent.turnDone = false;
+                }
 
                 // let all entities in the map perform their turn
                 foreach (Entity ent in map) {
                     // if something was made turnNotEmpty is set true
-                    turnNotEmpty |= ent.turn();
+                    if (!ent.turnDone) {
+                        turnNotEmpty |= ent.turn();
+                        ent.turnDone = true;
+                    }
                 }
                 
+                // sometimes add bonuses at a random place
+                Random r = new Random();
+                // TODO: put this constants into config
+                if (r.Next(15) == 0) {
+                    addRandomBonuses();
+                }
+
                 schedule.increaseTime();
 
                 if (!turnNotEmpty && schedule.empty()) {
@@ -140,6 +153,23 @@ namespace Pango
         }
         public void receiveMoney(int amount) {
             money += amount;
+        }
+        // add randomly selected bonus at a random place
+        private void addRandomBonuses() {
+            Random r = new Random();
+            Entity bonus = null;
+            // distribute probablity amongs various bonuses
+            int chance = r.Next(10);
+            if (chance <= 5) {
+                bonus = new MoneyBonus();
+            } else if ((chance > 5) && (chance <= 7)) {
+                bonus = new LiveBonus();
+            } else {
+                bonus = new HealthBonus();
+            }
+            if (bonus != null) {
+                map.add(bonus, map.getRandomWalkablePlace());
+            }
         }
     }
 }

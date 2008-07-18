@@ -81,8 +81,11 @@ namespace Pango
         public bool isNeighbor(Coordinates coords) {
             return areNeighbors(this, coords);
         }
+        // Difference direction from coords1 to coords2 as:
+        // * Direction, if they are neighbors
+        // * null, else
         public static Nullable<Direction> diffDirection(Coordinates coords1, Coordinates coords2) {
-            Coordinates diff = coords1 - coords2;
+            Coordinates diff = coords2 - coords1;
             if (diff.x == 0) {
                 if (diff.y == 1) {
                     return Direction.Right;
@@ -167,8 +170,10 @@ namespace Pango
     public class Map
     {
         Place[,] map;
-        // count number of walkable places (for getRandomWalkablePlace())
+        // count number of walkable places (for getRandomWalkablePlace())]
         int walkablePlaces;
+        // TODO: count various entity types
+        // * needed: MonsterEntity, BonusEntity
 
         public Place[,] Places {
             get { return map; }
@@ -231,7 +236,7 @@ namespace Pango
 
         // Add an entity to a given place
         public bool add(Entity ent, Coordinates coords) {
-            if (coords.isInvalid) { return false; }
+            if (!areValidCoordinates(coords)) { return false; }
             ent.Coords = coords;
             Place place = getPlace(coords);
             bool added = place.add(ent);
@@ -267,7 +272,7 @@ namespace Pango
         }
         // Place is walkable if all entities there are walkable
         public bool isWalkable(Coordinates coords) {
-            if (coords.isInvalid) { return false; } // better: expception
+            if (!areValidCoordinates(coords)) { return false; } // better: expception
             return map[coords.x, coords.y].isWalkable();
         }
         // Place is smitable (moving block can smite it)
@@ -337,7 +342,7 @@ namespace Pango
         //    };
         //    foreach (Direction dir in dirs) {
         //        Coordinates step = coords.step(dir);
-        //        if (validCoordinates(step)) {
+        //        if (areValidCoordinates(step)) {
         //            neighbors.Add(step, map[step.x, step.y]);
         //        }
         //    }
@@ -355,7 +360,7 @@ namespace Pango
             };
             foreach (Direction dir in dirs) {
                 Coordinates step = coords.step(dir);
-                if (validCoordinates(step)) {
+                if (areValidCoordinates(step)) {
                     foreach (Entity ent in map[step.x, step.y]) {
                         neighbors.Add(ent);
                     }
@@ -363,7 +368,7 @@ namespace Pango
             }
             return neighbors;
         }
-        public bool validCoordinates(Coordinates coords) {
+        public bool areValidCoordinates(Coordinates coords) {
             return ((!coords.Equals(Coordinates.invalid)) &&
                     (coords.x >= 0) && (coords.x < Height) &&
                     (coords.y >= 0) && (coords.y < Width));
@@ -400,11 +405,11 @@ namespace Pango
         static Dictionary<string, char> initEntityCharTable() {
             Dictionary<string, char> table = new Dictionary<string, char>();
             table["null"] = ' ';
-            table["PlayerEntity"] = '@';
+            table["PlayerEntity"] = 'X';
             table["MonsterEntity"] = 'Q';
-            table["StoneBlock"] = 'X';
-            table["IceBlock"] = '#';
-            table["DiamondBlock"] = '*';
+            table["StoneBlock"] = '#';
+            table["IceBlock"] = '*';
+            table["DiamondBlock"] = 'D';
             table["HealthBonus"] = 'H';
             table["MoneyBonus"] = '$';
             table["LiveBonus"] = 'L';

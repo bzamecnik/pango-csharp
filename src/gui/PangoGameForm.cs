@@ -46,6 +46,14 @@ namespace gui
                             break;
                     }
                     break;
+                case Game.States.Finished:
+                    switch (e.KeyCode) {
+                        case Keys.Space:
+                            
+                            game.start();
+                            break;
+                    }
+                    break;
             }
             switch (e.KeyCode) {
                 case Keys.P:

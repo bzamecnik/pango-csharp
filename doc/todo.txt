@@ -3,10 +3,13 @@
 - prozoumat XNA
 - promyslet grafické rozhraní a jeho napojení na knihovnu
 
+- herní stavy
+	- intro, pøechody mezi koly, nová hra, ...
+
 - sestavit sadu map
 
-- omráèení potvor
 - lepší algoritmus chození potvor
+
 - GUI
 	- 1. fáze - vylepšit stávající GUI s WinForms + text
 		- ovládací tlaèítka
