@@ -6,10 +6,13 @@ using CodEx;
 namespace Pango
 {
     // TODO: organize directions better
-    public enum Direction { Up = 0, Right, Left, Down };
+    public enum Direction { Up = 0, Right, Down, Left };
     public enum Rotation { Forward = 0, CW, Backwards, CCW }
 
     public class DirectionUtils {
+        public static int Count {
+            get { return 4; }
+        }
         public static Direction rotate(Direction direction, Rotation rot) {
             return (Direction)(((int)direction + (int)rot) % 4);
         }
@@ -60,9 +63,40 @@ namespace Pango
                 return new Coordinates(coords1.x + coords2.x, coords1.y + coords2.y);
             }
         }
-        public bool areNeighbors(Coordinates coords1, Coordinates coords2) {
+        public static Coordinates operator -(Coordinates coords1, Coordinates coords2) {
+            if (coords1.Equals(Coordinates.invalid) || coords2.Equals(Coordinates.invalid)) {
+                return Coordinates.invalid;
+            } else {
+                return new Coordinates(coords1.x - coords2.x, coords1.y - coords2.y);
+            }
+        }
+        public static bool areNeighbors(Coordinates coords1, Coordinates coords2) {
+            /*
             return (((coords1.x == coords2.x) && (Math.Abs(coords1.y - coords2.y) == 1)) ||
                 ((coords1.y == coords2.y) && (Math.Abs(coords1.x - coords2.x) == 1)));
+            */
+            Coordinates diff = coords1 - coords2;
+            return ((Math.Abs(diff.x) + Math.Abs(diff.y)) == 1);
+        }
+        public bool isNeighbor(Coordinates coords) {
+            return areNeighbors(this, coords);
+        }
+        public static Nullable<Direction> diffDirection(Coordinates coords1, Coordinates coords2) {
+            Coordinates diff = coords1 - coords2;
+            if (diff.x == 0) {
+                if (diff.y == 1) {
+                    return Direction.Right;
+                } else if (diff.y == -1) {
+                    return Direction.Left;
+                }
+            } else if (diff.y == 0) {
+                if (diff.x == -1) {
+                    return Direction.Up;
+                } else if (diff.x == 1) {
+                    return Direction.Down;
+                }
+            }
+            return null;
         }
         public bool Equals(Coordinates other) {
             return ((x == other.x) && (y == other.y) && (isInvalid == other.isInvalid));
@@ -356,7 +390,7 @@ namespace Pango
             return new Coordinates(randomX, randomY);
         }
         public override string ToString() {
-            return MapPersistence.mapToString(this);
+            return MapPersistence.ToString(this);
         }
     }
 
@@ -417,7 +451,7 @@ namespace Pango
                 default: return null;
             }
         }
-        public static Map createMapFromText(string text) {
+        public static Map FromString(string text) {
             // eg:
             // XXXXXXX
             // X@  LQX
@@ -459,7 +493,7 @@ namespace Pango
             }
             return new Map(map);
         }
-        public static string mapToString(Map map){
+        public static string ToString(Map map){
             StringBuilder sb = new StringBuilder();
 
             for (int x = 0; x < map.Height; x++) {

@@ -2,3 +2,23 @@
 
 - prozoumat XNA
 - promyslet grafické rozhraní a jeho napojení na knihovnu
+
+- sestavit sadu map
+
+- omráèení potvor
+- lepší algoritmus chození potvor
+- GUI
+	- 1. fáze - vylepšit stávající GUI s WinForms + text
+		- ovládací tlaèítka
+	- 2. fáze - GUI pøes XNA
+
+- dokumentace
+	- vylepšit a vyèistit (sjednotit) komentáøe ve zdrojácích
+	- vyrobit "docbook" komentáøe
+	- sepsat celkový pohled na architekturu
+	- napsat uživatelskou dokumentaci
+		- zakomponovat do programu
+
+- balíèky
+	- instalaèní balíèek
+	- vývojáøský balíèek (staèilo snad by zabalit checkout ze SVN) 

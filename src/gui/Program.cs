@@ -23,7 +23,7 @@ namespace gui
             //string[] maplines = { "XXXXX", "XX#@X", "XQ  X", "XH$LX", "XX", "XXXXX" };
             //string maptext = string.Join("\n", maplines);
 
-            Map map = MapPersistence.createMapFromText(MapPersistence.readMapFromFile("../../../testing/testmap.txt"));
+            Map map = MapPersistence.FromString(MapPersistence.readMapFromFile("../../../testing/testmap.txt"));
             Game game = Game.Instance;
             game.loadMap(map);
             game.loopStep += new EventHandler(form.repaintMap);
@@ -44,7 +44,7 @@ namespace gui
             // Wait some time not to make the game so fast.
             timer = new Timer();
             timer.Tick += new EventHandler(gameStep);
-            timer.Interval = 100;
+            timer.Interval = 250;
             timer.Start();
             // Think of how to make the turns last the same time.
         }

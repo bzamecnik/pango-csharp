@@ -62,13 +62,13 @@ namespace gui
             mapLabel.Refresh();
         }
         public void refreshStatusLabels(object sender, EventArgs e) {
-            timeLabel.Text = Game.Instance.Time.ToString();
-            gameStateLabel.Text = Game.Instance.State.ToString();
-            moneyLabel.Text = Game.Instance.Money.ToString();
+            timeValueLabel.Text = Game.Instance.Time.ToString();
+            gameStateValueLabel.Text = Game.Instance.State.ToString();
+            moneyValueLabel.Text = Game.Instance.Money.ToString();
             PlayerEntity player = Game.Instance.Player;
             if (player != null) {
-                healthLabel.Text = Game.Instance.Player.Health.ToString();
-                livesLabel.Text = Game.Instance.Player.Lives.ToString();
+                healthValueLabel.Text = Game.Instance.Player.Health.ToString();
+                livesValueLabel.Text = Game.Instance.Player.Lives.ToString();
             }
             Refresh();
         }

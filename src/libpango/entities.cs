@@ -14,7 +14,7 @@ namespace Pango
             coords = Coordinates.invalid;
         }
         public abstract bool turn(); // returns true if something was done
-        public abstract void acceptAttack(int hitcount);
+        public abstract void acceptAttack(Entity sender, int hitcount);
         public void vanish() {
             Game.Instance.Map.remove(this, coords);
         }
@@ -78,7 +78,7 @@ namespace Pango
             if (health > maxHealth) {
                 lives += health / maxHealth;
                 health %= maxHealth;
-            } else if (health < 0) {
+            } else if (health <= 0) {
                 if (lives >= 0) {
                     lives--;
                     health += maxHealth;
@@ -161,11 +161,16 @@ namespace Pango
 
             // rotate/move
             if (requestedMovement) {
-                if (requestedDirection == direction) {
-                    go(); // move
-                } else {
-                    direction = requestedDirection; // rotate
-                }
+                //// rotate and move separately
+                //if (requestedDirection != direction) {
+                //    go(); // move
+                //} else {
+                //    direction = requestedDirection; // rotate
+                //}
+                
+                // rotate and move on a single key press
+                direction = requestedDirection;
+                go(); // move
                 requestedMovement = false; // clear
             }
 
@@ -176,7 +181,7 @@ namespace Pango
                 if (map.validCoordinates(step)) {
                     foreach (Entity ent in map.getPlace(step)) {
                         if (!ent.Equals(this)) {
-                            ent.acceptAttack(attackHitcount);
+                            ent.acceptAttack(this, attackHitcount);
                         }
                     }
                 }
@@ -195,7 +200,7 @@ namespace Pango
             }
             return true;
         }
-        public override void acceptAttack(int hitcount) {
+        public override void acceptAttack(Entity sender, int hitcount) {
             changeHealth(-hitcount);
         }
         public override void die() {
@@ -231,6 +236,7 @@ namespace Pango
         static int moneyForKilling = Config.Instance.getInt("MonsterEntity.moneyForKilling");
         static int attackHitcount = Config.Instance.getInt("MonsterEntity.attackHitcount");
         int timeToWakeup;
+        bool memory;
 
         public MonsterEntity() {
             state = States.Normal;
@@ -238,31 +244,50 @@ namespace Pango
             lives = defaultLives = Config.Instance.getInt("MonsterEntity.defaultLives");
             timeToRespawn = Config.Instance.getInt("MonsterEntity.timeToRespawn");
             timeToWakeup = Config.Instance.getInt("MonsterEntity.timeToWakeup");
+            memory = false;
         }
         public override bool turn() {
             if (state == States.Stunned) { return false; }
+
+            Map map = Game.Instance.Map;
+
+            attack();
+            
             // TODO: chase the player (a kind of simple "AI")
             // If the player is at a distant place, go in his direction.
 
-            // Attack player if he is at a neighboring place.
-            Map map = Game.Instance.Map;
-            foreach (Entity ent in map.getNeighbors(coords)) {
-                if (ent is PlayerEntity) {
-                    // TODO: turn in player's direction
-                    ent.acceptAttack(attackHitcount);
-                    break;
+            // For now a simpler algorithm would be enough
+
+            // randomly rotate
+            Random r = new Random();
+            if (r.Next(4) == 0) {
+                Rotation rot = (Rotation)r.Next(0, 3);
+                rotate(rot);
+            }
+
+            // labyrinth walking algoritm - from Programming II lessons
+            if (map.isWalkable(coords.step(DirectionUtils.rotate(direction,Rotation.CW)))) {
+                if (memory) {
+                    go();
+                    memory = false;
+                } else {
+                    rotate(Rotation.CW);
+                    memory = true;
                 }
+            } else if (map.isWalkable(coords.step(direction))) {
+                go();
+            } else {
+                rotate(Rotation.CCW);
             }
             return true;
         }
-        public override void acceptAttack(int hitcount) {
-            if (!changeHealth(-hitcount)) {
-                // it died, give money to the player
-                Game.Instance.receiveMoney(moneyForKilling);
-            }
+        public override void acceptAttack(Entity sender, int hitcount) {
+            changeHealth(-hitcount);
         }
         public override void die() {
-            // schedule respawning, make new entity
+            // Schedule respawning, make new entity.
+            // It died, give money to the player.
+            Game.Instance.receiveMoney(moneyForKilling);
             Schedule.Instance.add(delegate() {
                     respawn(new MonsterEntity());
                 }, timeToRespawn);
@@ -274,6 +299,25 @@ namespace Pango
                 state = States.Normal; // ok?
             }, timeToRespawn);
         }
+        private void attack() {
+            // Turn in player's direction, if they are neighbors
+            Coordinates playerCoords = Game.Instance.Player.Coords; // check if not null
+            if (coords.isNeighbor(playerCoords)) {
+                Nullable<Direction> dir = Coordinates.diffDirection(coords, playerCoords);
+                if (dir.HasValue) {
+                    direction = dir.Value;
+                }
+                // Attack player if he is at front of monster
+                Map map = Game.Instance.Map;
+                Place place = map.getPlace(coords.step(direction));
+                foreach (Entity ent in place) {
+                    if (ent is PlayerEntity) {
+                        ent.acceptAttack(this, attackHitcount);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     public class StoneBlock : Entity
@@ -282,7 +326,7 @@ namespace Pango
         // Can be used for building a border around the map.
 
         public override bool turn() { return false; } // empty
-        public override void acceptAttack(int hitcount) { } // empty
+        public override void acceptAttack(Entity sender, int hitcount) { } // empty
 
     }
 
@@ -295,15 +339,19 @@ namespace Pango
         }
         public override bool turn() {
             if (state == States.Movement) {
-                // make a step, if in movement
-                if (go()) {
-                    Map map = Game.Instance.Map;
-                    foreach (Entity ent in map.getPlace(coords)) {
-                        if ((ent != null) && (ent != this) && (ent is LiveEntity)) {
+                Coordinates step = coords.step(direction);
+                Map map = Game.Instance.Map;
+                if (map.validCoordinates(step) && canGo(step)) {
+                    // kill entities in front of this
+                    foreach (Entity ent in map.getPlace(step)) {
+                        LiveEntity liveent = ent as LiveEntity;
+                        if ((ent != null) && (ent != this)) {
                             // set health to zero, effectively killing the entity
-                            ((LiveEntity)ent).changeHealth(-((LiveEntity)ent).Health);
+                            (liveent).changeHealth(-(liveent).Health);
                         }
                     }
+                    // make a step
+                    go();
                 } else {
                     // stop when encountering a non-walkable place
                     state = States.Rest;
@@ -318,15 +366,21 @@ namespace Pango
             Map map = Game.Instance.Map;
             return map.isSmitable(coords);
         }
-        public override void acceptAttack(int hitcount) {
+        public override void acceptAttack(Entity sender, int hitcount) {
             Map map = Game.Instance.Map;
 
-            // TODO: set direction according to attacker's position
+            if ((sender is PlayerEntity) && coords.isNeighbor(sender.Coords)) {
+                // set movement direction according to the attacker's position
+                Nullable<Direction> dir = Coordinates.diffDirection(coords, sender.Coords);
+                if (dir.HasValue) {
+                    direction = dir.Value;
+                }
 
-            if (canGo(coords.step(direction))) {
-                state = States.Movement;
-            } else {
-                acceptAttackCantGoHook();
+                if (canGo(coords.step(direction))) {
+                    state = States.Movement;
+                } else {
+                    acceptAttackCantGoHook();
+                }
             }
         }
         protected abstract void acceptAttackCantGoHook();
@@ -365,7 +419,7 @@ namespace Pango
             Schedule.Instance.add(delegate() { vanish();  }, timeToLive);
         }
         public override bool turn() { return false; }
-        public override void acceptAttack(int hitcount) { }
+        public override void acceptAttack(Entity sender, int hitcount) { } // empty
         // Player detects stepping on the bonus himself in his turn.
         public abstract void giveBonus(PlayerEntity player);
     }

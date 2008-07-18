@@ -40,7 +40,7 @@ namespace testing
             string[] maplines = { "XXXXX", "X*#@X", "XQ #X", "XH$LX", "XX", "XXXXX" };
             string maptext = string.Join("\n", maplines);
 
-            Map map = MapPersistence.createMapFromText(maptext);
+            Map map = MapPersistence.FromString(maptext);
             Game game = Game.Instance;
             game.Map = map;
             Entity ent = map.Places[2, 1].NonWalkable;
