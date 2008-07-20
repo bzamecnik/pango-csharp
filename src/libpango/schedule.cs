@@ -26,6 +26,7 @@ namespace Pango
             }
         }
         public void add(EventDelegate eh, int timeoffset) {
+            if (pqueue == null) { return; }
             int priority = time + timeoffset;
             if (!pqueue.ContainsKey(priority)) {
                 pqueue.Add(priority, new Queue<EventDelegate>());
@@ -33,6 +34,7 @@ namespace Pango
             pqueue[priority].Enqueue(eh);
         }
         public void callCurrentEvents() {
+            if (pqueue == null) { return; }
             if (pqueue.ContainsKey(time)) {
                 EventDelegate ed;
                 Queue<EventDelegate> queue = pqueue[time];
@@ -50,7 +52,15 @@ namespace Pango
             time++;
         }
         public bool empty() {
-            return (pqueue.Count > 0);
+            if (pqueue != null) {
+                return (pqueue.Count > 0);
+            } else {
+                return true;
+            }
+        }
+        public void clear() {
+            if (pqueue != null) { pqueue.Clear(); }
+            time = 0;
         }
     }
 }

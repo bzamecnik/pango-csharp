@@ -20,14 +20,14 @@ namespace Pango
             // Default values
             addInt("PlayerEntity.maxHealth", 100);
             addInt("PlayerEntity.defaultLives", 3);
-            addInt("PlayerEntity.timeToRespawn", 2);
+            addInt("PlayerEntity.timeToRespawn", 5);
             addInt("PlayerEntity.attackHitcount", 25);
 
             addInt("MonsterEntity.moneyForKilling", 50);
             addInt("MonsterEntity.attackHitcount", 40);
             addInt("MonsterEntity.maxHealth", 50);
             addInt("MonsterEntity.defaultLives", 0);
-            addInt("MonsterEntity.timeToRespawn", 5);
+            addInt("MonsterEntity.timeToRespawn", 25);
             addInt("MonsterEntity.timeToWakeupDiamond", 30);
             addInt("MonsterEntity.timeToWakeupWall", 10);
 

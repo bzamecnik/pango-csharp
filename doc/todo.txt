@@ -4,7 +4,9 @@
 - promyslet grafické rozhraní a jeho napojení na knihovnu
 
 - herní stavy
-	- intro, pøechody mezi koly, nová hra, ...
+	- intro, *pøechody mezi koly, *nová hra, ...
+
+- nápovìda, informace o klávesách
 
 - sestavit sadu map
 
@@ -24,4 +26,4 @@
 
 - balíèky
 	- instalaèní balíèek
-	- vıvojáøskı balíèek (staèilo snad by zabalit checkout ze SVN) 
+	- vıvojáøskı balíèek (snad by staèilo zabalit checkout ze SVN) 

@@ -22,19 +22,24 @@ namespace gui
         private static void initializeGame(PangoGameForm form) {
             // TODO: break this function into two
             // TODO: put the filename info config
-            Map map = MapPersistence.FromString(MapPersistence.readMapFromFile("../../../gui/testmap.txt"));
+            Config.Instance["Game.map"] = MapPersistence.readMapFromFile("../../../gui/testmap.txt");
             Game game = Game.Instance;
-            game.loadMap(map);
+            form.refresh();
             game.loopStep += new EventHandler(form.repaintMap);
             game.loopStep += new EventHandler(form.refreshStatusLabels);
             game.onPause += new EventHandler(gamePause);
             game.onStart += new EventHandler(gameStart);
+            game.onEnd += new EventHandler(form.repaintMap);
+            game.onEnd += new EventHandler(form.refreshStatusLabels);
+        }
+        public static void stop() {
+            if (timer != null) { timer.Stop(); }
         }
         private static void gamePause(object sender, EventArgs e) {
-            timer.Stop();
+            Program.stop();
         }
         private static void gameStep(object sender, EventArgs e) {
-            timer.Stop();
+            Program.stop();
             if (Game.Instance.step()) {
                 gameStart(sender, new EventArgs());
             }

@@ -28,10 +28,10 @@ namespace Pango
         }
     }
 
-    // Better would be to use iterfaces in place of abstract classes,
-    // but how to incorporate new places into an interface???
     public abstract class MovableEntity : Entity
     {
+        // Better would be to use iterfaces in place of abstract classes,
+        // but how to incorporate new places into an interface???
         protected Direction direction;
 
         public MovableEntity() {
@@ -108,7 +108,6 @@ namespace Pango
         public virtual void respawn(LiveEntity newborn) {
             Map map = Game.Instance.Map;
             // move to random (walkable) place
-            // maybe casting newborn would be needed (?)
             map.add(newborn, map.getRandomWalkablePlace());
         }
     }
@@ -159,7 +158,8 @@ namespace Pango
         public override bool turn() {
             // User's input is processed here.
             // In one turn player can rotate/move and/or attack.
-            // * Note: player should be faster than monsters
+            
+            // TODO: player should be faster than monsters
 
              Map map = Game.Instance.Map;
 
@@ -197,9 +197,9 @@ namespace Pango
             foreach (Entity ent in map.getPlace(coords)) {
                 if (ent.Equals(this)) {
                     continue;
-                } else if (ent is Bonus) {
-                    // Take a bonus
-                    ((Bonus)ent).giveBonus(this);
+                } else if (ent is BonusEntity) {
+                    // take a bonus
+                    ((BonusEntity)ent).giveBonus(this);
                 }
             }
             return true;
@@ -209,7 +209,7 @@ namespace Pango
         }
         public override void die() {
             if (lives >= 0) {
-                // Schedule respawning with a copy of this entity
+                // schedule respawning with a copy of this entity
                 Schedule.Instance.add(delegate() {
                         PlayerEntity player = new PlayerEntity(this);    
                         respawn(player);
@@ -218,7 +218,7 @@ namespace Pango
                 vanish();
             } else {
                 Game.Instance.Player = null;
-                Game.Instance.end(); // End of the game
+                Game.Instance.endLevel(); // endLevel of the game
             }
         }
         // this will be called when an arrow key is pressed
@@ -294,9 +294,9 @@ namespace Pango
             }
         }
         public override void die() {
-            // Schedule respawning, make new entity.
-            // It died, give money to the player.
+            // it died, give money to the player
             Game.Instance.receiveMoney(moneyForKilling);
+            // schedule respawning, make new entity
             Schedule.Instance.add(delegate() {
                     respawn(new MonsterEntity());
                 }, timeToRespawn);
@@ -309,15 +309,16 @@ namespace Pango
             }, time);
         }
         private void attack() {
-            // Turn in player's direction, if they are neighbors
-            if ((Game.Instance !=null) || (Game.Instance.Player != null)) { return; }
+            // turn in player's direction if they are neighbors
+            if ((Game.Instance == null) || (Game.Instance.Player == null)) { return; }
             Coordinates playerCoords = Game.Instance.Player.Coords;
             if (coords.isNeighbor(playerCoords)) {
+                // turn to the player
                 Nullable<Direction> dir = Coordinates.diffDirection(coords, playerCoords);
                 if (dir.HasValue) {
                     direction = dir.Value;
                 }
-                // Attack player if he is at front of monster
+                // attack the player if he is at front of monster
                 Map map = Game.Instance.Map;
                 Place place = map.getPlace(coords.step(direction));
                 foreach (Entity ent in place) {
@@ -375,7 +376,6 @@ namespace Pango
             }
             return monsters;
         }
-
     }
 
     public abstract class MovableBlock : MovableEntity {
@@ -459,12 +459,9 @@ namespace Pango
                             && (coords.y == neighbor2.Coords.y))) {
                         // 3 diamond block aligned!
                         // stun all monsters
-                        // TODO: optimize this
-                        foreach (Entity ent in map) {
-                            if (ent is MonsterEntity) {
-                                int time = Config.Instance.getInt("MonsterEntity.timeToWakeupDiamond");
-                                ((MonsterEntity)ent).stun(time);
-                            }
+                        foreach (MonsterEntity ent in map.Monsters) {
+                            int time = Config.Instance.getInt("MonsterEntity.timeToWakeupDiamond");
+                            (ent).stun(time);
                         }
                         
                         // give money to the player
@@ -479,18 +476,18 @@ namespace Pango
     public class IceBlock : MovableBlock
     {
         protected override void acceptAttackCantGoHook() {
-            // IceBlock melts, when attacked having no place to go
+            // IceBlock melts when attacked having no place to go
             vanish();
         }
         protected override void turnCantGoHook() { } // empty
     }
 
     // Base class for various bonuses
-    public abstract class Bonus : WalkableEntity
+    public abstract class BonusEntity : WalkableEntity
     {
         protected int timeToLive;
 
-        public Bonus() {
+        public BonusEntity() {
             int timeToLive = Config.Instance.getInt("Bonus.timeToLive");
             // schedule vanishing in given time
             Schedule.Instance.add(delegate() { vanish();  }, timeToLive);
@@ -501,7 +498,7 @@ namespace Pango
         public abstract void giveBonus(PlayerEntity player);
     }
 
-    public class MoneyBonus : Bonus
+    public class MoneyBonus : BonusEntity
     {
         public override void giveBonus(PlayerEntity player) {
             int bonusMoney = Config.Instance.getInt("MoneyBonus.bonusMoney");
@@ -510,17 +507,17 @@ namespace Pango
         }
     }
 
-    public class HealthBonus: Bonus
+    public class HealthBonus: BonusEntity
     {
         public override void giveBonus(PlayerEntity player) {
             int changeHealthPercent = Config.Instance.getInt("HealthBonus.changeHealthPercent");
-            // increase health by 25%
+            // increase health by given percent
             player.changeHealth((int)(player.MaxHealth * ((float)changeHealthPercent / 100)));
             vanish();
         }
     }
 
-    public class LiveBonus : Bonus
+    public class LiveBonus : BonusEntity
     {
         public override void giveBonus(PlayerEntity player) {
             player.Lives += 1; // add 1 life

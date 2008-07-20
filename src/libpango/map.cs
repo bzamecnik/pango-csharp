@@ -71,10 +71,8 @@ namespace Pango
             }
         }
         public static bool areNeighbors(Coordinates coords1, Coordinates coords2) {
-            /*
-            return (((coords1.x == coords2.x) && (Math.Abs(coords1.y - coords2.y) == 1)) ||
-                ((coords1.y == coords2.y) && (Math.Abs(coords1.x - coords2.x) == 1)));
-            */
+            //return (((coords1.x == coords2.x) && (Math.Abs(coords1.y - coords2.y) == 1)) ||
+            //    ((coords1.y == coords2.y) && (Math.Abs(coords1.x - coords2.x) == 1)));
             Coordinates diff = coords1 - coords2;
             return ((Math.Abs(diff.x) + Math.Abs(diff.y)) == 1);
         }
@@ -172,8 +170,11 @@ namespace Pango
         Place[,] map;
         // count number of walkable places (for getRandomWalkablePlace())]
         int walkablePlaces;
-        // TODO: count various entity types
-        // * needed: MonsterEntity, BonusEntity
+        // count various entity types - MonsterEntity, BonusEntity
+        List<MonsterEntity> monsters;
+        List<BonusEntity> bonuses;
+        int monstersQuota;
+        int bonusesQuota;
 
         public Place[,] Places {
             get { return map; }
@@ -194,8 +195,12 @@ namespace Pango
                 else { return 0; }
             }
         }
-
+        public List<MonsterEntity> Monsters {
+            get { return monsters; }
+        }
         public Map(int width, int height) {
+            monstersQuota = 0;
+            bonusesQuota = 0;
             map = new Place[height, width];
             // initialize places
             for (int x = 0; x < Height; x++) {
@@ -204,9 +209,15 @@ namespace Pango
                 }
             }
             walkablePlaces = height * width;
+            monsters = new List<MonsterEntity>();
+            bonuses = new List<BonusEntity>();
         }
         // load an existing map
         public Map(Entity[,] array) {
+            monstersQuota = 0;
+            bonusesQuota = 0;
+            monsters = new List<MonsterEntity>();
+            bonuses = new List<BonusEntity>();
             map = new Place[array.GetUpperBound(0) + 1, array.GetUpperBound(1) + 1];
             walkablePlaces = Height * Width;
             for (int x = 0; x < Height; x++) {
@@ -214,11 +225,12 @@ namespace Pango
                     Place place = new Place();
                     Entity ent = array[x, y];
                     if (ent != null) {
-                        if (ent is WalkableEntity) {
-                            place.Walkable = ent;
-                        } else {
-                            place.NonWalkable = ent;
-                            walkablePlaces--;
+                        add(ent, place);
+                        if (ent is MonsterEntity) {
+                            monstersQuota++;
+                        }
+                        if (ent is BonusEntity) {
+                            bonusesQuota++;
                         }
                     }
                     map[x, y] = place;
@@ -239,28 +251,48 @@ namespace Pango
             if (!areValidCoordinates(coords)) { return false; }
             ent.Coords = coords;
             Place place = getPlace(coords);
+            return add(ent, place);
+        }
+        private bool add(Entity ent, Place place) {
+            if (place == null) { return false; }
             bool added = place.add(ent);
             if (added && !(ent is WalkableEntity)) {
                 // this place was made non-walkable
                 walkablePlaces--;
             }
+            if ((ent is MonsterEntity) && (monsters != null)
+                && (!monsters.Contains((MonsterEntity)ent))) {
+                monsters.Add((MonsterEntity)ent);
+            }
+            if ((ent is BonusEntity) && (bonuses != null)
+                && (!bonuses.Contains((BonusEntity)ent))) {
+                bonuses.Add((BonusEntity)ent);
+            }
             return added;
         }
         // Remove entity from given place
         public bool remove(Entity ent, Coordinates coords) {
+            bool removeReturnValue = false;
             if (hasEntity(ent, coords)) {
                 Place place = getPlace(coords);
                 if (place != null) {
                     bool entWasNonWalkable = !(ent is WalkableEntity);
-                    bool removeReturnValue = place.remove(ent);
+                    removeReturnValue = place.remove(ent);
                     if (entWasNonWalkable && isWalkable(coords)) {
                         // this place was made walkable again
                         walkablePlaces++;
                     }
-                    return removeReturnValue;
+                }
+                if ((ent is MonsterEntity) && (monsters != null)) {
+                    monsters.Remove((MonsterEntity)ent);
+                    monstersQuota--;
+                }
+                if ((ent is BonusEntity) && (bonuses != null)) {
+                    bonuses.Remove((BonusEntity)ent);
+                    bonusesQuota--;
                 }
             }
-            return false;
+            return removeReturnValue;
         }
         // Remove entity from map
         public bool remove(Entity ent) {
@@ -390,7 +422,7 @@ namespace Pango
             // * Note: there IS a walkable place, so the cycle will eventually finish.
             // * Think of a better algorithm.
             // * THINK: Maybe split this function into two:
-            //   * select random place
+            //   * select a random place
             //   * check if it is walkable (in a cycle)
             return new Coordinates(randomX, randomY);
         }

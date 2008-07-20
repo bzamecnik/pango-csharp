@@ -9,11 +9,11 @@
 
 - sledování:
 	- herního času (případně i tahů): celkem, v jednom levelu
-	- skóre: celkem
+	*- skóre: celkem
 
 - k uložení nastavení použít Application Settings
 
-- multiplayer
+x- multiplayer - zatím NE
 	- pamatovat si, kdo strčil blok, který zamáčkl potvoru
 	- seznam hráčů
 		- profil kláves pro každého
@@ -23,11 +23,10 @@
 	- při přechodu do dalšího levelu by šlo udělat slidování
 	*- opravdu je třeba FreePlace místo prázdného listu?
 		- NE, stačí null
-	- okraj ze StoneBlock
+	x- automatický okraj ze StoneBlock - asi NE 
 		- stačilo by načíst jen vnitřek a okraj automaticky doplnit
 
-- potvora se při vytvoření chvíli líhne a není aktivní
-- když hrář vybije všechny potvory
+*- konec levelu, když hráč vybije všechny potvory
 
 === problémy k vyřešení === 
 
@@ -38,23 +37,28 @@
 	*- co když hráč respawnuje? (-> než obživne, podrží se odkaz)
 - animace mezi kroky smyčky
 - jak zajistit stejnou dobu kroků?
-	- časovačem pouštět kroky hry a doufat, že se provedou rychleji než interval
+	*- časovačem pouštět kroky hry a doufat, že se provedou rychleji než interval
 		časovače
 - hráč by se měl pohybovat rychleji než monstra
 *- při pohybu entity se může její turn() provést v jednom kroku vícekrát
 	- např: IceBlock nebo MonsterEntity se při pohybu dolů posune až dolů
 *- jak IceBlock zjistí, ze které strany byl zatlačen?
 	- aby si mohl nastavit směr, kterým pak bude uhánět
-- vyřesit omráčení potvor, to nastane, když:
-	- hráč kopne do stěny, vedle níž stojí potvora
-*	- hráč seřadí diamanty do řady
+*- vyřesit omráčení potvor, to nastane, když:
+	*- hráč kopne do stěny, vedle níž stojí potvora
+	*- hráč seřadí diamanty do řady
 - načítání map
 	- uložit více map do jednoho souboru a z něj to rozkouskovat a načíst
+	- podle velikosti mapy nastavit velikost okna (+limit)
 *- v kroku hry jednou za čas náhodně umístit nějaký bonus
 - rozmyslet - potvory
-	- budou se líhnout z předem připravených vajec
+	- 1. budou se líhnout z předem připravených vajec
+		-  potvora se při vytvoření chvíli líhne a není aktivní
 		- konec hry, když hráč všechny vybije (+chvíle zpoždění jako bonus)
 		- omezený počet potvor
-	- budou se respawnovat do vyrovnání kvóty
+	- 2. budou se respawnovat do vyrovnání kvóty
 		- nevýhoda: když hráč všechny vybije, ještě jsou naplánovány respawny
 		- řešení: časový limit
+	- potvora se při vytvoření chvíli líhne a není aktivní
+*- kvóty monster i bonusů dány počáteční mapou
+	*- uloženy aktuální přímo seznamy některých typů entit

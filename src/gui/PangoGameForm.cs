@@ -46,21 +46,14 @@ namespace gui
                             break;
                     }
                     break;
-                case Game.States.Finished:
-                    switch (e.KeyCode) {
-                        case Keys.Space:
-                            
-                            game.start();
-                            break;
-                    }
-                    break;
             }
             switch (e.KeyCode) {
                 case Keys.P:
                     game.pause();
                     break;
                 case Keys.Escape:
-                    game.end();
+                    Program.stop();
+                    game.endGame();
                     break;
             }
             refreshStatusLabels(this, new EventArgs());
@@ -70,6 +63,7 @@ namespace gui
             mapLabel.Refresh();
         }
         public void refreshStatusLabels(object sender, EventArgs e) {
+            levelValueLabel.Text = Game.Instance.Level.ToString();
             timeValueLabel.Text = Game.Instance.Time.ToString();
             gameStateValueLabel.Text = Game.Instance.State.ToString();
             moneyValueLabel.Text = Game.Instance.Money.ToString();
@@ -79,6 +73,10 @@ namespace gui
                 livesValueLabel.Text = Game.Instance.Player.Lives.ToString();
             }
             Refresh();
+        }
+        public void refresh() {
+            repaintMap(this, new EventArgs());
+            refreshStatusLabels(this, new EventArgs());
         }
     }
 }
