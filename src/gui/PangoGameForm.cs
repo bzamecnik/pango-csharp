@@ -52,7 +52,6 @@ namespace gui
                     game.pause();
                     break;
                 case Keys.Escape:
-                    Program.stop();
                     game.endGame();
                     break;
             }

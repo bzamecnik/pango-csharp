@@ -53,7 +53,7 @@ namespace Pango
         }
         public bool empty() {
             if (pqueue != null) {
-                return (pqueue.Count > 0);
+                return (pqueue.Count <= 0);
             } else {
                 return true;
             }

@@ -217,8 +217,7 @@ namespace Pango
                     }, timeToRespawn);
                 vanish();
             } else {
-                Game.Instance.Player = null;
-                Game.Instance.endLevel(); // endLevel of the game
+                Game.Instance.endGame(); // end of the game
             }
         }
         // this will be called when an arrow key is pressed
@@ -235,10 +234,11 @@ namespace Pango
     // THINK: maybe think of multiple types of mosters
     public class MonsterEntity : LiveEntity
     {
-        protected enum States { Normal, Stunned } // + Egg
+        protected enum States { Normal, Stunned, Egg }
         protected States state; // THINK: maybe better would be State design pattern
         static int moneyForKilling = Config.Instance.getInt("MonsterEntity.moneyForKilling");
         static int attackHitcount = Config.Instance.getInt("MonsterEntity.attackHitcount");
+        static int timeToIncubate = Config.Instance.getInt("MonsterEntity.timeToIncubate");
         bool memory;
 
         public MonsterEntity() {
@@ -247,11 +247,32 @@ namespace Pango
             lives = defaultLives = Config.Instance.getInt("MonsterEntity.defaultLives");
             timeToRespawn = Config.Instance.getInt("MonsterEntity.timeToRespawn");
             memory = false;
+            // for now, no sleeping eggs
+            Schedule.Instance.add(delegate() {
+                state = States.Normal;
+            }, timeToIncubate);
         }
         public override bool turn() {
-            if (state == States.Stunned) { return false; }
-
             Map map = Game.Instance.Map;
+            if (state == States.Stunned) { return false; }
+            //else if (state == States.Egg) {
+            //    // if there are few monsters, it's time to incubate from eggs
+            //    // Problems:
+            //    // * differentiate incubating egg from eggs not prepared
+            //    // * map would need a monster quota explicitly specified
+            //    if (map.Monsters.Count < map.MonstersQuota) {
+            //        Schedule.Instance.add(delegate() {
+            //            state = States.Normal;
+            //        }, timeToIncubate);
+            //    }
+            //    return true;
+            //}
+            
+            // make monsters' movements slower
+            // TODO: this constant to config
+            if ((Game.Instance.Time % 2) != 0) {
+                return false;
+            }
 
             attack();
             
@@ -291,18 +312,24 @@ namespace Pango
                 case States.Stunned:
                     changeHealth(-health); // die()
                     break;
+                case States.Egg:
+                    die();
+                    break;
             }
         }
         public override void die() {
             // it died, give money to the player
             Game.Instance.receiveMoney(moneyForKilling);
-            // schedule respawning, make new entity
-            Schedule.Instance.add(delegate() {
-                    respawn(new MonsterEntity());
-                }, timeToRespawn);
+            //// schedule respawning, make new entity
+            //if ((state == States.Normal) || (state == States.Stunned)) {
+            //    Schedule.Instance.add(delegate() {
+            //        respawn(new MonsterEntity());
+            //    }, timeToRespawn);
+            //}
             vanish();
         }
         public void stun(int time) {
+            if (state == States.Egg) { return; }
             state = States.Stunned;
             Schedule.Instance.add(delegate() {
                 state = States.Normal; // ok?

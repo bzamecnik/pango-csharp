@@ -195,9 +195,10 @@ namespace Pango
                 else { return 0; }
             }
         }
-        public List<MonsterEntity> Monsters {
-            get { return monsters; }
-        }
+        public List<MonsterEntity> Monsters { get { return monsters; } }
+        public int MonstersQuota { get { return monstersQuota; } }
+        public int BonusesQuota { get { return bonusesQuota; } }
+
         public Map(int width, int height) {
             monstersQuota = 0;
             bonusesQuota = 0;

@@ -6,9 +6,6 @@ namespace Pango
 {
     public class Game
     {
-        // TODO: Game can contain:
-        // * quotas for monsters (initial), bonuses, etc.
-        // * time limit (?)
         private static Game instance = null; // a singleton
         Map map;
         Schedule schedule;
@@ -106,7 +103,7 @@ namespace Pango
         public void endLevel() {
             if (state == States.Finished) { return; }
             state = States.Finished;
-            onEnd(this, new EventArgs());
+            
             if (player == null) {
                 // the player have died, make a new whole game
                 newGame();
@@ -137,44 +134,43 @@ namespace Pango
 
             loopStep(this, new EventArgs());
 
-            if (state != States.Finished){
-                // call events for this time in the queue
-                schedule.callCurrentEvents();
+            if (state != States.Running) { return false; }
 
-                // prevent multiple turn() calls in one step for entities
-                // which moved forward
-                foreach (Entity ent in map) {
-                    ent.turnDone = false;
-                }
+            // call events for this time in the queue
+            schedule.callCurrentEvents();
 
-                // let all entities in the map perform their turn
-                foreach (Entity ent in map) {
-                    // if something was made turnNotEmpty is set true
-                    if (!ent.turnDone) {
-                        turnNotEmpty |= ent.turn();
-                        ent.turnDone = true;
-                    }
-                }
-                
-                // sometimes add bonuses at a random place
-                Random r = new Random();
-                // TODO: put this constants into config
-                // * or it could change accoring to level difficulty
-                if (r.Next(15) == 0) {
-                    addRandomBonuses();
-                }
-
-                schedule.increaseTime();
-
-                if ((map.Monsters.Count <= 0) || (!turnNotEmpty && schedule.empty())) {
-                    // empty loop detected (and nothing left in the schedule)
-                    // or all monsters are killed -> exit level
-                    endLevel();
-                    return false;
-                }
-                return true;
+            // prevent multiple turn() calls in one step for entities
+            // which moved forward
+            foreach (Entity ent in map) {
+                ent.turnDone = false;
             }
-            return false;
+
+            // let all entities in the map perform their turn
+            foreach (Entity ent in map) {
+                // if something was made turnNotEmpty is set true
+                if (!ent.turnDone) {
+                    turnNotEmpty |= ent.turn();
+                    ent.turnDone = true;
+                }
+            }
+            
+            // sometimes add bonuses at a random place
+            Random r = new Random();
+            // TODO: put this constants into config
+            // * or it could change accoring to level difficulty
+            if (r.Next(15) == 0) {
+                addRandomBonuses();
+            }
+
+            schedule.increaseTime();
+
+            if ((map.Monsters.Count <= 0) || (!turnNotEmpty && schedule.empty())) {
+                // empty loop detected (and nothing left in the schedule)
+                // or all monsters are killed -> exit level
+                endLevel();
+                return false;
+            }
+            return true;
         }
         public void receiveMoney(int amount) {
             money += amount;
