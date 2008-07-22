@@ -40,6 +40,7 @@ namespace Pango
             addInt("DiamondBlock.bonusMoney", 1000);
 
             addInt("Game.StepInterval", 250); // better 100
+            values["Game.map"] = "";
         }
         public static Config Instance {
             get {

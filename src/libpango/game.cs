@@ -114,6 +114,7 @@ namespace Pango
                 // * start a next level
                 nextLevel();
             }
+            onEnd(this, new EventArgs());
         }
         public void endGame() {
             newGame();
