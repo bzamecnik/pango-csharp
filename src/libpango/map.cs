@@ -8,16 +8,28 @@ using CodEx;
 namespace Pango
 {
     // TODO: organize directions better
+
+    // ----- enum Direction ----------------------------------------
     public enum Direction { Up = 0, Right, Down, Left };
+
+    // ----- enum Rotation ----------------------------------------
     public enum Rotation { Forward = 0, CW, Backwards, CCW }
 
-    public class DirectionUtils {
+    // ----- class DirectionUtils ----------------------------------------
+    public static class DirectionUtils {
+
+        // ----- properties --------------------
+
         public static int Count {
             get { return 4; }
         }
+
+        // ----- methods --------------------
+
         public static Direction rotate(Direction direction, Rotation rot) {
             return (Direction)(((int)direction + (int)rot) % 4);
         }
+
         public static Coordinates step(Direction dir) {
             switch (dir) {
                 case Direction.Up:
@@ -31,33 +43,38 @@ namespace Pango
             }
             return Coordinates.invalid;
         }
-        // iterator thrhough Direction and Rotation items
+        // TODO: iterator thrhough Direction and Rotation items
     }
 
-    // Counted from [0,0]
-    // x - vertical (goes from up to down) -> height
-    // y - horizontal (goes left to right) -> width
+    // ----- class Coordinates ----------------------------------------
     public class Coordinates
     {
+        // Counted from [0,0]
+        // x - vertical (goes from up to down) -> height
+        // y - horizontal (goes left to right) -> width
+
+        // ----- fields --------------------
+
         public int x, y;
         public bool isInvalid;
-        public static Coordinates invalid = new Coordinates();
+        public static readonly Coordinates invalid = new Coordinates();
+
+        // ----- constructors --------------------
+
         public Coordinates() {
             this.x = 0;
             this.y = 0;
             isInvalid = true;
         }
+
         public Coordinates(int x, int y) {
             this.x = x;
             this.y = y;
             isInvalid = false;
         }
-        public static Coordinates step(Coordinates c, Direction dir) {
-            return c + DirectionUtils.step(dir);
-        }
-        public Coordinates step(Direction dir) {
-            return Coordinates.step(this, dir);
-        }
+        
+        // ----- methods --------------------
+        
         public static Coordinates operator +(Coordinates coords1, Coordinates coords2) {
             if (coords1.Equals(Coordinates.invalid) || coords2.Equals(Coordinates.invalid)) {
                 return Coordinates.invalid;
@@ -65,6 +82,7 @@ namespace Pango
                 return new Coordinates(coords1.x + coords2.x, coords1.y + coords2.y);
             }
         }
+
         public static Coordinates operator -(Coordinates coords1, Coordinates coords2) {
             if (coords1.Equals(Coordinates.invalid) || coords2.Equals(Coordinates.invalid)) {
                 return Coordinates.invalid;
@@ -72,15 +90,7 @@ namespace Pango
                 return new Coordinates(coords1.x - coords2.x, coords1.y - coords2.y);
             }
         }
-        public static bool areNeighbors(Coordinates coords1, Coordinates coords2) {
-            //return (((coords1.x == coords2.x) && (Math.Abs(coords1.y - coords2.y) == 1)) ||
-            //    ((coords1.y == coords2.y) && (Math.Abs(coords1.x - coords2.x) == 1)));
-            Coordinates diff = coords1 - coords2;
-            return ((Math.Abs(diff.x) + Math.Abs(diff.y)) == 1);
-        }
-        public bool isNeighbor(Coordinates coords) {
-            return areNeighbors(this, coords);
-        }
+
         // Difference direction from coords1 to coords2 as:
         // * Direction, if they are neighbors
         // * null, else
@@ -101,14 +111,48 @@ namespace Pango
             }
             return null;
         }
+
         public bool Equals(Coordinates other) {
             return ((x == other.x) && (y == other.y) && (isInvalid == other.isInvalid));
         }
+
+        public static bool areNeighbors(Coordinates coords1, Coordinates coords2) {
+            //return (((coords1.x == coords2.x) && (Math.Abs(coords1.y - coords2.y) == 1)) ||
+            //    ((coords1.y == coords2.y) && (Math.Abs(coords1.x - coords2.x) == 1)));
+            Coordinates diff = coords1 - coords2;
+            return ((Math.Abs(diff.x) + Math.Abs(diff.y)) == 1);
+        }
+
+        public bool isNeighbor(Coordinates coords) {
+            return areNeighbors(this, coords);
+        }
+
+        public static Coordinates step(Coordinates c, Direction dir) {
+            return c + DirectionUtils.step(dir);
+        }
+
+        public Coordinates step(Direction dir) {
+            return Coordinates.step(this, dir);
+        }
     }
 
+    // ----- class Place ----------------------------------------
     public class Place {
+
+        // ----- fields --------------------
+
         Entity walkable;
         Entity nonWalkable;
+
+        // ----- constructors --------------------
+
+        public Place() {
+            walkable = null;
+            nonWalkable = null;
+        }
+        
+        // ----- properties --------------------
+
         public Entity Walkable {
             get { return walkable; }
             set { walkable = value; }
@@ -118,10 +162,9 @@ namespace Pango
             set { nonWalkable = value; }
         }
 
-        public Place() {
-            walkable = null;
-            nonWalkable = null;
-        }
+        // ----- methods --------------------
+
+        // true if entity was really added
         public bool add(Entity ent) {
             if (ent is WalkableEntity) {
                 if (walkable == null) {
@@ -136,7 +179,10 @@ namespace Pango
             }
             return false;
         }
+
+        // true if entity was really removed
         public bool remove(Entity ent) {
+            if (!contains(ent)) { return false; }
             if (ent is WalkableEntity) {
                 if (walkable != null) {
                     walkable = null;
@@ -150,13 +196,16 @@ namespace Pango
             }
             return false;
         }
+
         public bool isWalkable() {
             return (nonWalkable == null);
         }
+
         public bool contains(Entity ent) {
             return (((walkable != null) && walkable.Equals(ent))
                     || ((nonWalkable != null) && nonWalkable.Equals(ent)));
         }
+
         public IEnumerator<Entity> GetEnumerator() {
             if (walkable != null) {
                 yield return walkable;
@@ -167,39 +216,23 @@ namespace Pango
         }
     }
 
+    // ----- class Map ----------------------------------------
     public class Map
     {
+        // ----- fields --------------------
+
         Place[,] map;
         // count number of walkable places (for getRandomWalkablePlace())]
         int walkablePlaces;
         // count various entity types - MonsterEntity, BonusEntity
         List<MonsterEntity> monsters;
         List<BonusEntity> bonuses;
+        
+        // TODO: check using these quotas...
         int monstersQuota;
         int bonusesQuota;
 
-        public Place[,] Places {
-            get { return map; }
-        }
-
-        public int Height {
-            get {
-                if (map != null) {
-                    // map.GetUpperBound(int) -> [0,n-1]
-                    return map.GetUpperBound(0) + 1;
-                }
-                else { return 0; }
-            }
-        }
-        public int Width {
-            get {
-                if (map != null) { return map.GetUpperBound(1) + 1; }
-                else { return 0; }
-            }
-        }
-        public List<MonsterEntity> Monsters { get { return monsters; } }
-        public int MonstersQuota { get { return monstersQuota; } }
-        public int BonusesQuota { get { return bonusesQuota; } }
+        // ----- constructors --------------------
 
         public Map(int width, int height) {
             monstersQuota = 0;
@@ -215,6 +248,7 @@ namespace Pango
             monsters = new List<MonsterEntity>();
             bonuses = new List<BonusEntity>();
         }
+
         // load an existing map
         public Map(Entity[,] array) {
             monstersQuota = 0;
@@ -241,6 +275,37 @@ namespace Pango
             }
         }
 
+        // ----- properties --------------------
+
+        public Place[,] Places {
+            get { return map; }
+        }
+
+        public int Height {
+            get {
+                if (map != null) {
+                    // map.GetUpperBound(int) -> [0,n-1]
+                    return map.GetUpperBound(0) + 1;
+                } else { return 0; }
+            }
+        }
+
+        public int Width {
+            get {
+                if (map != null) { return map.GetUpperBound(1) + 1; } else { return 0; }
+            }
+        }
+
+        public List<MonsterEntity> Monsters { get { return monsters; } }
+
+        public List<BonusEntity> Bonuses { get { return bonuses; } }
+        
+        public int MonstersQuota { get { return monstersQuota; } }
+        
+        public int BonusesQuota { get { return bonusesQuota; } }
+
+        // ----- methods --------------------
+
         // TODO: randomly generate map
         // * at first, we'll use hand made maps
         // * all maps (including randomly generated ones) must obey
@@ -256,6 +321,7 @@ namespace Pango
             Place place = getPlace(coords);
             return add(ent, place);
         }
+
         private bool add(Entity ent, Place place) {
             if (place == null) { return false; }
             bool added = place.add(ent);
@@ -273,6 +339,7 @@ namespace Pango
             }
             return added;
         }
+
         // Remove entity from given place
         public bool remove(Entity ent, Coordinates coords) {
             bool removeReturnValue = false;
@@ -297,6 +364,7 @@ namespace Pango
             }
             return removeReturnValue;
         }
+
         // Remove entity from map
         public bool remove(Entity ent) {
             Coordinates coords = find(ent);
@@ -305,11 +373,13 @@ namespace Pango
             }
             return false;
         }
+
         // Place is walkable if all entities there are walkable
         public bool isWalkable(Coordinates coords) {
             if (!areValidCoordinates(coords)) { return false; } // better: expception
             return map[coords.x, coords.y].isWalkable();
         }
+
         // Place is smitable (moving block can smite it)
         // if there is no other block (i.e. all entities are either
         // walkable or live)
@@ -322,6 +392,7 @@ namespace Pango
             }
             return false;
         }
+
         // Move an entity from one place to another
         public bool move(Entity ent, Coordinates from, Coordinates to) {
             // TODO: isn't it a bit ugly?
@@ -332,6 +403,7 @@ namespace Pango
             }
             return false;
         }
+
         // Search for entity in the whole map
         public Coordinates find(Entity ent) {
             for (int x = 0; x < Height; x++) {
@@ -344,15 +416,18 @@ namespace Pango
             }
             return Coordinates.invalid;
         }
+
         // Search an entity in the whole map
         public bool hasEntity(Entity ent) {
             return (!find(ent).Equals(Coordinates.invalid));
         }
+
         // Search an entity at a place given by its coordinates
         public bool hasEntity(Entity ent, Coordinates coords) {
             Place place = getPlace(coords);
             return ((place != null) && place.contains(ent));
         }
+
         public IEnumerator<Entity> GetEnumerator() {
             foreach (Place place in map) {
                 if (place != null) {
@@ -362,6 +437,7 @@ namespace Pango
                 }
             }
         }
+
         public Place getPlace(Coordinates coords) {
             return map[coords.x, coords.y];
         }
@@ -383,6 +459,7 @@ namespace Pango
         //    }
         //    return neighbors;
         //}
+
         public List<Entity> getNeighbors(Coordinates coords) {
             // TODO: is this efficient? doesn't is return copies?
             List<Entity> neighbors = new List<Entity>();
@@ -403,6 +480,7 @@ namespace Pango
             }
             return neighbors;
         }
+
         public bool areValidCoordinates(Coordinates coords) {
             return ((!coords.Equals(Coordinates.invalid)) &&
                     (coords.x >= 0) && (coords.x < Height) &&
@@ -429,14 +507,23 @@ namespace Pango
             //   * check if it is walkable (in a cycle)
             return new Coordinates(randomX, randomY);
         }
+
         public override string ToString() {
             return MapPersistence.ToString(this);
         }
     }
 
-    public class MapPersistence {
+    // ----- class MapPersistence ----------------------------------------
+
+    public static class MapPersistence {
+
+        // ----- fields --------------------
+
         static Dictionary<string, char> entityCharTable = initEntityCharTable();
         static Dictionary<char, string> charEntityTable = initCharEntityTable();
+
+        // ----- methods --------------------
+
         static Dictionary<string, char> initEntityCharTable() {
             Dictionary<string, char> table = new Dictionary<string, char>();
             table["null"] = ' ';
@@ -450,6 +537,7 @@ namespace Pango
             table["LiveBonus"] = 'L';
             return table;
         }
+
         static Dictionary<char, string> initCharEntityTable() {
             Dictionary<char, string> table = new Dictionary<char, string>();
             foreach (KeyValuePair<string, char> pair in entityCharTable) {
@@ -457,6 +545,7 @@ namespace Pango
             }
             return table;
         }
+
         static char entityToChar(Entity ent) {
             string type;
             if (ent == null) {
@@ -470,6 +559,7 @@ namespace Pango
             }
             return entityCharTable[type];
         }
+
         static string charToEntity(char c) {
             if (charEntityTable.ContainsKey(c)) {
                 return charEntityTable[c];
@@ -477,6 +567,7 @@ namespace Pango
                 return string.Empty;
             }
         }
+
         static Entity createEntity(string entityName) {
             // create only known entity types
             switch(entityName){
@@ -491,6 +582,7 @@ namespace Pango
                 default: return null;
             }
         }
+
         public static Map FromString(string text) {
             // eg:
             // XXXXXXX
@@ -533,7 +625,8 @@ namespace Pango
             }
             return new Map(map);
         }
-        public static string ToString(Map map){
+
+        public static string ToString(Map map) {
             StringBuilder sb = new StringBuilder();
 
             for (int x = 0; x < map.Height; x++) {
@@ -556,6 +649,7 @@ namespace Pango
             }
             return sb.ToString();
         }
+
         public static string readMapFromFile(string fileName) {
             StringBuilder sb = new StringBuilder();
             Reader r = new Reader(fileName);

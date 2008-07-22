@@ -6,8 +6,11 @@ using System.Text;
 
 namespace Pango
 {
+    // ----- class Game ----------------------------------------
     public class Game
     {
+        // ----- fields --------------------
+
         private static Game instance = null; // a singleton
         Map map;
         Schedule schedule;
@@ -19,15 +22,23 @@ namespace Pango
         // * No multiplayer for now.
         int money;
         PlayerEntity player;
-        public event EventHandler loopStep;
+
+        // ----- events --------------------
+
+        public event EventHandler onLoopStep;
         public event EventHandler onStart;
         public event EventHandler onPause;
         public event EventHandler onEnd;
 
+        // ----- constuctor --------------------
+
         private Game() {
-            schedule = Schedule.Instance;
+            schedule = new Schedule();
             newGame();
         }
+
+        // ----- properties --------------------
+
         public static Game Instance {
             get {
                 if (instance == null) {
@@ -42,6 +53,15 @@ namespace Pango
                 if ((Game.Instance.State != Game.States.Running)
                   || (Game.Instance.State != Game.States.Paused)) {
                     map = value;
+                }
+            }
+        }
+        public Schedule Schedule {
+            get { return schedule; }
+            set {
+                if ((Game.Instance.State != Game.States.Running)
+                  || (Game.Instance.State != Game.States.Paused)) {
+                    schedule = value;
                 }
             }
         }
@@ -61,7 +81,12 @@ namespace Pango
             get { return player; }
             set { player = value; }
         }
+
+        // ----- methods --------------------
+
+        // loads map from Config and set player reference
         public void loadMap() {
+            
             map = MapPersistence.FromString(Config.Instance["Game.map"]);
             // set player reference
             foreach (Entity ent in map) {
@@ -80,28 +105,33 @@ namespace Pango
                 }
             }
         }
+
         private void nextLevel() {
             level++;
             // TODO: compute and set time bonus
             newLevelShared();
         }
+
         private void newGame() {
             level = 1;
             money = 0;
             player = null;
             newLevelShared();
         }
+
         private void newLevelShared() {
             schedule.clear();
             loadMap(); // sets player
             state = States.Prepared;
         }
+
         public void start() {
-            if ((state == States.Prepared) || (state == States.Paused)) {
+            if (state == States.Prepared) {
                 state = States.Running;
                 onStart(this, new EventArgs());
             }
         }
+
         public void endLevel() {
             if (state == States.Finished) { return; }
             state = States.Finished;
@@ -111,15 +141,17 @@ namespace Pango
                 newGame();
             } else {
                 // all monster were killed (and all remaining bonuses collected?)
-                // * start a next level
+                // TODO: give a bonus money for completing a level
                 nextLevel();
+                onEnd(this, new EventArgs());
             }
-            onEnd(this, new EventArgs());
         }
+
         public void endGame() {
             newGame();
             onEnd(this, new EventArgs());
         }
+
         public void pause() {
             switch (state) {
                 case States.Running: 
@@ -131,11 +163,12 @@ namespace Pango
                     break;
             }
         }
+
         // returns true if game continues
         public bool step() {
             bool turnNotEmpty = false;
 
-            loopStep(this, new EventArgs());
+            onLoopStep(this, new EventArgs());
 
             if (state != States.Running) { return false; }
 
@@ -162,7 +195,7 @@ namespace Pango
             // TODO: put this constants into config
             // * or it could change accoring to level difficulty
             if (r.Next(15) == 0) {
-                addRandomBonuses();
+                addRandomBonus();
             }
 
             schedule.increaseTime();
@@ -175,14 +208,16 @@ namespace Pango
             }
             return true;
         }
+
         public void receiveMoney(int amount) {
             money += amount;
         }
+
         // add randomly selected bonus at a random place
-        private void addRandomBonuses() {
+        private void addRandomBonus() {
             Random r = new Random();
             Entity bonus = null;
-            // distribute probablity amongs various bonuses
+            // distribute probablity among various bonuses
             int chance = r.Next(10);
             if (chance <= 5) {
                 bonus = new MoneyBonus();

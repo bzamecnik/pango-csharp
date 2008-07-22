@@ -37,8 +37,8 @@ namespace gui
             Config.Instance["Game.map"] = map;
             Game game = Game.Instance;
             form.refresh();
-            game.loopStep += new EventHandler(form.repaintMap);
-            game.loopStep += new EventHandler(form.refreshStatusLabels);
+            game.onLoopStep += new EventHandler(form.repaintMap);
+            game.onLoopStep += new EventHandler(form.refreshStatusLabels);
             game.onPause += new EventHandler(gamePause);
             game.onStart += new EventHandler(gameStart);
             game.onEnd += new EventHandler(form.repaintMap);
@@ -60,7 +60,7 @@ namespace gui
             // Wait some time not to make the game so fast.
             timer = new Timer();
             timer.Tick += new EventHandler(gameStep);
-            timer.Interval = Config.Instance.getInt("Game.StepInterval");
+            timer.Interval = Config.Instance.getInt("Game.stepInterval");
             timer.Start();
             // Think of how to make the turns last the same time.
         }

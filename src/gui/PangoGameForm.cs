@@ -59,10 +59,12 @@ namespace gui
             }
             refreshStatusLabels(this, new EventArgs());
         }
+
         public void repaintMap(object sender, EventArgs e) {
             mapLabel.Text = Game.Instance.Map.ToString();
             mapLabel.Refresh();
         }
+
         public void refreshStatusLabels(object sender, EventArgs e) {
             levelValueLabel.Text = Game.Instance.Level.ToString();
             timeValueLabel.Text = Game.Instance.Time.ToString();
@@ -75,6 +77,7 @@ namespace gui
             }
             Refresh();
         }
+
         public void refresh() {
             repaintMap(this, new EventArgs());
             refreshStatusLabels(this, new EventArgs());

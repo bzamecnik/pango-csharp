@@ -6,41 +6,70 @@ using System.Text;
 
 namespace Pango
 {
+    // ----- class Entity ----------------------------------------
     public abstract class Entity
     {
+        // ----- fields --------------------
+
         // Coordinates will be both in map and in entity.
         // It's synchronized in Map.add().
         protected Coordinates coords;
-        // prevent multiple turn() calls in one step for entities
-        // which moved forward
+        // Prevent multiple turn() calls in one step for entities
+        // which moved forward.
         public bool turnDone;
+
+        // ----- constructors --------------------
 
         public Entity() {
             coords = Coordinates.invalid;
             turnDone = false;
         }
-        public abstract bool turn(); // returns true if something was done
-        public abstract void acceptAttack(Entity sender, int hitcount);
-        public void vanish() {
-            Game.Instance.Map.remove(this, coords);
-        }
+
+        // ----- properties --------------------
+        
         public Coordinates Coords {
             get { return coords; }
             set { coords = value; }
         }
+        
+        // ----- methods --------------------
+
+        // returns true if something was done
+        public abstract bool turn();
+        public abstract void acceptAttack(Entity sender, int hitcount);
+        public void vanish() {
+            Game.Instance.Map.remove(this, coords);
+        }
+        
     }
+
+    // ----- class MovableEntity ----------------------------------------
+
+    // NOTE: Better would be to use iterfaces in place of abstract classes,
+    // but how to incorporate new fields into an interface?
 
     public abstract class MovableEntity : Entity
     {
-        // Better would be to use iterfaces in place of abstract classes,
-        // but how to incorporate new places into an interface???
+        // ----- fields --------------------
+
         protected Direction direction;
+
+        // ----- constructors --------------------
 
         public MovableEntity() {
             direction = Direction.Down;
         }
 
-        // true, if step was made
+        // ----- properties --------------------
+
+        public Direction Direction {
+            get { return direction; }
+            set { direction = value; }
+        }
+
+        // ----- methods --------------------
+
+        // returns true, if a step was made
         public bool go() {
             Map map = Game.Instance.Map;
             Coordinates step = coords.step(direction);
@@ -51,6 +80,7 @@ namespace Pango
             }
             return false;
         }
+
         public virtual bool canGo(Coordinates coords) {
             Map map = Game.Instance.Map;
             return map.isWalkable(coords);
@@ -59,20 +89,36 @@ namespace Pango
         public void rotate(Rotation rot) {
             direction = DirectionUtils.rotate(direction, rot);
         }
-
-        public Direction Direction {
-            get { return direction; }
-            set { direction = value; }
-        }
     }
+
+    // ----- class LiveEntity ----------------------------------------
 
     public abstract class LiveEntity : MovableEntity
     {
+        // ----- fields --------------------
+
         protected int health;
         protected int maxHealth;
         protected int lives;
         protected int defaultLives;
         protected int timeToRespawn;
+
+        // ----- properties --------------------
+
+        public int Health {
+            get { return health; }
+        }
+        public int MaxHealth {
+            get { return maxHealth; }
+        }
+        public int Lives {
+            get { return lives; }
+            set { lives = value; }
+        }
+
+        // ----- methods --------------------
+
+        public abstract void die();
 
         // change < 0 ... hurt
         // change > 0 ... stimpack
@@ -94,25 +140,15 @@ namespace Pango
             }
             return true;
         }
-        public int Health {
-            get { return health; }
-        }
-        public int MaxHealth {
-            get { return maxHealth; }
-        }
-        public int Lives {
-            get { return lives; }
-            set { lives = value; }
-        }
-
-        public abstract void die();
 
         public virtual void respawn(LiveEntity newborn) {
-            Map map = Game.Instance.Map;
             // move to random (walkable) place
+            Map map = Game.Instance.Map;
             map.add(newborn, map.getRandomWalkablePlace());
         }
     }
+
+    // ----- class WalkableEntity ----------------------------------------
 
     public abstract class WalkableEntity : Entity
     {
@@ -122,6 +158,8 @@ namespace Pango
         // its purpose is just to identify walkable entities
         // using 'is' keyword.
     }
+
+    // ----- class PlayerEntity ----------------------------------------
 
     public class PlayerEntity : LiveEntity
     {
@@ -212,7 +250,8 @@ namespace Pango
         public override void die() {
             if (lives >= 0) {
                 // schedule respawning with a copy of this entity
-                Schedule.Instance.add(delegate() {
+                // TODO: check if not null
+                Game.Instance.Schedule.add(delegate() {
                         PlayerEntity player = new PlayerEntity(this);    
                         respawn(player);
                         Game.Instance.Player = player;
@@ -233,6 +272,8 @@ namespace Pango
         }
     }
 
+    // ----- class MonsterEntity ----------------------------------------
+
     // THINK: maybe think of multiple types of mosters
     public class MonsterEntity : LiveEntity
     {
@@ -250,7 +291,8 @@ namespace Pango
             timeToRespawn = Config.Instance.getInt("MonsterEntity.timeToRespawn");
             memory = false;
             // for now, no sleeping eggs
-            Schedule.Instance.add(delegate() {
+            // TODO: check if not null
+            Game.Instance.Schedule.add(delegate() {
                 state = States.Normal;
             }, timeToIncubate);
         }
@@ -333,7 +375,8 @@ namespace Pango
         public void stun(int time) {
             if (state == States.Egg) { return; }
             state = States.Stunned;
-            Schedule.Instance.add(delegate() {
+            // TODO: check if not null
+            Game.Instance.Schedule.add(delegate() {
                 state = States.Normal; // ok?
             }, time);
         }
@@ -359,6 +402,8 @@ namespace Pango
             }
         }
     }
+
+    // ----- class StoneBlock ----------------------------------------
 
     public class StoneBlock : Entity
     {
@@ -407,7 +452,10 @@ namespace Pango
         }
     }
 
-    public abstract class MovableBlock : MovableEntity {
+    // ----- class MovableBlock ----------------------------------------
+
+    public abstract class MovableBlock : MovableEntity
+    {
         protected enum States { Rest, Movement }
         protected States state;
 
@@ -465,6 +513,8 @@ namespace Pango
         protected abstract void turnCantGoHook();
     }
 
+    // ----- class DiamondBlock ----------------------------------------
+
     public class DiamondBlock : MovableBlock
     {
         // Alingning Diamonds gives money and stuns monsters
@@ -502,6 +552,9 @@ namespace Pango
             }
         }
     }
+
+    // ----- class IceBlock ----------------------------------------
+
     public class IceBlock : MovableBlock
     {
         protected override void acceptAttackCantGoHook() {
@@ -511,6 +564,8 @@ namespace Pango
         protected override void turnCantGoHook() { } // empty
     }
 
+    // ----- class BonusEntity ----------------------------------------
+
     // Base class for various bonuses
     public abstract class BonusEntity : WalkableEntity
     {
@@ -519,13 +574,16 @@ namespace Pango
         public BonusEntity() {
             int timeToLive = Config.Instance.getInt("Bonus.timeToLive");
             // schedule vanishing in given time
-            Schedule.Instance.add(delegate() { vanish();  }, timeToLive);
+            // TODO: check if not null
+            Game.Instance.Schedule.add(delegate() { vanish(); }, timeToLive);
         }
         public override bool turn() { return false; }
         public override void acceptAttack(Entity sender, int hitcount) { } // empty
         // Player detects stepping on the bonus himself in his turn.
         public abstract void giveBonus(PlayerEntity player);
     }
+
+    // ----- class MoneyBonus ----------------------------------------
 
     public class MoneyBonus : BonusEntity
     {
@@ -536,6 +594,8 @@ namespace Pango
         }
     }
 
+    // ----- class HealthBonus ----------------------------------------
+
     public class HealthBonus: BonusEntity
     {
         public override void giveBonus(PlayerEntity player) {
@@ -545,6 +605,8 @@ namespace Pango
             vanish();
         }
     }
+
+    // ----- class LiveBonus ----------------------------------------
 
     public class LiveBonus : BonusEntity
     {

@@ -6,15 +6,21 @@ using System.Text;
 
 namespace Pango
 {
+    // ----- class Config ----------------------------------------
     public class Config
     {
-        // * Singleton wrapper over dictionary (for now)
-        // * Later it could load/save configuration from/into a file
-        
-        // Note: both key and value is of type string for future.
+        // Singleton wrapper over dictionary (for now).
+        // Later it could load/save configuration from/into a file
+        // or ApplicationSettings.
+
+        // ----- fields --------------------
+
+        // NOTE: both key and value is of type string for future.
         // There may be some values of other types than int.
         private Dictionary<string, string> values;
         private static Config instance;
+
+        // ----- constructors --------------------
 
         private Config() {
             values = new Dictionary<string, string>();
@@ -39,9 +45,12 @@ namespace Pango
             addInt("HealthBonus.changeHealthPercent", 25);
             addInt("DiamondBlock.bonusMoney", 1000);
 
-            addInt("Game.StepInterval", 250); // better 100
+            addInt("Game.stepInterval", 250); // better 100
             values["Game.map"] = "";
         }
+
+        // ----- properties --------------------
+
         public static Config Instance {
             get {
                 if (instance == null) {
@@ -50,10 +59,16 @@ namespace Pango
                 return instance;
             }
         }
+        
+        // ----- indexers --------------------
+        
         public string this[string key]{
             get { return values[key]; }
             set { values[key] = value; }
         }
+
+        // ----- methods --------------------
+
         public void addInt(string key, int value) {
             this[key] = value.ToString();
         }

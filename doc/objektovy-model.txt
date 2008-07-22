@@ -1,28 +1,31 @@
 ===== Pango - objektový model =====
 
-třídy:
-- Hra
-- Mapa
-- Entita
-	- Živá entita
-		- Hráč
-		- Monstrum
-			- Obyčejné monstrum
-			- [další monstra]
-	- Neživá entita
-		- Průchozí entita
-			- Volné políčko
-			- Bonusový předmět
-				- Stimpack (+zdraví)
-				- Živá voda (+život)
-			- [Teleport]
-			- [Špičáky]
-		- Neprůchozí entita
-			- Led - lze jím hýbat a kopnutím rozpustit
-			- Diamant - lze jím hýbat
-			- Kámen - nelze jím hýbat
-
-rozhraní:
-- Pohyblivá entita
-- Útočná enetita
-- Živá entita
+* entities.cs
+	- abstract Entity
+		- abstract MovableEntity
+			- abstract LiveEntity
+				- PlayerEntity
+				- MonsterEntity
+			- MovableBlock
+				- DiamondBlock
+				- IceBlock
+		- abstract WalkableEntity
+			- abstract BonusEntity
+				- MoneyBonus
+				-	HealthBonus
+				- LiveBonus
+		- StoneBlock
+* map.cs
+	- Map
+	- MapPersistence
+	- Coordinates
+	- Place
+	- enum Direction
+	- enum Rotation
+	- DirectionUtils
+* schedule.cs
+	- Schedule
+* config.cs
+	- Config (singleton)
+* game.cs
+ - Game (singleton)

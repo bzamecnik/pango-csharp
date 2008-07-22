@@ -7,6 +7,7 @@
 	- intro, *pøechody mezi koly, *nová hra, ...
 
 - bonusové peníze za úspìšné ukonèení kola
+- po zabití všech potvor poèkat na vybrání všech bonusù (nejvýš ale limit)
 
 - nápovìda, informace o klávesách
 
