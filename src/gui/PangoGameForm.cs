@@ -7,6 +7,8 @@ using System.Text;
 using System.Windows.Forms;
 using Pango;
 
+// $Id$
+
 namespace gui
 {
     public partial class PangoGameForm : Form

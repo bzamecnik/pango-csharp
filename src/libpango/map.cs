@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using CodEx;
 
+// $Id$
+
 namespace Pango
 {
     // TODO: organize directions better

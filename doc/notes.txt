@@ -39,7 +39,8 @@ x- multiplayer - zatím NE
 - jak zajistit stejnou dobu kroků?
 	*- časovačem pouštět kroky hry a doufat, že se provedou rychleji než interval
 		časovače
-- hráč by se měl pohybovat rychleji než monstra
+* - hráč by se měl pohybovat rychleji než monstra
+    - monstra jsou pomalejší
 *- při pohybu entity se může její turn() provést v jednom kroku vícekrát
 	- např: IceBlock nebo MonsterEntity se při pohybu dolů posune až dolů
 *- jak IceBlock zjistí, ze které strany byl zatlačen?

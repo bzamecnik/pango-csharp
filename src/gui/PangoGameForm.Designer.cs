@@ -1,4 +1,6 @@
-﻿namespace gui
+﻿// $Id$
+
+namespace gui
 {
     partial class PangoGameForm
     {
@@ -28,6 +30,7 @@
             this.mapLabel = new System.Windows.Forms.Label();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.levelLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.levelValueLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.timeLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.timeValueLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.gameStateLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -38,7 +41,6 @@
             this.healthValueLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.livesLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.livesValueLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.levelValueLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -78,6 +80,11 @@
             this.levelLabel.Name = "levelLabel";
             this.levelLabel.Size = new System.Drawing.Size(33, 17);
             this.levelLabel.Text = "level:";
+            // 
+            // levelValueLabel
+            // 
+            this.levelValueLabel.Name = "levelValueLabel";
+            this.levelValueLabel.Size = new System.Drawing.Size(0, 17);
             // 
             // timeLabel
             // 
@@ -134,11 +141,6 @@
             this.livesValueLabel.Name = "livesValueLabel";
             this.livesValueLabel.Size = new System.Drawing.Size(0, 17);
             // 
-            // levelValueLabel
-            // 
-            this.levelValueLabel.Name = "levelValueLabel";
-            this.levelValueLabel.Size = new System.Drawing.Size(0, 17);
-            // 
             // PangoGameForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -147,7 +149,7 @@
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.mapLabel);
             this.Name = "PangoGameForm";
-            this.Text = " ";
+            this.Text = "Pango";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.processKeyboardInput);
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();

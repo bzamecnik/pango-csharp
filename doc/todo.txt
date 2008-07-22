@@ -6,6 +6,8 @@
 - herní stavy
 	- intro, *pøechody mezi koly, *nová hra, ...
 
+- bonusové peníze za úspìšné ukonèení kola
+
 - nápovìda, informace o klávesách
 
 - sestavit sadu map

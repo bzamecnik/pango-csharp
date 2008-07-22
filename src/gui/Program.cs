@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Pango;
 
+// $Id$
+
 namespace gui
 {
     static class Program

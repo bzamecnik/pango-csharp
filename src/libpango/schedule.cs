@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+// $Id$
+
 namespace Pango
 {
     public class Schedule
