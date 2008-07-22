@@ -1,11 +1,5 @@
 ====== Pango - programátorská dokumentace ======
 
-Oznaèení:
-  * hra - skládá se z levelù; konèí, kdy hráè umøe a ji nemá volné ivoty 
-  * level - má svou mapu; konèí, kdy hráè zabije všechna monstra
-
-Bìhem jednoho bìhu programu mùe probìhnout více her.	 
-
 ===== Architektura =====
 
 Program Pango se skládá ze dvou hlavních èástí, a to knihovny a grafického rozhraní. Knihovna poskytuje kompletní objektovou reprezentaci hry. Její sluby vyuívá grafické rozhraní (Windows Forms aplikace), která zajišuje zpracování podnìtù od uivatele a zobrazení aktuálního stavu hry. Herní smyèka probíhá a v grafickém rozhraní.
@@ -14,7 +8,11 @@ Program Pango se skládá ze dvou hlavních èástí, a to knihovny a grafického rozhr
 
 === Pøehled ===
 
-Hra je reprezentována tøídou Game, jednotlivé levely stavy této tøídy. Game obsahuje mapu (instance tøídy Map), simulaèní kalendáø (singleton instance tøídy Schedule), stav získanıch penìz a nìkolik eventù.
+Oznaèení:
+  * hra - skládá se z levelù; konèí, kdy hráè umøe a ji nemá volné ivoty 
+  * level - má svou mapu; konèí, kdy hráè zabije všechna monstra
+
+Hra je reprezentována tøídou Game, jednotlivé levely stavy této tøídy. Bìhem jednoho bìhu programu mùe probìhnout více her. Game obsahuje mapu (instance tøídy Map), simulaèní kalendáø (singleton instance tøídy Schedule), stav získanıch penìz a nìkolik eventù.
 
 Základem levelu je mapa, ve které se vyskytují rùzné pøedmìty nebo postavy, souhrnnì entity, které tvoøí celou hieararchii tøíd. Mapa vyuívá objektù pomocnıch tøíd Coordinates a Place. Pro naèítání mapy ze souboru a pro konverzi mezi Map a string slouí tøída MapPersistence.
 
@@ -134,7 +132,7 @@ Reprezentuje smìr. Lze pøevést na int a zpìt.
 
 == enum Rotation ==
 
-Reprezentuje rotaci. Lze pøevést na int a zpìt.
+Reprezentuje úhel rotace. Lze pøevést na int a zpìt.
 
 == DirectionUtils ==
 
@@ -143,7 +141,9 @@ Rozhraní:
   * static int Count - poèet smìrù (pro prùchod smìry)
   * static Direction rotate(Direction, Rotation) - otoèí danı smìr o danou rotaci  
 
-=== Entity ===
+=== Entity a jejich hierarchie ===
+
+Entity reprezentují vìci nebo postavy, které se vyskytují na mapì.
 
 Hierarchie:
 
@@ -152,7 +152,7 @@ Hierarchie:
 		* abstract LiveEntity
 			* PlayerEntity
 			* MonsterEntity
-		* MovableBlock
+		* abstract MovableBlock
 			* DiamondBlock
 			* IceBlock
 	* abstract WalkableEntity
@@ -161,6 +161,120 @@ Hierarchie:
 			*	HealthBonus
 			* LiveBonus
 	* StoneBlock
+
+- pouity abstraktní tøídy místo rozhraní, kvùli pøidávání fields
+
+== Entity ==
+
+Základ pro všechny entity.
+
+Rozhraní:
+  * Coordinates Coords - udrování pozice uvnitø entity se obèas hodí
+  * bool turnDone - pouívá se, aby v jednom kroku entita nehrála vícekrát
+  * abstract bool turn() - akce, kdy entita dostane "tah" (v kadém kroku)
+  * abstract void acceptAttack(Entity sender, int hitcount)
+    - volá útoèník na entitu, kdy jí napadne  
+  * void vanish() - entita se vymae z mapy
+
+== MovableEntity ==
+
+Entity, které se mohou pohybovat.
+
+Rozhraní:
+  * Direction Direction - aktuální smìr pohybu
+  * bool go()
+    - provedení jednoho kroku v aktuálním smìru
+    - vrátí true, kdy se krok podaøilo provést
+	* virtual bool canGo(Coordinates) - true, pokud lze jít v aktuálním smìru
+	* void rotate(Rotation) - otoèení o danı úhel
+
+== LiveEntity ==
+
+ivé entity mající zdraví, ivoty, mohou bıt zranìny, zabity a znovu oít.
+
+Rozhraní:
+  * int Health
+  * int MaxHealth
+  * int Lives
+  * abstract void die() - na smrt mohou konkrétní entity reagovat rùznì
+  * virtual bool changeHealth(int change) - zmìna zdraví má vliv jak na zdraví, tak i na poèet volnıch ivotù
+  * void respawn(LiveEntity newborn) - na náhodné místo umístí novou entitu				  
+
+== WalkableEntity ==
+
+Prùchozí entita. Jiné entity mohou vstoupit na stejné políèko jako tato. Hodí se napøíklad, kdy monstrum vstoupí na bonus, ale nechceme aby jej sebral.
+
+Tato tøída nijak nemìní rozhraní, uívá se pouze pomocí klíèového slova 'is'.
+
+== MovableBlock ==
+
+Neprùchozí entita, která se za urèitıch podmínek mùe pohybovat. Hodí se pro bloky ledové bloky a diamanty, do nich mùe hráè kopat.
+
+Má dva stavy: Rest a Movement.
+
+Implementuje:
+  * bool turn() - pøi pohybu zabije ivé entity po cestì a zastaví se a o neivou entitu
+  * bool canGo(Coordinates) - pokraèovat lze, splòuje-li políèko isSmitable()
+  * void acceptAttack(Entity sender, int hitcount)		  
+
+Rozhraní:
+  * protected abstract void acceptAttackCantGoHook()
+  * protected abstract void turnCantGoHook()  
+
+== PlayerEntity ==
+
+Hráè. Zatím je hra Pango navrena pouze pro single-player. 
+
+Implementuje:
+  * bool turn() - zpracuje poadavky uivatele a provádí interakci s ostatními entitami na políèku
+  * void acceptAttack(Entity sender, int hitcount) 
+  * void die() - respawnuje hráèe nebo ukonèí celou hru 
+
+Rozhraní:
+  * public PlayerEntity()
+  * layerEntity(PlayerEntity) - copy constructor se hodí pøi respawnu nebo pøechodu do nového levelu
+  * void requestMovement(Direction) - volá obsluha klávesovıch stiskù
+  * void requestAttack()  
+
+== MonsterEntity ==
+
+Monstra, protivníci hráèe. Stavy: Normal, Stunned, Egg (Monstrum se líhne z vejce a lze jej omráèit). Pro chùzi je nyní pouit algoritmus ze cvièení Programování II s pøidanou náhodnou rotací. 
+
+Implementuje:
+  * bool turn() - zde monstrum chodí po bludišti a zkouší zaútoèit na hráèe  
+  * void acceptAttack(Entity sender, int hitcount)
+  * void die()	  
+
+Rozhraní:
+  * MonsterEntity() - naplánuje vylíhnutí
+  * void stun(int time) - mostrum se na chvíli omráèí
+
+== DiamondBlock ==
+
+Diamant. Chová se jako ledovı blok, ale netaje. Nìkolik diamantù poskládanıch do øady dá bonus a omráèí všechna monstra.
+
+Implementuje:
+  * void acceptAttackCantGoHook() - nic nedìlá
+  * void turnCantGoHook() - kontroluje poskládání do øady  
+
+== IceBlock ==
+
+Ledovı blok. Hráè do nìj mùe kopnout a tím jej uvést do pohybu. Nemá-li kam jít, roztaje.
+
+Implementuje:
+  * void acceptAttackCantGoHook() - tání
+  * void turnCantGoHook() - nic nedìlá  
+
+== BonusEntity ==
+
+Základ pro všechny bonusové entity. Má omezenou ivotnost (int timeToLive).
+
+Rozhraní:
+  * abstract void giveBonus(PlayerEntity) - hráè si vyzvedne bonus, kdy na nìj narazí
+
+== MoneyBonus, HealthBonus, LiveBonus ==
+
+Bonusy ve formì penìz, zdraví resp. volnıch ivotù. Rùznì implementují giveBonus().
 
 === Schedule ===
 

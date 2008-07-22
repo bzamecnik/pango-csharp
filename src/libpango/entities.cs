@@ -141,10 +141,12 @@ namespace Pango
             return true;
         }
 
-        public virtual void respawn(LiveEntity newborn) {
+        public void respawn(LiveEntity newborn) {
             // move to random (walkable) place
             Map map = Game.Instance.Map;
-            map.add(newborn, map.getRandomWalkablePlace());
+            if (map != null) {
+                map.add(newborn, map.getRandomWalkablePlace());
+            }
         }
     }
 
@@ -198,8 +200,6 @@ namespace Pango
         public override bool turn() {
             // User's input is processed here.
             // In one turn player can rotate/move and/or attack.
-            
-            // TODO: player should be faster than monsters
 
              Map map = Game.Instance.Map;
 
@@ -234,6 +234,7 @@ namespace Pango
 
             
             // interact with entities on the same place
+            // TODO: map.getPlace(coords).Walkable would be enough
             foreach (Entity ent in map.getPlace(coords)) {
                 if (ent.Equals(this)) {
                     continue;
