@@ -2,10 +2,13 @@
 
 - jazyk: C#
 - vývojové prostředí: MS Visual Studio
-- knihovny -> asi XNA
-	- GUI
-	- grafika
-	- [zvuk (MIDI hudba na pozadí, případně další zvuky)]
+- knihovny:
+	- .NET
+	- CodEx
+ 	- XNA (asi?)
+		- GUI                                                
+		- grafika                                            
+		- [zvuk (MIDI hudba na pozadí, případně další zvuky)]
 
 - sledování:
 	- herního času (případně i tahů): celkem, v jednom levelu

@@ -14,7 +14,7 @@ Oznaèení:
 
 Hra je reprezentována tøídou Game, jednotlivé levely stavy této tøídy. Bìhem jednoho bìhu programu mùe probìhnout více her. Game obsahuje mapu (instance tøídy Map), simulaèní kalendáø (singleton instance tøídy Schedule), stav získanıch penìz a nìkolik eventù.
 
-Základem levelu je mapa, ve které se vyskytují rùzné pøedmìty nebo postavy, souhrnnì entity, které tvoøí celou hieararchii tøíd. Mapa vyuívá objektù pomocnıch tøíd Coordinates a Place. Pro naèítání mapy ze souboru a pro konverzi mezi Map a string slouí tøída MapPersistence.
+Základem levelu je mapa, ve které se vyskytují rùzné pøedmìty nebo postavy, souhrnnì entity, které tvoøí celou hieararchii tøíd. Mapa vyuívá objektù pomocnıch tøíd Coordinates a Place. Pro naèítání mapy ze souboru a pro konverzi mezi Map a string slouí tøída MapPersistence, která okrajové vyuívá knihovnu Reader projektu CodEx.
 
 Kalendáø Schedule sleduje herní èas a pøedevším poskytuje monost entitám a jinım objektù naplánovat nìjakou akci na danı herní èas.
 
