@@ -1,68 +1,68 @@
-===== PoznÃ¡mky =====
+===== Poznámky =====
 
 - jazyk: C#
-- vÃ½vojovÃ© prostÅ™edÃ­: MS Visual Studio
+- vıvojové prostøedí: MS Visual Studio
 - knihovny:
 	- .NET
 	- CodEx
  	- XNA (asi?)
-		- GUI                                                
-		- grafika                                            
-		- [zvuk (MIDI hudba na pozadÃ­, pÅ™Ã­padnÄ› dalÅ¡Ã­ zvuky)]
+		- GUI
+		- grafika
+		- [zvuk (MIDI hudba na pozadí, pøípadnì další zvuky)]
 
-- sledovÃ¡nÃ­:
-	- hernÃ­ho Äasu (pÅ™Ã­padnÄ› i tahÅ¯): celkem, v jednom levelu
-	*- skÃ³re: celkem
+- sledování:
+	- herního èasu (pøípadnì i tahù): celkem, v jednom levelu
+	*- skóre: celkem
 
-- k uloÅ¾enÃ­ nastavenÃ­ pouÅ¾Ã­t Application Settings
+- k uloení nastavení pouít Application Settings
 
-x- multiplayer - zatÃ­m NE
-	- pamatovat si, kdo strÄil blok, kterÃ½ zamÃ¡Äkl potvoru
-	- seznam hrÃ¡ÄÅ¯
-		- profil klÃ¡ves pro kaÅ¾dÃ©ho
+x- multiplayer - zatím NE
+	- pamatovat si, kdo strèil blok, kterı zamáèkl potvoru
+	- seznam hráèù
+		- profil kláves pro kadého
 
 - mapa
-	*- kolem dokola jsou bloky z kamenÅ¯, se kterÃ½mi nelze hÃ½bat
-	- pÅ™i pÅ™echodu do dalÅ¡Ã­ho levelu by Å¡lo udÄ›lat slidovÃ¡nÃ­
-	*- opravdu je tÅ™eba FreePlace mÃ­sto prÃ¡zdnÃ©ho listu?
-		- NE, staÄÃ­ null
-	x- automatickÃ½ okraj ze StoneBlock - asi NE 
-		- staÄilo by naÄÃ­st jen vnitÅ™ek a okraj automaticky doplnit
+	*- kolem dokola jsou bloky z kamenù, se kterımi nelze hıbat
+	- pøi pøechodu do dalšího levelu by šlo udìlat slidování
+	*- opravdu je tøeba FreePlace místo prázdného listu?
+		- NE, staèí null
+	x- automatickı okraj ze StoneBlock - asi NE 
+		- staèilo by naèíst jen vnitøek a okraj automaticky doplnit
 
-*- konec levelu, kdyÅ¾ hrÃ¡Ä vybije vÅ¡echny potvory
+*- konec levelu, kdy hráè vybije všechny potvory
 
-=== problÃ©my k vyÅ™eÅ¡enÃ­ === 
+=== problémy k vyøešení === 
 
-*- pÅ™ekreslovÃ¡nÃ­ mapy (v kaÅ¾dÃ©m kroku hernÃ­ smyÄky)
-	- moÅ¾nosti:
-		*- smyÄku hodit do GUI, v knihovnÄ› jen krok smyÄky
+*- pøekreslování mapy (v kadém kroku herní smyèky)
+	- monosti:
+		*- smyèku hodit do GUI, v knihovnì jen krok smyèky
 		*- nahookovat event
-	*- co kdyÅ¾ hrÃ¡Ä respawnuje? (-> neÅ¾ obÅ¾ivne, podrÅ¾Ã­ se odkaz)
-- animace mezi kroky smyÄky
-- jak zajistit stejnou dobu krokÅ¯?
-	*- ÄasovaÄem pouÅ¡tÄ›t kroky hry a doufat, Å¾e se provedou rychleji neÅ¾ interval
-		ÄasovaÄe
-* - hrÃ¡Ä by se mÄ›l pohybovat rychleji neÅ¾ monstra
-    - monstra jsou pomalejÅ¡Ã­
-*- pÅ™i pohybu entity se mÅ¯Å¾e jejÃ­ turn() provÃ©st v jednom kroku vÃ­cekrÃ¡t
-	- napÅ™: IceBlock nebo MonsterEntity se pÅ™i pohybu dolÅ¯ posune aÅ¾ dolÅ¯
-*- jak IceBlock zjistÃ­, ze kterÃ© strany byl zatlaÄen?
-	- aby si mohl nastavit smÄ›r, kterÃ½m pak bude uhÃ¡nÄ›t
-*- vyÅ™esit omrÃ¡ÄenÃ­ potvor, to nastane, kdyÅ¾:
-	*- hrÃ¡Ä kopne do stÄ›ny, vedle nÃ­Å¾ stojÃ­ potvora
-	*- hrÃ¡Ä seÅ™adÃ­ diamanty do Å™ady
-- naÄÃ­tÃ¡nÃ­ map
-	- uloÅ¾it vÃ­ce map do jednoho souboru a z nÄ›j to rozkouskovat a naÄÃ­st
+	*- co kdy hráè respawnuje? (-> ne obivne, podrí se odkaz)
+- animace mezi kroky smyèky
+- jak zajistit stejnou dobu krokù?
+	*- èasovaèem pouštìt kroky hry a doufat, e se provedou rychleji ne interval
+		èasovaèe
+* - hráè by se mìl pohybovat rychleji ne monstra
+    - monstra jsou pomalejší
+*- pøi pohybu entity se mùe její turn() provést v jednom kroku vícekrát
+	- napø: IceBlock nebo MonsterEntity se pøi pohybu dolù posune a dolù
+*- jak IceBlock zjistí, ze které strany byl zatlaèen?
+	- aby si mohl nastavit smìr, kterım pak bude uhánìt
+*- vyøesit omráèení potvor, to nastane, kdy:
+	*- hráè kopne do stìny, vedle ní stojí potvora
+	*- hráè seøadí diamanty do øady
+- naèítání map
+	- uloit více map do jednoho souboru a z nìj to rozkouskovat a naèíst
 	- podle velikosti mapy nastavit velikost okna (+limit)
-*- v kroku hry jednou za Äas nÃ¡hodnÄ› umÃ­stit nÄ›jakÃ½ bonus
+*- v kroku hry jednou za èas náhodnì umístit nìjakı bonus
 - rozmyslet - potvory
-	- 1. budou se lÃ­hnout z pÅ™edem pÅ™ipravenÃ½ch vajec
-		-  potvora se pÅ™i vytvoÅ™enÃ­ chvÃ­li lÃ­hne a nenÃ­ aktivnÃ­
-		- konec hry, kdyÅ¾ hrÃ¡Ä vÅ¡echny vybije (+chvÃ­le zpoÅ¾dÄ›nÃ­ jako bonus)
-		- omezenÃ½ poÄet potvor
-	- 2. budou se respawnovat do vyrovnÃ¡nÃ­ kvÃ³ty
-		- nevÃ½hoda: kdyÅ¾ hrÃ¡Ä vÅ¡echny vybije, jeÅ¡tÄ› jsou naplÃ¡novÃ¡ny respawny
-		- Å™eÅ¡enÃ­: ÄasovÃ½ limit
-	- potvora se pÅ™i vytvoÅ™enÃ­ chvÃ­li lÃ­hne a nenÃ­ aktivnÃ­
-*- kvÃ³ty monster i bonusÅ¯ dÃ¡ny poÄÃ¡teÄnÃ­ mapou
-	*- uloÅ¾eny aktuÃ¡lnÃ­ pÅ™Ã­mo seznamy nÄ›kterÃ½ch typÅ¯ entit
+	- 1. budou se líhnout z pøedem pøipravenıch vajec
+		-  potvora se pøi vytvoøení chvíli líhne a není aktivní
+		- konec hry, kdy hráè všechny vybije (+chvíle zpodìní jako bonus)
+		- omezenı poèet potvor
+	- 2. budou se respawnovat do vyrovnání kvóty
+		- nevıhoda: kdy hráè všechny vybije, ještì jsou naplánovány respawny
+		- øešení: èasovı limit
+	- potvora se pøi vytvoøení chvíli líhne a není aktivní
+*- kvóty monster i bonusù dány poèáteèní mapou
+	*- uloeny aktuální pøímo seznamy nìkterıch typù entit

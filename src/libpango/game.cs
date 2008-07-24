@@ -33,6 +33,7 @@ namespace Pango
         // ----- constuctor --------------------
 
         private Game() {
+            state = States.Prepared;
             schedule = new Schedule();
             newGame();
         }
@@ -86,7 +87,6 @@ namespace Pango
 
         // loads map from Config and set player reference
         public void loadMap() {
-            
             map = MapPersistence.FromString(Config.Instance["Game.map"]);
             // set player reference
             foreach (Entity ent in map) {
@@ -121,7 +121,9 @@ namespace Pango
 
         private void newLevelShared() {
             schedule.clear();
-            loadMap(); // sets player
+            if (state == States.Finished) {
+                loadMap(); // sets player
+            }
             state = States.Prepared;
         }
 
@@ -135,7 +137,7 @@ namespace Pango
         public void endLevel() {
             if (state == States.Finished) { return; }
             state = States.Finished;
-            
+            // TODO: wait some time
             if (player == null) {
                 // the player have died, make a new whole game
                 newGame();
@@ -148,6 +150,8 @@ namespace Pango
         }
 
         public void endGame() {
+            state = States.Finished;
+            // TODO: wait some time
             newGame();
             onEnd(this, new EventArgs());
         }

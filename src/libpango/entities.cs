@@ -44,12 +44,11 @@ namespace Pango
     }
 
     // ----- class MovableEntity ----------------------------------------
-
-    // NOTE: Better would be to use iterfaces in place of abstract classes,
-    // but how to incorporate new fields into an interface?
-
     public abstract class MovableEntity : Entity
     {
+        // NOTE: Better would be to use iterfaces in place of abstract classes,
+        // but how to incorporate new fields into an interface?
+
         // ----- fields --------------------
 
         protected Direction direction;
@@ -151,7 +150,6 @@ namespace Pango
     }
 
     // ----- class WalkableEntity ----------------------------------------
-
     public abstract class WalkableEntity : Entity
     {
         // Other entities can walk through this one.
@@ -162,16 +160,20 @@ namespace Pango
     }
 
     // ----- class PlayerEntity ----------------------------------------
-
     public class PlayerEntity : LiveEntity
     {
+        // ----- fields --------------------
+
+        protected enum States { Normal, Dead };
         private Direction requestedDirection; // for user input
         // these flags are true if an action is scheduled for the next turn
         private bool requestedMovement;
         private bool requestedAttack;
 
         private int attackHitcount;
-        
+
+        // ----- constructors --------------------
+
         public PlayerEntity() {
             // TODO: Handle exceptions
             health = maxHealth = Config.Instance.getInt("PlayerEntity.maxHealth");
@@ -183,6 +185,7 @@ namespace Pango
             requestedMovement = false;
             requestedAttack = false;
         }
+
         public PlayerEntity(PlayerEntity p) {
             coords = p.coords;
             direction = p.direction;
@@ -196,6 +199,8 @@ namespace Pango
             requestedMovement = false;
             requestedAttack = false;
         }
+
+        // ----- methods --------------------
 
         public override bool turn() {
             // User's input is processed here.
@@ -245,9 +250,11 @@ namespace Pango
             }
             return true;
         }
+
         public override void acceptAttack(Entity sender, int hitcount) {
             changeHealth(-hitcount);
         }
+
         public override void die() {
             if (lives >= 0) {
                 // schedule respawning with a copy of this entity
@@ -262,22 +269,29 @@ namespace Pango
                 Game.Instance.endGame(); // end of the game
             }
         }
+
         // this will be called when an arrow key is pressed
         public void requestMovement(Direction dir) {
             requestedMovement = true;
             requestedDirection = dir;
         }
+
         // this will be called when ATTACK key is pressed
         public void requestAttack() {
             requestedAttack = true;
         }
+
+        public override string ToString() {
+            return string.Format("player-normal-{0}",direction.ToString().ToLower());
+        }
     }
 
     // ----- class MonsterEntity ----------------------------------------
-
-    // THINK: maybe think of multiple types of mosters
     public class MonsterEntity : LiveEntity
     {
+        // THINK: maybe think of multiple types of mosters
+
+        // ----- fields --------------------
         protected enum States { Normal, Stunned, Egg }
         protected States state; // THINK: maybe better would be State design pattern
         static int moneyForKilling = Config.Instance.getInt("MonsterEntity.moneyForKilling");
@@ -285,18 +299,29 @@ namespace Pango
         static int timeToIncubate = Config.Instance.getInt("MonsterEntity.timeToIncubate");
         bool memory;
 
+        // ----- constructors --------------------
+
         public MonsterEntity() {
-            state = States.Normal;
+            state = States.Egg;
             health = maxHealth = Config.Instance.getInt("MonsterEntity.maxHealth");
             lives = defaultLives = Config.Instance.getInt("MonsterEntity.defaultLives");
             timeToRespawn = Config.Instance.getInt("MonsterEntity.timeToRespawn");
             memory = false;
-            // for now, no sleeping eggs
+
             // TODO: check if not null
             Game.Instance.Schedule.add(delegate() {
                 state = States.Normal;
             }, timeToIncubate);
         }
+
+        // ----- properties --------------------
+
+        public bool Active {
+            get { return (state != States.Egg); }
+        }
+
+        // ----- methods --------------------
+
         public override bool turn() {
             Map map = Game.Instance.Map;
             if (state == States.Stunned) { return false; }
@@ -349,6 +374,7 @@ namespace Pango
             }
             return true;
         }
+
         public override void acceptAttack(Entity sender, int hitcount) {
             switch (state) {
                 case States.Normal:
@@ -362,6 +388,7 @@ namespace Pango
                     break;
             }
         }
+
         public override void die() {
             // it died, give money to the player
             Game.Instance.receiveMoney(moneyForKilling);
@@ -373,6 +400,7 @@ namespace Pango
             //}
             vanish();
         }
+
         public void stun(int time) {
             if (state == States.Egg) { return; }
             state = States.Stunned;
@@ -381,6 +409,7 @@ namespace Pango
                 state = States.Normal; // ok?
             }, time);
         }
+
         private void attack() {
             // turn in player's direction if they are neighbors
             if ((Game.Instance == null) || (Game.Instance.Player == null)) { return; }
@@ -405,12 +434,13 @@ namespace Pango
     }
 
     // ----- class StoneBlock ----------------------------------------
-
     public class StoneBlock : Entity
     {
         // It is used for building a border around the map.
         // It does not interact much, except it is non-walkable and when
         // attacked while in the border wall it stuns monsters along.
+
+        // ----- methods --------------------
 
         public override bool turn() { return false; } // empty
         public override void acceptAttack(Entity sender, int hitcount) {
@@ -434,6 +464,7 @@ namespace Pango
                 monster.stun(time);
             }
         }
+
         private List<Entity> getMonstersAlongWall(
             int from, int to,
             Nullable<int> coordX, Nullable<int> coordY)
@@ -454,15 +485,20 @@ namespace Pango
     }
 
     // ----- class MovableBlock ----------------------------------------
-
     public abstract class MovableBlock : MovableEntity
     {
+        // ----- fields --------------------
         protected enum States { Rest, Movement }
         protected States state;
+
+        // ----- constructor --------------------
 
         public MovableBlock() {
             state = States.Rest;
         }
+
+        // ----- methods --------------------
+
         public override bool turn() {
             if (state == States.Movement) {
                 Coordinates step = coords.step(direction);
@@ -489,10 +525,12 @@ namespace Pango
                 return false;
             }
         }
+
         public override bool canGo(Coordinates coords) {
             Map map = Game.Instance.Map;
             return map.isSmitable(coords);
         }
+
         public override void acceptAttack(Entity sender, int hitcount) {
             Map map = Game.Instance.Map;
 
@@ -510,19 +548,23 @@ namespace Pango
                 }
             }
         }
+
         protected abstract void acceptAttackCantGoHook();
+
         protected abstract void turnCantGoHook();
     }
 
     // ----- class DiamondBlock ----------------------------------------
-
     public class DiamondBlock : MovableBlock
     {
         // Alingning Diamonds gives money and stuns monsters
 
+        // ----- methods --------------------
+
         protected override void acceptAttackCantGoHook() {
             // empty - DiamondBlock doesn't melt
         }
+
         protected override void turnCantGoHook() {
             // Check diamonds alingning. If aligned,
             // stun all monsters and give money to the player
@@ -555,22 +597,28 @@ namespace Pango
     }
 
     // ----- class IceBlock ----------------------------------------
-
     public class IceBlock : MovableBlock
     {
+        // ----- mnethods --------------------
+
         protected override void acceptAttackCantGoHook() {
             // IceBlock melts when attacked having no place to go
             vanish();
         }
+
         protected override void turnCantGoHook() { } // empty
     }
 
     // ----- class BonusEntity ----------------------------------------
-
-    // Base class for various bonuses
     public abstract class BonusEntity : WalkableEntity
     {
+        // Base class for various bonuses
+
+        // ----- fields --------------------
+        
         protected int timeToLive;
+
+        // ----- constructors --------------------
 
         public BonusEntity() {
             int timeToLive = Config.Instance.getInt("Bonus.timeToLive");
@@ -578,16 +626,22 @@ namespace Pango
             // TODO: check if not null
             Game.Instance.Schedule.add(delegate() { vanish(); }, timeToLive);
         }
+
+        // ----- methods --------------------
+        
         public override bool turn() { return false; }
+        
         public override void acceptAttack(Entity sender, int hitcount) { } // empty
+        
         // Player detects stepping on the bonus himself in his turn.
         public abstract void giveBonus(PlayerEntity player);
     }
 
     // ----- class MoneyBonus ----------------------------------------
-
     public class MoneyBonus : BonusEntity
     {
+        // ----- methods --------------------
+
         public override void giveBonus(PlayerEntity player) {
             int bonusMoney = Config.Instance.getInt("MoneyBonus.bonusMoney");
             Game.Instance.receiveMoney(bonusMoney);
@@ -596,9 +650,10 @@ namespace Pango
     }
 
     // ----- class HealthBonus ----------------------------------------
-
     public class HealthBonus: BonusEntity
     {
+        // ----- methods --------------------
+
         public override void giveBonus(PlayerEntity player) {
             int changeHealthPercent = Config.Instance.getInt("HealthBonus.changeHealthPercent");
             // increase health by given percent
@@ -608,9 +663,10 @@ namespace Pango
     }
 
     // ----- class LiveBonus ----------------------------------------
-
     public class LiveBonus : BonusEntity
     {
+        // ----- methods --------------------
+
         public override void giveBonus(PlayerEntity player) {
             player.Lives += 1; // add 1 life
             vanish();

@@ -29,6 +29,7 @@ Stavy hry: Prepared, Running, Paused, Finished. Game obsahuje mapu, rozvrh, leve
 Použití:
   * do Config.Instance["Game.map"] se vloží mapa jako text
   * použije se instance Game.Instance
+  * pomocí Game.Instance.loadMap() se vytvoøí mapa z configu
   * na eventy se zavìsí vlastní funkce  
   * kroky smyèky se volají pøes step()
 Rohzraní:

@@ -36,6 +36,7 @@ namespace gui
             }
             Config.Instance["Game.map"] = map;
             Game game = Game.Instance;
+            game.loadMap();
             form.refresh();
             game.onLoopStep += new EventHandler(form.repaintMap);
             game.onLoopStep += new EventHandler(form.refreshStatusLabels);
@@ -44,7 +45,7 @@ namespace gui
             game.onEnd += new EventHandler(form.repaintMap);
             game.onEnd += new EventHandler(form.refreshStatusLabels);
         }
-        public static void stop() {
+        private static void stop() {
             if (timer != null) { timer.Stop(); }
         }
         private static void gamePause(object sender, EventArgs e) {

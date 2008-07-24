@@ -227,16 +227,10 @@ namespace Pango
         // count various entity types - MonsterEntity, BonusEntity
         List<MonsterEntity> monsters;
         List<BonusEntity> bonuses;
-        
-        // TODO: check using these quotas...
-        int monstersQuota;
-        int bonusesQuota;
 
         // ----- constructors --------------------
 
         public Map(int width, int height) {
-            monstersQuota = 0;
-            bonusesQuota = 0;
             map = new Place[height, width];
             // initialize places
             for (int x = 0; x < Height; x++) {
@@ -251,26 +245,17 @@ namespace Pango
 
         // load an existing map
         public Map(Entity[,] array) {
-            monstersQuota = 0;
-            bonusesQuota = 0;
             monsters = new List<MonsterEntity>();
             bonuses = new List<BonusEntity>();
             map = new Place[array.GetUpperBound(0) + 1, array.GetUpperBound(1) + 1];
             walkablePlaces = Height * Width;
             for (int x = 0; x < Height; x++) {
                 for (int y = 0; y < Width; y++) {
-                    Place place = new Place();
+                    map[x, y] = new Place();
                     Entity ent = array[x, y];
                     if (ent != null) {
-                        add(ent, place);
-                        if (ent is MonsterEntity) {
-                            monstersQuota++;
-                        }
-                        if (ent is BonusEntity) {
-                            bonusesQuota++;
-                        }
+                        add(ent, new Coordinates(x,y));
                     }
-                    map[x, y] = place;
                 }
             }
         }
@@ -300,9 +285,17 @@ namespace Pango
 
         public List<BonusEntity> Bonuses { get { return bonuses; } }
         
-        public int MonstersQuota { get { return monstersQuota; } }
-        
-        public int BonusesQuota { get { return bonusesQuota; } }
+        public int ActiveMonsters {
+            get {
+                int count = 0;
+                if (monsters != null) {
+                    foreach (MonsterEntity monster in monsters) {
+                        if (monster.Active) { count++; }
+                    }
+                }
+                return count;
+            }
+        }
 
         // ----- methods --------------------
 
@@ -316,57 +309,67 @@ namespace Pango
 
         // Add an entity to a given place
         public bool add(Entity ent, Coordinates coords) {
-            if (!areValidCoordinates(coords)) { return false; }
+            if ((ent == null) || !areValidCoordinates(coords)) { return false; }
             ent.Coords = coords;
             Place place = getPlace(coords);
-            return add(ent, place);
+            bool added = add(ent, place);
+            if (added) {
+                if ((ent is MonsterEntity) && (monsters != null)
+                    && (!monsters.Contains((MonsterEntity)ent))) {
+                    monsters.Add((MonsterEntity)ent);
+                }
+                if ((ent is BonusEntity) && (bonuses != null)
+                    && (!bonuses.Contains((BonusEntity)ent))) {
+                    bonuses.Add((BonusEntity)ent);
+                }
+            }
+            return added;
         }
 
         private bool add(Entity ent, Place place) {
-            if (place == null) { return false; }
+            if ((ent == null) || (place == null)) { return false; }
             bool added = place.add(ent);
             if (added && !(ent is WalkableEntity)) {
                 // this place was made non-walkable
                 walkablePlaces--;
             }
-            if ((ent is MonsterEntity) && (monsters != null)
-                && (!monsters.Contains((MonsterEntity)ent))) {
-                monsters.Add((MonsterEntity)ent);
-            }
-            if ((ent is BonusEntity) && (bonuses != null)
-                && (!bonuses.Contains((BonusEntity)ent))) {
-                bonuses.Add((BonusEntity)ent);
-            }
             return added;
         }
 
-        // Remove entity from given place
+        // Remove entity from given coords
         public bool remove(Entity ent, Coordinates coords) {
+            if ((ent == null) || !hasEntity(ent, coords)) { return false; }
+            
             bool removeReturnValue = false;
-            if (hasEntity(ent, coords)) {
-                Place place = getPlace(coords);
-                if (place != null) {
-                    bool entWasNonWalkable = !(ent is WalkableEntity);
-                    removeReturnValue = place.remove(ent);
-                    if (entWasNonWalkable && isWalkable(coords)) {
-                        // this place was made walkable again
-                        walkablePlaces++;
-                    }
-                }
-                if ((ent is MonsterEntity) && (monsters != null)) {
-                    monsters.Remove((MonsterEntity)ent);
-                    monstersQuota--;
-                }
-                if ((ent is BonusEntity) && (bonuses != null)) {
-                    bonuses.Remove((BonusEntity)ent);
-                    bonusesQuota--;
-                }
+            Place place = getPlace(coords);
+            
+            removeReturnValue = place.remove(ent);
+            if ((ent is MonsterEntity) && (monsters != null)
+                && (monsters.Contains((MonsterEntity)ent))) {
+                monsters.Remove((MonsterEntity)ent);
+            }
+            if ((ent is BonusEntity) && (bonuses != null)
+                && (bonuses.Contains((BonusEntity)ent))) {
+                bonuses.Remove((BonusEntity)ent);
             }
             return removeReturnValue;
         }
 
+        // remove entity from given place
+        private bool remove(Entity ent, Place place) {
+            if ((ent == null) || (place == null)) { return false; }
+            bool entWasNonWalkable = !(ent is WalkableEntity);
+            bool removed = place.remove(ent);
+            if (removed && entWasNonWalkable && place.isWalkable()) {
+                // this place was made walkable again
+                walkablePlaces++;
+            }
+            return removed;
+        }
+
         // Remove entity from map
         public bool remove(Entity ent) {
+            if (ent == null) { return false; }
             Coordinates coords = find(ent);
             if (!coords.Equals(Coordinates.invalid)) {
                 return remove(ent, coords);
@@ -397,8 +400,8 @@ namespace Pango
         public bool move(Entity ent, Coordinates from, Coordinates to) {
             // TODO: isn't it a bit ugly?
             if (hasEntity(ent)) {
-                remove(ent, from);
-                add(ent, to);
+                remove(ent, getPlace(from));
+                add(ent, getPlace(to));
                 return true;
             }
             return false;

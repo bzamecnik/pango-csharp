@@ -1,10 +1,11 @@
 ===== Pango TODO =====
 
 - prozoumat XNA
-- promyslet grafické rozhraní a jeho napojení na knihovnu
+*- promyslet grafické rozhraní a jeho napojení na knihovnu
 
 - herní stavy
-	- intro, *pøechody mezi koly, *nová hra, ...
+	- intro+help, *pøechody mezi levely, *nová hra, ...
+	- chvíli èekat po konci levelu
 
 - bonusové peníze za úspìšné ukonèení kola
 - po zabití všech potvor poèkat na vybrání všech bonusù (nejvýš ale limit)
@@ -18,12 +19,13 @@
 - GUI
 	- 1. fáze - vylepšit stávající GUI s WinForms + text
 		- ovládací tlaèítka
-	- 2. fáze - GUI pøes XNA
+	- 2. fáze - Windows Forms + obrázky
+	- 3. fáze (?) - XNA
 
 - dokumentace
 	- vylepšit a vyèistit (sjednotit) komentáøe ve zdrojácích
 	- vyrobit "docbook" komentáøe
-	- sepsat celkový pohled na architekturu
+	*- sepsat celkový pohled na architekturu a programátorskou dokumentaci
 	- napsat uživatelskou dokumentaci
 		- zakomponovat do programu
 

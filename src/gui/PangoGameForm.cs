@@ -61,8 +61,11 @@ namespace gui
         }
 
         public void repaintMap(object sender, EventArgs e) {
-            mapLabel.Text = Game.Instance.Map.ToString();
-            mapLabel.Refresh();
+            if (Game.Instance.Map != null) {
+                mapLabel.Text = Game.Instance.Map.ToString();
+                mapLabel.Refresh();
+            }
+            
         }
 
         public void refreshStatusLabels(object sender, EventArgs e) {

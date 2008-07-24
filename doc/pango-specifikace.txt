@@ -1,68 +1,68 @@
-Hra Pango - specifikace zÃ¡poÄtovÃ©ho programu na ProgramovÃ¡nÃ­ II
-BohumÃ­r ZÃ¡meÄnÃ­k
+Hra Pango - specifikace zápoètového programu na Programování II
+Bohumír Zámeèník
 
-2D bludiÅ¡tÄ› s potvorami. Remake hry Pango, coÅ¾ byl klon videohry Pengo
+2D bludištì s potvorami. Remake hry Pango, co byl klon videohry Pengo
 
 - hraje se na kola (levely)
-	- tahy hrÃ¡ÄÅ¯ v pravidelnÃ½ch intervalech (spojitÃ¡ simulace)
-	- levely postupnÄ› nabÃ­rajÃ­ na obtÃ­Å¾nosti
-	- kola majÃ­ ÄasovÃ½ limit
-	- konÄÃ­, kdyÅ¾ vyprÅ¡Ã­ limit, nebo vÅ¡echa monstra jsou zabita
-	- kaÅ¾dÃ© kolo mÃ¡ svou mapu - bludiÅ¡tÄ› s polÃ­Äky
-		- na kaÅ¾dÃ©m polÃ­Äku mÅ¯Å¾e bÃ½t:
-			- hrÃ¡Ä
-			- protivnÃ­k (monstrum)
-			- prÃ¡zdnÃ© polÃ­Äko
-			- kÃ¡men - obyÄejnÃ½, speciÃ¡lnÃ­ (diamant)
-			- bonusovÃ½ pÅ™edmÄ›t
-		- mapy definovÃ¡ny ruÄnÄ› nebo generovÃ¡ny automaticky
-- hrÃ¡Ä (ÄlovÄ›k)
-	- chodÃ­ po volnÃ½ch polÃ­ÄkÃ¡ch
-	- mÅ¯Å¾e strkat do kamenÅ¯
-		- snaÅ¾Ã­ se pomocÃ­ kamenÅ¯ pozabÃ­jet monstra
-		- snaÅ¾Ã­ se sestavit diamanty do Å™ady
-			- za to je hodnÄ› bodÅ¯ a na chvÃ­li se omrÃ¡ÄÃ­ vÅ¡echny monstra v bludiÅ¡ti
-	- mÅ¯Å¾e kopat do zdi a omrÃ¡Äit tak monstrum
-		- dotÃ½kÃ¡-li se monstrum stejnÃ© zdi v okamÅ¾iku kopnutÃ­
-	- mÃ¡ volnÃ© Å¾ivoty a zdravÃ­ (hit body)
-		- ÃºtoÄÃ­-li na nÄ›j nÄ›kdo, ubÃ­rÃ¡ mu zdravÃ­
-		- kdyÅ¾ zdravÃ­ dojde na minimum, hrÃ¡Ä umÅ™e a ubere se mu Å¾ivot
-			(mÃ¡-li jeÅ¡tÄ›) a zase oÅ¾ije na jinÃ©m mÃ­stÄ›
-    - pomocÃ­ nÄ›kterÃ½ch bonusovÃ½ch pÅ™edmÄ›tÅ¯ by si mohl doplnit zdravÃ­ a Å¾ivoty
-  - sbÃ­rÃ¡ body
-    - cÃ­l hry - pÅ™eÅ¾Ã­t co nejdÃ©le a nasbÃ­rat co nejvÃ­c bodÅ¯
-    - body mÅ¯Å¾e hrÃ¡Ä zÃ­skat za:
-      - zabitÃ­ nebo omrÃ¡ÄenÃ­ monstra
-      - seskupenÃ­ diamantÅ¯ do Å™ady (nebo nÄ›jakÃ©ho obrazce)
-      - ÃºspÄ›Å¡nÃ½m dokonÄenÃ­m kola
-      - sebrÃ¡nÃ­m nÄ›kterÃ½ch bonusovÃ½ch pÅ™edmÄ›tÅ¯
-- kÃ¡men
-  - kopne-li do nÄ›j hrÃ¡Ä, dÃ¡ se do pohybu
-    - zastavÃ­ se aÅ¾ o stÄ›nu nebo jinÃ½ kÃ¡men
-    - narazÃ­li-li po cestÄ› na monstrum, zabije ho a pokraÄuje
+	- tahy hráèù v pravidelnıch intervalech (spojitá simulace)
+	- levely postupnì nabírají na obtínosti
+	- kola mají èasovı limit
+	- konèí, kdy vyprší limit, nebo všecha monstra jsou zabita
+	- kadé kolo má svou mapu - bludištì s políèky
+		- na kadém políèku mùe bıt:
+			- hráè
+			- protivník (monstrum)
+			- prázdné políèko
+			- kámen - obyèejnı, speciální (diamant)
+			- bonusovı pøedmìt
+		- mapy definovány ruènì nebo generovány automaticky
+- hráè (èlovìk)
+	- chodí po volnıch políèkách
+	- mùe strkat do kamenù
+		- snaí se pomocí kamenù pozabíjet monstra
+		- snaí se sestavit diamanty do øady
+			- za to je hodnì bodù a na chvíli se omráèí všechny monstra v bludišti
+	- mùe kopat do zdi a omráèit tak monstrum
+		- dotıká-li se monstrum stejné zdi v okamiku kopnutí
+	- má volné ivoty a zdraví (hit body)
+		- útoèí-li na nìj nìkdo, ubírá mu zdraví
+		- kdy zdraví dojde na minimum, hráè umøe a ubere se mu ivot
+			(má-li ještì) a zase oije na jiném místì
+    - pomocí nìkterıch bonusovıch pøedmìtù by si mohl doplnit zdraví a ivoty
+  - sbírá body
+    - cíl hry - pøeít co nejdéle a nasbírat co nejvíc bodù
+    - body mùe hráè získat za:
+      - zabití nebo omráèení monstra
+      - seskupení diamantù do øady (nebo nìjakého obrazce)
+      - úspìšnım dokonèením kola
+      - sebráním nìkterıch bonusovıch pøedmìtù
+- kámen
+  - kopne-li do nìj hráè, dá se do pohybu
+    - zastaví se a o stìnu nebo jinı kámen
+    - narazíli-li po cestì na monstrum, zabije ho a pokraèuje
 - monstrum
-  - chodÃ­ po svÃ© trase, je-li chytÅ™ejÅ¡Ã­ pak chodÃ­ smÄ›rem za hrÃ¡Äem
-  - kdyÅ¾ narazÃ­ na hrÃ¡Äe, ÃºtoÄÃ­ na nÄ›j
-    - ubÃ­rÃ¡ mu postupnÄ› zdravÃ­, dokud hrÃ¡Ä ne umÅ™e nebo neuteÄe
-  - je-li zabito, nÄ›kde oÅ¾ije novÃ© monstrum, aby doplnilo
-    poÄet monster v danÃ©m levelu
-  - mÅ¯Å¾e bÃ½t omrÃ¡Äeno
-    - kdyÅ¾ hrÃ¡Ä kopne do zdi, u nÃ­Å¾ stojÃ­ monstrum, nebo kdyÅ¾ narovnÃ¡ diamanty
-    - omrÃ¡ÄenÃ­ chvÃ­li trvÃ¡
-    - je-li omrÃ¡Äeno, hrÃ¡Ä se k nÄ›mu mÅ¯Å¾e bez bez obav pÅ™iblÃ­Å¾it a dorazit jej
-- obtÃ­Å¾nost:
-  - rychlost hry (pohybu nepÅ™Ã¡tel)
-    - poÄet monster (kvÃ³ta)
-    - rychlost oÅ¾ivovÃ¡nÃ­ monster
-    - poÄet diamantÅ¯
-    - poÄet bonusovÃ½ch pÅ™edmÄ›tÅ¯
+  - chodí po své trase, je-li chytøejší pak chodí smìrem za hráèem
+  - kdy narazí na hráèe, útoèí na nìj
+    - ubírá mu postupnì zdraví, dokud hráè ne umøe nebo neuteèe
+  - je-li zabito, nìkde oije nové monstrum, aby doplnilo
+    poèet monster v daném levelu
+  - mùe bıt omráèeno
+    - kdy hráè kopne do zdi, u ní stojí monstrum, nebo kdy narovná diamanty
+    - omráèení chvíli trvá
+    - je-li omráèeno, hráè se k nìmu mùe bez bez obav pøiblíit a dorazit jej
+- obtínost:
+  - rychlost hry (pohybu nepøátel)
+    - poèet monster (kvóta)
+    - rychlost oivování monster
+    - poèet diamantù
+    - poèet bonusovıch pøedmìtù
     - inteligence monster
-- bonusovÃ© pÅ™edmÄ›ty
-  - stimpacky - doplnÄ›nÃ­ zdravÃ­ a Å¾ivotÅ¯
-  [- vyÅ¡Å¡Ã­ odolnost - Ãºtok monstra ubere mÃ©nÄ› zdravÃ­]
-  [- zbranÄ› - zabÃ­jenÃ­ monster na blÃ­zko Äi na dÃ¡lku]
-  [- neviditelnost - chytÅ™ejÅ¡Ã­ monstra nebudou moci sledovat hrÃ¡Äe]
-[- dalÅ¡Ã­ vybavenÃ­]
+- bonusové pøedmìty
+  - stimpacky - doplnìní zdraví a ivotù
+  [- vyšší odolnost - útok monstra ubere ménì zdraví]
+  [- zbranì - zabíjení monster na blízko èi na dálku]
+  [- neviditelnost - chytøejší monstra nebudou moci sledovat hráèe]
+[- další vybavení]
   - teleporty
-  - nÃ¡strahy - pÃ­chÃ¡Äe, kterÃ© obÄas propÃ­chnou postaviÄku, kterÃ¡ na nÄ› stoupla
-- interface by byl grafickÃ½ a moÅ¾nÃ¡ k tomu bude hrÃ¡t hudba a zvuky akcÃ­
+  - nástrahy - pícháèe, které obèas propíchnou postavièku, která na nì stoupla
+- interface by byl grafickı a moná k tomu bude hrát hudba a zvuky akcí
