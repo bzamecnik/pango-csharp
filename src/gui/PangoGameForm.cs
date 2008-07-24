@@ -60,7 +60,7 @@ namespace gui
             refreshStatusLabels(this, new EventArgs());
         }
 
-        public void repaintMap(object sender, EventArgs e) {
+        public void repaintMapLabel(object sender, EventArgs e) {
             if (Game.Instance.Map != null) {
                 mapLabel.Text = Game.Instance.Map.ToString();
                 mapLabel.Refresh();
@@ -82,8 +82,38 @@ namespace gui
         }
 
         public void refresh() {
-            repaintMap(this, new EventArgs());
+            //repaintMapLabel(this, new EventArgs());
+            repaintMapPictureBox(this, new EventArgs());
             refreshStatusLabels(this, new EventArgs());
+        }
+
+        public void setMapPictureBoxSize(object sender, EventArgs e) {
+            if (Game.Instance.Map == null) { return; }
+            // TODO: put these constants into config
+            mapPictureBox.Height = Game.Instance.Map.Height * 32;
+            mapPictureBox.Width = Game.Instance.Map.Width * 32;
+            // TODO: set window size
+        }
+
+        public void repaintMapPictureBox(object sender, EventArgs e) {
+             mapPictureBox.Invalidate();
+        }
+
+        private void mapPictureBox_Paint(object sender, PaintEventArgs e) {
+            Map map = Game.Instance.Map;
+            if (map == null) { return; }
+            
+            Graphics graphics = e.Graphics;
+            for (int y = 0; y < map.Width; y++) {
+                for (int x = 0; x < map.Height; x++) {
+                    foreach (Entity ent in map.getPlace(new Coordinates(x,y))) {
+                        string entDesc = string.Format("{0}.png", ent.ToString());
+                        if (entitiesImageList.Images.ContainsKey(entDesc)) {
+                            graphics.DrawImage(entitiesImageList.Images[entDesc], new Point(32 * y, 32 * x));
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -29,6 +29,7 @@ namespace Pango
         public event EventHandler onStart;
         public event EventHandler onPause;
         public event EventHandler onEnd;
+        public event EventHandler onLoadMap;
 
         // ----- constuctor --------------------
 
@@ -103,6 +104,9 @@ namespace Pango
                     }
                     break;
                 }
+            }
+            if (onLoadMap != null) {
+                onLoadMap(Game.Instance, new EventArgs());
             }
         }
 

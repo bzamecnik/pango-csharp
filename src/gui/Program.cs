@@ -36,14 +36,19 @@ namespace gui
             }
             Config.Instance["Game.map"] = map;
             Game game = Game.Instance;
-            game.loadMap();
-            form.refresh();
-            game.onLoopStep += new EventHandler(form.repaintMap);
+
+            game.onLoadMap += new EventHandler(form.setMapPictureBoxSize);
+            //game.onLoopStep += new EventHandler(form.repaintMapLabel);
+            game.onLoopStep += new EventHandler(form.repaintMapPictureBox);
             game.onLoopStep += new EventHandler(form.refreshStatusLabels);
             game.onPause += new EventHandler(gamePause);
             game.onStart += new EventHandler(gameStart);
-            game.onEnd += new EventHandler(form.repaintMap);
+            //game.onEnd += new EventHandler(form.repaintMapLabel);
+            game.onEnd += new EventHandler(form.repaintMapPictureBox);
             game.onEnd += new EventHandler(form.refreshStatusLabels);
+
+            game.loadMap();
+            form.refresh();
         }
         private static void stop() {
             if (timer != null) { timer.Stop(); }
