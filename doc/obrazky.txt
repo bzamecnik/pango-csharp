@@ -2,7 +2,7 @@
 
 	* PlayerEntity
 		* Normal - up, right, down, left
-		* Kick - up, right, down, left
+		* Attack - up, right, down, left
 		* Dead
 	* MonsterEntity
 	  * Normal - up, right, down, left

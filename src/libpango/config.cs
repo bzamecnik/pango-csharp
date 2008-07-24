@@ -28,15 +28,16 @@ namespace Pango
             // Default values
             addInt("PlayerEntity.maxHealth", 100);
             addInt("PlayerEntity.defaultLives", 3);
-            addInt("PlayerEntity.timeToRespawn", 3);
+            addInt("PlayerEntity.timeToRespawn", 4);
             addInt("PlayerEntity.attackHitcount", 25);
+            addInt("PlayerEntity.timeToVanishDead", 2);
 
             addInt("MonsterEntity.moneyForKilling", 50);
             addInt("MonsterEntity.attackHitcount", 40);
             addInt("MonsterEntity.maxHealth", 50);
             addInt("MonsterEntity.defaultLives", 0);
             addInt("MonsterEntity.timeToRespawn", 25);
-            addInt("MonsterEntity.timeToIncubate", 15);
+            addInt("MonsterEntity.timeToIncubate", 5);
             addInt("MonsterEntity.timeToWakeupDiamond", 30);
             addInt("MonsterEntity.timeToWakeupWall", 10);
 
@@ -44,6 +45,7 @@ namespace Pango
             addInt("MoneyBonus.bonusMoney", 100);
             addInt("HealthBonus.changeHealthPercent", 25);
             addInt("DiamondBlock.bonusMoney", 1000);
+            addInt("IceBlock.timeToMelt", 1);
 
             addInt("Game.stepInterval", 250); // better 100
             values["Game.map"] = "";

@@ -164,7 +164,8 @@ namespace Pango
     {
         // ----- fields --------------------
 
-        protected enum States { Normal, Dead };
+        protected enum States { Normal, Attack, Dead };
+        protected States state;
         private Direction requestedDirection; // for user input
         // these flags are true if an action is scheduled for the next turn
         private bool requestedMovement;
@@ -175,6 +176,7 @@ namespace Pango
         // ----- constructors --------------------
 
         public PlayerEntity() {
+            state = States.Normal;
             // TODO: Handle exceptions
             health = maxHealth = Config.Instance.getInt("PlayerEntity.maxHealth");
             lives = defaultLives = Config.Instance.getInt("PlayerEntity.defaultLives");
@@ -187,6 +189,7 @@ namespace Pango
         }
 
         public PlayerEntity(PlayerEntity p) {
+            state = States.Normal;
             coords = p.coords;
             direction = p.direction;
             health = p.health;
@@ -206,7 +209,9 @@ namespace Pango
             // User's input is processed here.
             // In one turn player can rotate/move and/or attack.
 
-             Map map = Game.Instance.Map;
+            if (state == States.Dead) { return false; }
+
+            Map map = Game.Instance.Map;
 
             // rotate/move
             if (requestedMovement) {
@@ -235,6 +240,9 @@ namespace Pango
                     }
                 }
                 requestedAttack = false; // clear
+
+                state = States.Attack;
+                Game.Instance.Schedule.add(delegate() { state = States.Normal; }, 1);
             }
 
             
@@ -264,7 +272,11 @@ namespace Pango
                         respawn(player);
                         Game.Instance.Player = player;
                     }, timeToRespawn);
-                vanish();
+                state = States.Dead;
+                int timeToVanish = Config.Instance.getInt("PlayerEntity.timeToVanishDead");
+                Game.Instance.Schedule.add(delegate() {
+                    vanish();
+                }, timeToVanish);
             } else {
                 Game.Instance.endGame(); // end of the game
             }
@@ -282,7 +294,13 @@ namespace Pango
         }
 
         public override string ToString() {
-            return string.Format("player-normal-{0}",direction.ToString().ToLower());
+            StringBuilder sb = new StringBuilder("player-");
+            sb.Append(state.ToString().ToLower());
+            if (state != States.Dead) {
+                sb.Append("-");
+                sb.Append(direction.ToString().ToLower());
+            }
+            return sb.ToString();
         }
     }
 
@@ -324,7 +342,7 @@ namespace Pango
 
         public override bool turn() {
             Map map = Game.Instance.Map;
-            if (state == States.Stunned) { return false; }
+            if ((state == States.Stunned) || (state == States.Egg)) { return false; }
             //else if (state == States.Egg) {
             //    // if there are few monsters, it's time to incubate from eggs
             //    // Problems:
@@ -431,6 +449,16 @@ namespace Pango
                 }
             }
         }
+
+        public override string ToString() {
+            StringBuilder sb =new StringBuilder("monster-");
+            sb.Append(state.ToString().ToLower());
+            if(state==States.Normal) {
+                sb.Append("-");
+                sb.Append(direction.ToString().ToLower());
+            }
+            return sb.ToString();
+        }
     }
 
     // ----- class StoneBlock ----------------------------------------
@@ -482,19 +510,23 @@ namespace Pango
             }
             return monsters;
         }
+
+        public override string ToString() {
+            return "stoneblock";
+        }
     }
 
     // ----- class MovableBlock ----------------------------------------
     public abstract class MovableBlock : MovableEntity
     {
         // ----- fields --------------------
-        protected enum States { Rest, Movement }
+        protected enum States { Normal, Movement }
         protected States state;
 
         // ----- constructor --------------------
 
         public MovableBlock() {
-            state = States.Rest;
+            state = States.Normal;
         }
 
         // ----- methods --------------------
@@ -517,7 +549,7 @@ namespace Pango
                     go();
                 } else {
                     // stop when encountering a non-walkable place
-                    state = States.Rest;
+                    state = States.Normal;
                     turnCantGoHook();
                 }
                 return true;
@@ -559,6 +591,11 @@ namespace Pango
     {
         // Alingning Diamonds gives money and stuns monsters
 
+        // ----- fields --------------------
+
+        protected new enum States { Normal, Movement, Active };
+        protected new States state;
+
         // ----- methods --------------------
 
         protected override void acceptAttackCantGoHook() {
@@ -580,6 +617,9 @@ namespace Pango
                         || ((coords.y == neighbor1.Coords.y)
                             && (coords.y == neighbor2.Coords.y))) {
                         // 3 diamond block aligned!
+                        state = States.Active;
+                        //neighbor1.State = States.Active;
+                        //neighbor2.State = States.Active;
                         // stun all monsters
                         foreach (MonsterEntity ent in map.Monsters) {
                             int time = Config.Instance.getInt("MonsterEntity.timeToWakeupDiamond");
@@ -594,29 +634,43 @@ namespace Pango
                 }
             }
         }
+
+        public override string ToString() {
+            string s = state.ToString().ToLower();
+            if (s == "movement") { s = "normal"; }
+            return string.Format("diamond-{0}", s);
+        }
     }
 
     // ----- class IceBlock ----------------------------------------
     public class IceBlock : MovableBlock
     {
-        // ----- mnethods --------------------
+        // ----- fields --------------------
+        protected new enum States { Normal, Movement, Melt }
+        protected new States state;
+
+        // ----- methods --------------------
 
         protected override void acceptAttackCantGoHook() {
             // IceBlock melts when attacked having no place to go
-            vanish();
+            state = States.Melt;
+            int timeToMelt = Config.Instance.getInt("IceBlock.timeToMelt");
+            Game.Instance.Schedule.add(delegate() { vanish(); }, timeToMelt);
         }
 
         protected override void turnCantGoHook() { } // empty
+
+        public override string ToString() {
+            string s = state.ToString().ToLower();
+            if (s == "movement") { s = "normal"; }
+            return string.Format("iceblock-{0}", s);
+        }
     }
 
     // ----- class BonusEntity ----------------------------------------
     public abstract class BonusEntity : WalkableEntity
     {
         // Base class for various bonuses
-
-        // ----- fields --------------------
-        
-        protected int timeToLive;
 
         // ----- constructors --------------------
 
@@ -647,6 +701,10 @@ namespace Pango
             Game.Instance.receiveMoney(bonusMoney);
             vanish();
         }
+
+        public override string ToString() {
+            return "moneybonus";
+        }
     }
 
     // ----- class HealthBonus ----------------------------------------
@@ -660,6 +718,10 @@ namespace Pango
             player.changeHealth((int)(player.MaxHealth * ((float)changeHealthPercent / 100)));
             vanish();
         }
+
+        public override string ToString() {
+            return "healthbonus";
+        }
     }
 
     // ----- class LiveBonus ----------------------------------------
@@ -670,6 +732,10 @@ namespace Pango
         public override void giveBonus(PlayerEntity player) {
             player.Lives += 1; // add 1 life
             vanish();
+        }
+
+        public override string ToString() {
+            return "livebonus";
         }
     }
 }
