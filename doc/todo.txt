@@ -5,7 +5,8 @@
 
 - herní stavy
 	- intro+help, *pøechody mezi levely, *nová hra, ...
-	- chvíli èekat po konci levelu
+	*- chvíli èekat po konci levelu
+	- BUG: pøi pøechodu do nového levelu se nevynuluje stav hráèe	
 
 - bonusové peníze za úspìšné ukonèení kola
 - po zabití všech potvor poèkat na vybrání všech bonusù (nejvýš ale limit)
@@ -17,9 +18,9 @@
 - lepší algoritmus chození potvor
 
 - GUI
-	- 1. fáze - vylepšit stávající GUI s WinForms + text
+	*- 1. fáze - vylepšit stávající GUI s WinForms + text
 		- ovládací tlaèítka
-	- 2. fáze - Windows Forms + obrázky
+	*- 2. fáze - Windows Forms + obrázky
 	- 3. fáze (?) - XNA
 
 - dokumentace

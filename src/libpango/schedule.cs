@@ -68,6 +68,9 @@ namespace Pango
 
         public void clear() {
             if (pqueue != null) { pqueue.Clear(); }
+        }
+
+        public void clearTime() {
             time = 0;
         }
     }

@@ -21,6 +21,7 @@ namespace gui
             initializeGame(form);
             Application.Run(form);
         }
+
         private static void initializeGame(PangoGameForm form) {
             // TODO: break this function into two
             // TODO: put the filename info config
@@ -37,7 +38,7 @@ namespace gui
             Config.Instance["Game.map"] = map;
             Game game = Game.Instance;
 
-            game.onLoadMap += new EventHandler(form.setMapPictureBoxSize);
+            game.onLoadMap += new EventHandler(form.setWindowSize);
             //game.onLoopStep += new EventHandler(form.repaintMapLabel);
             game.onLoopStep += new EventHandler(form.repaintMapPictureBox);
             game.onLoopStep += new EventHandler(form.refreshStatusLabels);
@@ -50,18 +51,22 @@ namespace gui
             game.loadMap();
             form.refresh();
         }
+
         private static void stop() {
             if (timer != null) { timer.Stop(); }
         }
+
         private static void gamePause(object sender, EventArgs e) {
             Program.stop();
         }
+
         private static void gameStep(object sender, EventArgs e) {
             Program.stop();
             if (Game.Instance.step()) {
                 gameStart(sender, new EventArgs());
             }
         }
+
         public static void gameStart(object sender, EventArgs e) {
             // Wait some time not to make the game so fast.
             timer = new Timer();

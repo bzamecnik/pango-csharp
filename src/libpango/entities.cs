@@ -197,6 +197,7 @@ namespace Pango
             lives = p.lives;
             defaultLives = p.defaultLives;
             timeToRespawn = p.timeToRespawn;
+            attackHitcount = p.attackHitcount;
 
             requestedDirection = direction;
             requestedMovement = false;
@@ -209,7 +210,9 @@ namespace Pango
             // User's input is processed here.
             // In one turn player can rotate/move and/or attack.
 
-            if (state == States.Dead) { return false; }
+            if (state == States.Dead) {
+                return false;
+            }
 
             Map map = Game.Instance.Map;
 
@@ -260,10 +263,13 @@ namespace Pango
         }
 
         public override void acceptAttack(Entity sender, int hitcount) {
-            changeHealth(-hitcount);
+            if (state != States.Dead) {
+                changeHealth(-hitcount);
+            }
         }
 
         public override void die() {
+            state = States.Dead;
             if (lives >= 0) {
                 // schedule respawning with a copy of this entity
                 // TODO: check if not null
@@ -272,7 +278,6 @@ namespace Pango
                         respawn(player);
                         Game.Instance.Player = player;
                     }, timeToRespawn);
-                state = States.Dead;
                 int timeToVanish = Config.Instance.getInt("PlayerEntity.timeToVanishDead");
                 Game.Instance.Schedule.add(delegate() {
                     vanish();
@@ -370,9 +375,9 @@ namespace Pango
             // For now a simpler algorithm would be enough
 
             // randomly rotate
-            Random r = new Random();
-            if (r.Next(4) == 0) {
-                Rotation rot = (Rotation)r.Next(0, 3);
+            Random random = Game.Instance.Random;
+            if (random.Next(4) == 0) {
+                Rotation rot = (Rotation)random.Next(0, 3);
                 rotate(rot);
             }
 

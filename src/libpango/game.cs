@@ -14,7 +14,7 @@ namespace Pango
         private static Game instance = null; // a singleton
         Map map;
         Schedule schedule;
-        public enum States { Prepared, Running, Paused, Finished };
+        public enum States { Prepared, Running, Paused, Finishing, Finished };
         States state;
         int level;
         // Money that player collected for killing monsters,
@@ -22,6 +22,7 @@ namespace Pango
         // * No multiplayer for now.
         int money;
         PlayerEntity player;
+        Random random;
 
         // ----- events --------------------
 
@@ -36,6 +37,7 @@ namespace Pango
         private Game() {
             state = States.Prepared;
             schedule = new Schedule();
+            random = new Random();
             newGame();
         }
 
@@ -83,6 +85,9 @@ namespace Pango
             get { return player; }
             set { player = value; }
         }
+        public Random Random {
+            get { return random; }
+        }
 
         // ----- methods --------------------
 
@@ -95,12 +100,15 @@ namespace Pango
                     if (player == null) {
                         player = (PlayerEntity)ent;
                     } else {
-                        // set player's coordinates according to map
-                        // but retain player object from previous level
+                        // Set player's coordinates according to map
+                        // but retain player object from previous level.
+                        // Reset state to Normal.
                         // TODO: think how to do this in a nicer way
-                        player.Coords = ent.Coords;
+                        PlayerEntity p = new PlayerEntity(player);
+                        p.Coords = ent.Coords;
                         // can't set ent directly (because of foreach cycle)
-                        map.getPlace(ent.Coords).NonWalkable = player;
+                        map.getPlace(ent.Coords).NonWalkable = p;
+                        player = p;
                     }
                     break;
                 }
@@ -125,6 +133,7 @@ namespace Pango
 
         private void newLevelShared() {
             schedule.clear();
+            schedule.clearTime();
             if (state == States.Finished) {
                 loadMap(); // sets player
             }
@@ -132,32 +141,41 @@ namespace Pango
         }
 
         public void start() {
-            if (state == States.Prepared) {
-                state = States.Running;
-                onStart(this, new EventArgs());
-            }
+            state = States.Running;
+            onStart(this, new EventArgs());
         }
 
         public void endLevel() {
             if (state == States.Finished) { return; }
-            state = States.Finished;
-            // TODO: wait some time
+            state = States.Finishing;
+            // wait some time
+            onEnd(this, new EventArgs());
+            int timeBeforeLevel = Config.Instance.getInt("Game.timeBeforeLevel");
             if (player == null) {
                 // the player have died, make a new whole game
-                newGame();
+                Game.Instance.Schedule.add(delegate() {
+                    state = States.Finished;
+                    newGame();
+                }, timeBeforeLevel);
             } else {
                 // all monster were killed (and all remaining bonuses collected?)
                 // TODO: give a bonus money for completing a level
-                nextLevel();
-                onEnd(this, new EventArgs());
+                Game.Instance.Schedule.add(delegate() {
+                    state = States.Finished;
+                    nextLevel();
+                }, timeBeforeLevel);
             }
         }
 
         public void endGame() {
-            state = States.Finished;
-            // TODO: wait some time
-            newGame();
+            state = States.Finishing;
             onEnd(this, new EventArgs());
+            // wait some time
+            int timeBeforeLevel = Config.Instance.getInt("Game.timeBeforeLevel");
+            Game.Instance.Schedule.add(delegate() {
+                state = States.Finished;
+                newGame();
+            }, timeBeforeLevel);
         }
 
         public void pause() {
@@ -177,7 +195,11 @@ namespace Pango
             bool turnNotEmpty = false;
 
             onLoopStep(this, new EventArgs());
-
+            if (state == States.Finishing) {
+                schedule.increaseTime();
+                schedule.callCurrentEvents();
+                return true;
+            }
             if (state != States.Running) { return false; }
 
             // call events for this time in the queue
@@ -199,20 +221,21 @@ namespace Pango
             }
             
             // sometimes add bonuses at a random place
-            Random r = new Random();
             // TODO: put this constants into config
             // * or it could change accoring to level difficulty
-            if (r.Next(15) == 0) {
+            if (random.Next(15) == 0) {
                 addRandomBonus();
             }
 
             schedule.increaseTime();
 
-            if ((map.Monsters.Count <= 0) || (!turnNotEmpty && schedule.empty())) {
+            if (!turnNotEmpty && schedule.empty()) {
                 // empty loop detected (and nothing left in the schedule)
+                endGame();
+            }
+            if (map.Monsters.Count <= 0) {  
                 // or all monsters are killed -> exit level
                 endLevel();
-                return false;
             }
             return true;
         }
@@ -223,16 +246,15 @@ namespace Pango
 
         // add randomly selected bonus at a random place
         private void addRandomBonus() {
-            Random r = new Random();
             Entity bonus = null;
             // distribute probablity among various bonuses
-            int chance = r.Next(10);
+            int chance = random.Next(10);
             if (chance <= 5) {
                 bonus = new MoneyBonus();
-            } else if ((chance > 5) && (chance <= 7)) {
-                bonus = new LiveBonus();
-            } else {
+            } else if ((chance > 5) && (chance <= 8)) {
                 bonus = new HealthBonus();
+            } else {
+                bonus = new LiveBonus();
             }
             if (bonus != null) {
                 map.add(bonus, map.getRandomWalkablePlace());

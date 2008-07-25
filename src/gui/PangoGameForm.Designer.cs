@@ -57,7 +57,7 @@ namespace gui
             this.mapLabel.Font = new System.Drawing.Font("Courier New", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.mapLabel.Location = new System.Drawing.Point(0, 0);
             this.mapLabel.Name = "mapLabel";
-            this.mapLabel.Size = new System.Drawing.Size(692, 416);
+            this.mapLabel.Size = new System.Drawing.Size(392, 366);
             this.mapLabel.TabIndex = 1;
             this.mapLabel.Visible = false;
             // 
@@ -76,9 +76,9 @@ namespace gui
             this.healthValueLabel,
             this.livesLabel,
             this.livesValueLabel});
-            this.statusStrip.Location = new System.Drawing.Point(0, 394);
+            this.statusStrip.Location = new System.Drawing.Point(0, 344);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(692, 22);
+            this.statusStrip.Size = new System.Drawing.Size(392, 22);
             this.statusStrip.TabIndex = 2;
             // 
             // levelLabel
@@ -154,7 +154,7 @@ namespace gui
             this.mapPictureBox.Location = new System.Drawing.Point(0, 0);
             this.mapPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.mapPictureBox.Name = "mapPictureBox";
-            this.mapPictureBox.Size = new System.Drawing.Size(692, 394);
+            this.mapPictureBox.Size = new System.Drawing.Size(392, 344);
             this.mapPictureBox.TabIndex = 3;
             this.mapPictureBox.TabStop = false;
             this.mapPictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.mapPictureBox_Paint);
@@ -191,10 +191,11 @@ namespace gui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(692, 416);
+            this.ClientSize = new System.Drawing.Size(392, 366);
             this.Controls.Add(this.mapPictureBox);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.mapLabel);
+            this.DoubleBuffered = true;
             this.Name = "PangoGameForm";
             this.Text = "Pango";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.processKeyboardInput);

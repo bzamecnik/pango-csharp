@@ -87,12 +87,16 @@ namespace gui
             refreshStatusLabels(this, new EventArgs());
         }
 
-        public void setMapPictureBoxSize(object sender, EventArgs e) {
+        public void setWindowSize(object sender, EventArgs e) {
             if (Game.Instance.Map == null) { return; }
             // TODO: put these constants into config
-            mapPictureBox.Height = Game.Instance.Map.Height * 32;
-            mapPictureBox.Width = Game.Instance.Map.Width * 32;
-            // TODO: set window size
+            Size spriteSize = entitiesImageList.ImageSize;
+            Map map = Game.Instance.Map;
+            Size newSize = new Size(map.Width * spriteSize.Width,
+                (map.Height * spriteSize.Height) + statusStrip.Height);
+            // set window size
+            this.ClientSize = newSize;
+
         }
 
         public void repaintMapPictureBox(object sender, EventArgs e) {

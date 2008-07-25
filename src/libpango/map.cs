@@ -664,6 +664,7 @@ namespace Pango
                     break;
                 }
             }
+            r.Close();
             return sb.ToString();
         }
     }
