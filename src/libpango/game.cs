@@ -93,7 +93,7 @@ namespace Pango
 
         // loads map from Config and set player reference
         public void loadMap() {
-            map = MapPersistence.FromString(Config.Instance["Game.map"]);
+            map = MapPersistence.FromString(Config.Instance[getMapName()]);
             // set player reference
             foreach (Entity ent in map) {
                 if ((ent != null) && (ent is PlayerEntity)) {
@@ -117,10 +117,22 @@ namespace Pango
                 onLoadMap(Game.Instance, new EventArgs());
             }
         }
+        private string getMapName() {
+            int count = Config.Instance.getInt("Game.mapCount");
+            if (count > 0) {
+                // level and maps counted from 1
+                // maps will eventually repeat
+                return string.Format("Game.map.{0}", ((level - 1) % count) + 1);
+            } else {
+                return "";
+            }
+        }
 
         private void nextLevel() {
             level++;
             // TODO: compute and set time bonus
+            // -exp(...)
+            // eg. 1000 points in 0 time, 10 points in 1000 time
             newLevelShared();
         }
 

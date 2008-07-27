@@ -5,11 +5,10 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Pango;
 
 // $Id$
 
-namespace gui
+namespace Pango
 {
     public partial class PangoGameForm : Form
     {
@@ -60,13 +59,13 @@ namespace gui
             refreshStatusLabels(this, new EventArgs());
         }
 
-        public void repaintMapLabel(object sender, EventArgs e) {
-            if (Game.Instance.Map != null) {
-                mapLabel.Text = Game.Instance.Map.ToString();
-                mapLabel.Refresh();
-            }
+        //public void repaintMapLabel(object sender, EventArgs e) {
+        //    if (Game.Instance.Map != null) {
+        //        mapLabel.Text = Game.Instance.Map.ToString();
+        //        mapLabel.Refresh();
+        //    }
             
-        }
+        //}
 
         public void refreshStatusLabels(object sender, EventArgs e) {
             levelValueLabel.Text = Game.Instance.Level.ToString();

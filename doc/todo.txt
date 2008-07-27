@@ -5,15 +5,16 @@
 
 - herní stavy
 	- intro+help, *pøechody mezi levely, *nová hra, ...
-	*- chvíli èekat po konci levelu
-	- BUG: pøi pøechodu do nového levelu se nevynuluje stav hráèe	
+	*- chvíli èekat po konci levelu	
 
 - bonusové peníze za úspìšné ukonèení kola
 - po zabití všech potvor poèkat na vybrání všech bonusù (nejvýš ale limit)
 
 - nápovìda, informace o klávesách
 
-- sestavit sadu map
+- mapy
+	- sestavit sadu map
+	*- naèítání více map ze souboru
 
 - lepší algoritmus chození potvor
 
@@ -25,6 +26,7 @@
 
 - dokumentace
 	- vylepšit a vyèistit (sjednotit) komentáøe ve zdrojácích
+		- použít #regions
 	- vyrobit "docbook" komentáøe
 	*- sepsat celkový pohled na architekturu a programátorskou dokumentaci
 	- napsat uživatelskou dokumentaci

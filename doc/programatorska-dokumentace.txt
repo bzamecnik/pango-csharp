@@ -2,7 +2,7 @@
 
 ===== Architektura =====
 
-Program Pango se skládá ze dvou hlavních èástí, a to knihovny a grafického rozhraní. Knihovna poskytuje kompletní objektovou reprezentaci hry. Její sluby vyuívá grafické rozhraní (Windows Forms aplikace), která zajišuje zpracování podnìtù od uivatele a zobrazení aktuálního stavu hry. Herní smyèka probíhá a v grafickém rozhraní.
+Program Pango se skládá ze dvou hlavních èástí, a to knihovny a grafického rozhraní. Knihovna poskytuje kompletní objektovou reprezentaci hry. Její sluby vyuívá grafické rozhraní (Windows Forms aplikace), která zajišuje zpracování podnìtù od uivatele a zobrazení aktuálního stavu hry. Herní smyèka probíhá a v grafickém rozhraní. Knihovna i GUI leí v namespace Pango.
 
 ==== Knihovna libpango ====
 
@@ -51,7 +51,10 @@ Rohzraní:
 		- vrací true, kdy aspoò jedna entita nìco provede
 		- asi nejdùleitìjší èást tøídy Game
   * void receiveMoney(int) - pøidá hráèi danou èástku penìz
-  * void addRandomBonuses() - na náhodné prùchozí políèko pøidá náhodnı bonus	  
+Pomocné vìci:
+  * void addRandomBonuses() - na náhodné prùchozí políèko pøidá náhodnı bonus
+  * void newGame()
+  * void nextLevel()		  
 
 === Map a její pomocné tøídy ===
 
@@ -117,7 +120,7 @@ Rozhraní:
 	  
 == Place ==
 
-Reprezentuje jedno políèko na mapì. Zajímavé je, e mùe obsahovat a dvì entity - jednu prùchozí (walkable) a jednu neprùchozí. To se napø. hodí, jakmile mostrum (non-walkable) chce projít pøes bonus (walkable), ale nebude jej sbírat. Zøejmì staèí nejvıš jedna entita kadého druhu, jinak by nastal na mapì zmatek a hra by se stala dosti neintuitivní.
+Reprezentuje jedno políèko na mapì. Zajímavé je, e mùe obsahovat a dvì entity - jednu prùchozí (walkable - potomka tøídy WalkableEntity) a jednu neprùchozí. To se napø. hodí, jakmile mostrum (non-walkable) chce projít pøes bonus (walkable), ale nebude jej sbírat. Zøejmì staèí nejvıš jedna entita kadého druhu, jinak by nastal na mapì zmatek a hra by se stala dosti neintuitivní.
 
 Rozhraní:
   * Walkable, NonWalable - properties pro pøístup k entitám
@@ -130,17 +133,21 @@ Rozhraní:
 == enum Direction ==
 
 Reprezentuje smìr. Lze pøevést na int a zpìt.
+Up = 0, Right, Down, Left.
 
 == enum Rotation ==
 
 Reprezentuje úhel rotace. Lze pøevést na int a zpìt.
+Forward = 0, CW, Backwards, CCW.
 
 == DirectionUtils ==
 
 Umoòuje provádìt rotaci smìru a pøevod smìru na souøadnice. Direction i Rotation jsou vıètového typu, protoe je nenároèné je pøevádìt na èíslo a zpìt. Jejich hodnot je jen konstatnì mnoho (resp. málo) tudí není nutné pro nì neustále vytváøet a rušit stejné objekty.
 Rozhraní:
   * static int Count - poèet smìrù (pro prùchod smìry)
-  * static Direction rotate(Direction, Rotation) - otoèí danı smìr o danou rotaci  
+  * static Direction rotate(Direction, Rotation) - otoèí danı smìr o danou rotaci
+  * static Coordinates step(Direction)
+    - pø. smìr Up pøevede na Coordinates (-1,0)  
 
 === Entity a jejich hierarchie ===
 
@@ -163,7 +170,7 @@ Hierarchie:
 			* LiveBonus
 	* StoneBlock
 
-- pouity abstraktní tøídy místo rozhraní, kvùli pøidávání fields
+Pouity abstraktní tøídy místo rozhraní, kvùli pøidávání dalších fields.
 
 == Entity ==
 
@@ -291,10 +298,48 @@ Slouí pro správu nastavení. Obsahuje slovník párù <string,string> pro snadné ad
 
 ==== Grafické rozhraní ====
 
-==== Pøehled ====
+=== Pøehled ===
 
 Jde o Windows Forms aplikaci. Má tøi úkoly:
   * pomocí knihovny inicializovat hru a spouštìt herní smyèku
   * zpracovávat stisky kláves
   * zobrazovat mapu a údaje o høe
 Herní smyèka vyuívá èasovaèe z Forms. Na eventy v Game pøipojuje svoje metody pro vykreslování a manipulaci s èasovaèem.
+
+GUI obsahuje dvì tøídy Program a PangoGameForm.
+
+=== Program ===
+
+=== PangoGameForm ===
+
+Form s hlavním oknem aplikace. Z komponent obsahuje PictureBox, do nìj se kreslí mapa, ImageList pro uloení obrázkù entit, StatusStrip pro zobrazení informací o stavu hry. Dále obsahuje obsluhy událostí pro vykreslovaní mapy a zpracování klávesového vstupu.
+
+Rozhraní:
+  * void refreshStatusLabels(object sender, EventArgs e)
+  * void repaintMapPictureBox(object sender, EventArgs e)
+  * void refresh() - obnoví mapu i status strip, lze volat pøímo  
+  * void setWindowSize(object sender, EventArgs e)
+    - nastaví velikost okna podle velikosti mapy		  
+Další vìci:
+  * private void processKeyboardInput(object sender, KeyEventArgs e)
+  * private void mapPictureBox_Paint(object sender, PaintEventArgs e)
+	  - pro entity v políèkách vybere z ImageListu vhodnı obrázek podle jejich stringové reprezentace
+
+=== Program ===
+
+V této statické tøídì se inicializuje a spustí hra. Tøída obsahuje Timer (z Windows Forms), nìkolik obsluh událostí. Zde je propojena tøída Game s PangoGameForm.
+
+Rozhraní:
+  * static void Main()
+Další vìci:
+  * static Windows.Forms.Timer timer - èasovaè z Windows Forms, kterı bere ohled na vlákna v GUI aplikaci. Lze pouít jednodušeji ne obyèejnı èasovaè.
+  * static void initializeGame(PangoGameForm)
+    - inicializuje hru
+		- namapuje obsluhy eventù v Game  
+  * static void stop() - zastaví èasovaè, lze volat pøímo
+  * static void gameStart(object sender, EventArgs e)
+    - v èasovaèi naplánuje gameStep  
+	* static void gamePause(object sender, EventArgs e)
+    - zastaví èasovaè, obsluha eventu
+  * static void gameStep(object sender, EventArgs e)
+    - provede krok hry a znovu se naplánuje

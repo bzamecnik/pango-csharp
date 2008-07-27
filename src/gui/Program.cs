@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using Pango;
 
 // $Id$
 
-namespace gui
+namespace Pango
 {
     static class Program
     {
@@ -23,19 +22,19 @@ namespace gui
         }
 
         private static void initializeGame(PangoGameForm form) {
-            // TODO: break this function into two
-            // TODO: put the filename info config
             string fileName = "../../testmap.txt";
+            //string fileName = Config.Instance["Game.mapFile"];
             string map = string.Empty;
             try {
-                 map = MapPersistence.readMapFromFile(fileName);
+                 //map = MapPersistence.readMapFromFile(fileName);
+                MapPersistence.loadMapsFromFile(fileName);
             }
             catch (System.IO.FileNotFoundException) {
                 MessageBox.Show(string.Format("Map file {0} not found.", fileName), "Pango",
                     MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 Environment.Exit(1); // OK? Why Application.Exit() doesn't work
             }
-            Config.Instance["Game.map"] = map;
+            //Config.Instance["Game.map"] = map;
             Game game = Game.Instance;
 
             game.onLoadMap += new EventHandler(form.setWindowSize);
@@ -63,7 +62,9 @@ namespace gui
         private static void gameStep(object sender, EventArgs e) {
             Program.stop();
             if (Game.Instance.step()) {
-                gameStart(sender, new EventArgs());
+                if (timer != null) {
+                    timer.Start();
+                }
             }
         }
 

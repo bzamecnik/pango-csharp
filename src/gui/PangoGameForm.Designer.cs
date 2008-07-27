@@ -1,6 +1,6 @@
 ﻿// $Id$
 
-namespace gui
+namespace Pango
 {
     partial class PangoGameForm
     {

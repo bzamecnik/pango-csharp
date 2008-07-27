@@ -654,18 +654,39 @@ namespace Pango
         }
 
         public static string readMapFromFile(string fileName) {
-            StringBuilder sb = new StringBuilder();
             Reader r = new Reader(fileName);
-            while (!r.EOF()) {
-                string line = r.Line().Trim(new char[] { '\r','\t' });
+            string map = readMapFromFile(r);
+            r.Close();
+            return map;
+        }
+
+        static string readMapFromFile(Reader reader) {
+            StringBuilder sb = new StringBuilder();
+            while (!reader.EOF()) {
+                string line = reader.Line().Trim(new char[] { '\r', '\t' });
                 if (line.Length > 0) {
                     sb.Append(line + '\n');
                 } else {
                     break;
                 }
             }
-            r.Close();
             return sb.ToString();
+        }
+
+        // TODO: Read multiple maps from one file
+        // and put them into Config as Game.map.1, Game.map.2, ...
+        public static void loadMapsFromFile(string fileName) {
+            Reader r = new Reader(fileName);
+            int count = 0;
+            while (!r.EOF()) {
+                string map = readMapFromFile(r);
+                if(map.Length > 0){
+                    count++;
+                    Config.Instance[string.Format("Game.map.{0}", count)] = map;
+                }
+            }
+            Config.Instance.addInt("Game.mapCount", count);
+            r.Close();
         }
     }
 }
