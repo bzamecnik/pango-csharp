@@ -19,6 +19,18 @@ namespace Pango
         private void processKeyboardInput(object sender, KeyEventArgs e) {
             Game game = Game.Instance;
             switch(game.State) {
+                case Game.States.Intro:
+                    switch (e.KeyCode) {
+                        case Keys.Space:
+                            this.helpLabel.Hide();
+                            this.statusStrip.Show();
+                            game.start();
+                            break;
+                        case Keys.Escape:
+                            Environment.Exit(0);
+                            break;
+                    }
+                    break;
                 case Game.States.Running:
                     if (game.Player != null) {
                         switch (e.KeyCode) {
@@ -53,7 +65,9 @@ namespace Pango
                     game.pause();
                     break;
                 case Keys.Escape:
-                    game.endGame();
+                    game.endGameImmediately();
+                    this.helpLabel.Show();
+                    //this.statusStrip.Hide();
                     break;
             }
             refreshStatusLabels(this, new EventArgs());
@@ -87,13 +101,13 @@ namespace Pango
         }
 
         public void setWindowSize(object sender, EventArgs e) {
-            if (Game.Instance.Map == null) { return; }
-            // TODO: put these constants into config
-            Size spriteSize = entitiesImageList.ImageSize;
             Map map = Game.Instance.Map;
+            if (map == null) { return; }
+            Size spriteSize = entitiesImageList.ImageSize;
+            // map + status strip
             Size newSize = new Size(map.Width * spriteSize.Width,
                 (map.Height * spriteSize.Height) + statusStrip.Height);
-            // set window size
+            // set window's inner size
             this.ClientSize = newSize;
 
         }

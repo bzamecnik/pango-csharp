@@ -45,6 +45,7 @@ namespace Pango
             this.livesValueLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.mapPictureBox = new System.Windows.Forms.PictureBox();
             this.entitiesImageList = new System.Windows.Forms.ImageList(this.components);
+            this.helpLabel = new System.Windows.Forms.Label();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mapPictureBox)).BeginInit();
             this.SuspendLayout();
@@ -187,15 +188,28 @@ namespace Pango
             this.entitiesImageList.Images.SetKeyName(21, "player-normal-right.png");
             this.entitiesImageList.Images.SetKeyName(22, "player-normal-up.png");
             // 
+            // helpLabel
+            // 
+            this.helpLabel.BackColor = System.Drawing.Color.Black;
+            this.helpLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.helpLabel.ForeColor = System.Drawing.Color.OrangeRed;
+            this.helpLabel.Location = new System.Drawing.Point(0, 0);
+            this.helpLabel.Name = "helpLabel";
+            this.helpLabel.Size = new System.Drawing.Size(392, 344);
+            this.helpLabel.TabIndex = 4;
+            this.helpLabel.Text = resources.GetString("helpLabel.Text");
+            // 
             // PangoGameForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(392, 366);
+            this.Controls.Add(this.helpLabel);
             this.Controls.Add(this.mapPictureBox);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.mapLabel);
             this.DoubleBuffered = true;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "PangoGameForm";
             this.Text = "Pango";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.processKeyboardInput);
@@ -225,6 +239,7 @@ namespace Pango
         private System.Windows.Forms.ToolStripStatusLabel levelValueLabel;
         private System.Windows.Forms.PictureBox mapPictureBox;
         private System.Windows.Forms.ImageList entitiesImageList;
+        private System.Windows.Forms.Label helpLabel;
 
     }
 }

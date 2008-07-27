@@ -14,7 +14,7 @@ namespace Pango
         private static Game instance = null; // a singleton
         Map map;
         Schedule schedule;
-        public enum States { Prepared, Running, Paused, Finishing, Finished };
+        public enum States { Intro, Prepared, Running, Paused, Finishing, Finished };
         States state;
         int level;
         // Money that player collected for killing monsters,
@@ -35,7 +35,7 @@ namespace Pango
         // ----- constuctor --------------------
 
         private Game() {
-            state = States.Prepared;
+            state = States.Intro;
             schedule = new Schedule();
             random = new Random();
             newGame();
@@ -134,6 +134,7 @@ namespace Pango
             // -exp(...)
             // eg. 1000 points in 0 time, 10 points in 1000 time
             newLevelShared();
+            state = States.Prepared;
         }
 
         private void newGame() {
@@ -141,6 +142,7 @@ namespace Pango
             money = 0;
             player = null;
             newLevelShared();
+            state = States.Intro;
         }
 
         private void newLevelShared() {
@@ -149,19 +151,29 @@ namespace Pango
             if (state == States.Finished) {
                 loadMap(); // sets player
             }
-            state = States.Prepared;
         }
 
         public void start() {
-            state = States.Running;
-            onStart(this, new EventArgs());
+            switch (state) {
+                case States.Intro:
+                    state = States.Prepared;
+                    break;
+                default:
+                    state = States.Running;
+                    if (onStart != null) {
+                        onStart(this, new EventArgs());
+                    }
+                    break;
+            }
         }
 
         public void endLevel() {
             if (state == States.Finished) { return; }
             state = States.Finishing;
             // wait some time
-            onEnd(this, new EventArgs());
+            if (onEnd != null) {
+                onEnd(this, new EventArgs());
+            }
             int timeBeforeLevel = Config.Instance.getInt("Game.timeBeforeLevel");
             if (player == null) {
                 // the player have died, make a new whole game
@@ -170,7 +182,7 @@ namespace Pango
                     newGame();
                 }, timeBeforeLevel);
             } else {
-                // all monster were killed (and all remaining bonuses collected?)
+                // all monsters were killed (and all remaining bonuses collected?)
                 // TODO: give a bonus money for completing a level
                 Game.Instance.Schedule.add(delegate() {
                     state = States.Finished;
@@ -185,9 +197,13 @@ namespace Pango
             // wait some time
             int timeBeforeLevel = Config.Instance.getInt("Game.timeBeforeLevel");
             Game.Instance.Schedule.add(delegate() {
-                state = States.Finished;
-                newGame();
+                endGameImmediately();
             }, timeBeforeLevel);
+        }
+        public void endGameImmediately() {
+            state = States.Finished;
+            newGame();
+            state = States.Intro;
         }
 
         public void pause() {
@@ -233,9 +249,9 @@ namespace Pango
             }
             
             // sometimes add bonuses at a random place
-            // TODO: put this constants into config
-            // * or it could change accoring to level difficulty
-            if (random.Next(15) == 0) {
+            // * the factor could change accoring to level difficulty
+            int bonusAddProbability = Config.Instance.getInt("Game.bonusAddProbability");
+            if (random.Next(bonusAddProbability) == 0) {
                 addRandomBonus();
             }
 
@@ -245,7 +261,7 @@ namespace Pango
                 // empty loop detected (and nothing left in the schedule)
                 endGame();
             }
-            if (map.Monsters.Count <= 0) {  
+            if ((map.Monsters.Count <= 0) && (map.Bonuses.Count <= 0)) {
                 // or all monsters are killed -> exit level
                 endLevel();
             }

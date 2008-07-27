@@ -144,7 +144,11 @@ namespace Pango
             // move to random (walkable) place
             Map map = Game.Instance.Map;
             if (map != null) {
-                map.add(newborn, map.getRandomWalkablePlace());
+                if (!map.add(newborn, map.getRandomWalkablePlace())
+                    && newborn is PlayerEntity) {
+                    // no free place for player, giving up
+                    Game.Instance.endGame();
+                }
             }
         }
     }
@@ -272,16 +276,17 @@ namespace Pango
             state = States.Dead;
             if (lives >= 0) {
                 // schedule respawning with a copy of this entity
-                // TODO: check if not null
-                Game.Instance.Schedule.add(delegate() {
-                        PlayerEntity player = new PlayerEntity(this);    
+                if (Game.Instance.Schedule != null) {
+                    Game.Instance.Schedule.add(delegate() {
+                        PlayerEntity player = new PlayerEntity(this);
                         respawn(player);
                         Game.Instance.Player = player;
                     }, timeToRespawn);
-                int timeToVanish = Config.Instance.getInt("PlayerEntity.timeToVanishDead");
-                Game.Instance.Schedule.add(delegate() {
-                    vanish();
-                }, timeToVanish);
+                    int timeToVanish = Config.Instance.getInt("PlayerEntity.timeToVanishDead");
+                    Game.Instance.Schedule.add(delegate() {
+                        vanish();
+                    }, timeToVanish);
+                }
             } else {
                 Game.Instance.endGame(); // end of the game
             }
@@ -331,10 +336,11 @@ namespace Pango
             timeToRespawn = Config.Instance.getInt("MonsterEntity.timeToRespawn");
             memory = false;
 
-            // TODO: check if not null
-            Game.Instance.Schedule.add(delegate() {
-                state = States.Normal;
-            }, timeToIncubate);
+            if (Game.Instance.Schedule != null) {
+                Game.Instance.Schedule.add(delegate() {
+                    state = States.Normal;
+                }, timeToIncubate);
+            }
         }
 
         // ----- properties --------------------
@@ -361,9 +367,11 @@ namespace Pango
             //    return true;
             //}
             
-            // make monsters' movements slower
-            // TODO: this constant to config
-            if ((Game.Instance.Time % 2) != 0) {
+            // Make monsters' movements slower
+            // * monster will move in one of 'slowFactor' turns,
+            //   thus 'slowFactor'-times slower
+            int slowFactor = Config.Instance.getInt("MonsterEntity.slowFactor");
+            if ((Game.Instance.Time % slowFactor) != 0) {
                 return false;
             }
 
@@ -427,10 +435,11 @@ namespace Pango
         public void stun(int time) {
             if (state == States.Egg) { return; }
             state = States.Stunned;
-            // TODO: check if not null
-            Game.Instance.Schedule.add(delegate() {
-                state = States.Normal; // ok?
-            }, time);
+            if (Game.Instance.Schedule != null) {
+                Game.Instance.Schedule.add(delegate() {
+                    state = States.Normal; // ok?
+                }, time);
+            }
         }
 
         private void attack() {
@@ -682,8 +691,11 @@ namespace Pango
         public BonusEntity() {
             int timeToLive = Config.Instance.getInt("Bonus.timeToLive");
             // schedule vanishing in given time
-            // TODO: check if not null
-            Game.Instance.Schedule.add(delegate() { vanish(); }, timeToLive);
+            if (Game.Instance.Schedule != null) {
+                Game.Instance.Schedule.add(delegate() {
+                    vanish();
+                }, timeToLive);
+            }
         }
 
         // ----- methods --------------------

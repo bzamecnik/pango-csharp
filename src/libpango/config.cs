@@ -15,7 +15,7 @@ namespace Pango
 
         // ----- fields --------------------
 
-        // NOTE: both key and value is of type string for future.
+        // NOTE: both key and value is of type string.
         // There may be some values of other types than int.
         private Dictionary<string, string> values;
         private static Config instance;
@@ -32,25 +32,27 @@ namespace Pango
             addInt("PlayerEntity.attackHitcount", 25);
             addInt("PlayerEntity.timeToVanishDead", 5);
 
-            addInt("MonsterEntity.moneyForKilling", 100);
             addInt("MonsterEntity.attackHitcount", 40);
-            addInt("MonsterEntity.maxHealth", 50);
             addInt("MonsterEntity.defaultLives", 0);
-            addInt("MonsterEntity.timeToRespawn", 25);
+            addInt("MonsterEntity.maxHealth", 75);
+            addInt("MonsterEntity.moneyForKilling", 100);
+            addInt("MonsterEntity.slowFactor", 2);
             addInt("MonsterEntity.timeToIncubate", 5);
+            addInt("MonsterEntity.timeToRespawn", 25);
             addInt("MonsterEntity.timeToWakeupDiamond", 30);
             addInt("MonsterEntity.timeToWakeupWall", 10);
 
             addInt("Bonus.timeToLive", 40);
             addInt("MoneyBonus.bonusMoney", 20);
             addInt("HealthBonus.changeHealthPercent", 25);
-            addInt("DiamondBlock.bonusMoney", 1000);
             addInt("IceBlock.timeToMelt", 1);
+            addInt("DiamondBlock.bonusMoney", 1000);
 
-            addInt("Game.stepInterval", 150);
-            addInt("Game.timeBeforeLevel", 10);
+            addInt("Game.bonusAddProbability", 15);
             addInt("Game.mapCount", 0);
             values["Game.mapFile"] = "maps.txt";
+            addInt("Game.stepInterval", 150);
+            addInt("Game.timeBeforeLevel", 10);
         }
 
         // ----- properties --------------------

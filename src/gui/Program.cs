@@ -13,20 +13,22 @@ namespace Pango
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main() {
+        static void Main(string[] args) {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             PangoGameForm form = new PangoGameForm();
-            initializeGame(form);
+            initializeGame(form, args);
             Application.Run(form);
         }
 
-        private static void initializeGame(PangoGameForm form) {
-            string fileName = "../../testmap.txt";
-            //string fileName = Config.Instance["Game.mapFile"];
+        private static void initializeGame(PangoGameForm form, string[] args) {
+            // the first command line argument is the map file name
+            if (args.Length > 0) {
+                Config.Instance["Game.mapFile"] = args[0];
+            }
+            string fileName = Config.Instance["Game.mapFile"];
             string map = string.Empty;
             try {
-                 //map = MapPersistence.readMapFromFile(fileName);
                 MapPersistence.loadMapsFromFile(fileName);
             }
             catch (System.IO.FileNotFoundException) {
@@ -34,16 +36,15 @@ namespace Pango
                     MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 Environment.Exit(1); // OK? Why Application.Exit() doesn't work
             }
-            //Config.Instance["Game.map"] = map;
             Game game = Game.Instance;
 
             game.onLoadMap += new EventHandler(form.setWindowSize);
-            //game.onLoopStep += new EventHandler(form.repaintMapLabel);
+            //game.onLoopStep += new EventHandler(form.repaintMapLabel); // for text map
             game.onLoopStep += new EventHandler(form.repaintMapPictureBox);
             game.onLoopStep += new EventHandler(form.refreshStatusLabels);
             game.onPause += new EventHandler(gamePause);
             game.onStart += new EventHandler(gameStart);
-            //game.onEnd += new EventHandler(form.repaintMapLabel);
+            //game.onEnd += new EventHandler(form.repaintMapLabel); // for text map
             game.onEnd += new EventHandler(form.repaintMapPictureBox);
             game.onEnd += new EventHandler(form.refreshStatusLabels);
 
@@ -70,11 +71,11 @@ namespace Pango
 
         public static void gameStart(object sender, EventArgs e) {
             // Wait some time not to make the game so fast.
+            // Think of how to make the turns last exactly the same time.
             timer = new Timer();
             timer.Tick += new EventHandler(gameStep);
             timer.Interval = Config.Instance.getInt("Game.stepInterval");
             timer.Start();
-            // Think of how to make the turns last the same time.
         }
     }
 }

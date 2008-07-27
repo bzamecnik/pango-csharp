@@ -223,7 +223,7 @@ namespace Pango
 
         Place[,] map;
         // count number of walkable places (for getRandomWalkablePlace())]
-        int walkablePlaces;
+        int walkablePlacesCount;
         // count various entity types - MonsterEntity, BonusEntity
         List<MonsterEntity> monsters;
         List<BonusEntity> bonuses;
@@ -238,7 +238,7 @@ namespace Pango
                     map[x, y] = new Place();
                 }
             }
-            walkablePlaces = height * width;
+            walkablePlacesCount = height * width;
             monsters = new List<MonsterEntity>();
             bonuses = new List<BonusEntity>();
         }
@@ -248,7 +248,7 @@ namespace Pango
             monsters = new List<MonsterEntity>();
             bonuses = new List<BonusEntity>();
             map = new Place[array.GetUpperBound(0) + 1, array.GetUpperBound(1) + 1];
-            walkablePlaces = Height * Width;
+            walkablePlacesCount = Height * Width;
             for (int x = 0; x < Height; x++) {
                 for (int y = 0; y < Width; y++) {
                     map[x, y] = new Place();
@@ -297,6 +297,10 @@ namespace Pango
             }
         }
 
+        public int WalkablePlacesCount {
+            get { return walkablePlacesCount; }
+        }
+
         // ----- methods --------------------
 
         // TODO: randomly generate map
@@ -307,7 +311,7 @@ namespace Pango
         //   * have some monsters
         //   * have walls around
 
-        // Add an entity to a given place
+        // Add an entity to a given coordinates
         public bool add(Entity ent, Coordinates coords) {
             if ((ent == null) || !areValidCoordinates(coords)) { return false; }
             ent.Coords = coords;
@@ -326,12 +330,13 @@ namespace Pango
             return added;
         }
 
+        // Add an entity to a given place
         private bool add(Entity ent, Place place) {
             if ((ent == null) || (place == null)) { return false; }
             bool added = place.add(ent);
             if (added && !(ent is WalkableEntity)) {
                 // this place was made non-walkable
-                walkablePlaces--;
+                walkablePlacesCount--;
             }
             return added;
         }
@@ -343,7 +348,7 @@ namespace Pango
             bool removeReturnValue = false;
             Place place = getPlace(coords);
             
-            removeReturnValue = place.remove(ent);
+            removeReturnValue = remove(ent, place);
             if ((ent is MonsterEntity) && (monsters != null)
                 && (monsters.Contains((MonsterEntity)ent))) {
                 monsters.Remove((MonsterEntity)ent);
@@ -362,7 +367,7 @@ namespace Pango
             bool removed = place.remove(ent);
             if (removed && entWasNonWalkable && place.isWalkable()) {
                 // this place was made walkable again
-                walkablePlaces++;
+                walkablePlacesCount++;
             }
             return removed;
         }
@@ -445,28 +450,10 @@ namespace Pango
             return map[coords.x, coords.y];
         }
 
-        //public Dictionary<Coordinates, List<Entity>> getNeighbors(Coordinates coords) {
-        //    // TODO: is this efficient? doesn't is return copies?
-        //    Dictionary<Coordinates, List<Entity>> neighbors = new Dictionary<Coordinates, List<Entity>>();
-        //    Direction[] dirs = new Direction[] {
-        //        Direction.Up,
-        //        Direction.Right,
-        //        Direction.Down,
-        //        Direction.Left
-        //    };
-        //    foreach (Direction dir in dirs) {
-        //        Coordinates step = coords.step(dir);
-        //        if (areValidCoordinates(step)) {
-        //            neighbors.Add(step, map[step.x, step.y]);
-        //        }
-        //    }
-        //    return neighbors;
-        //}
-
         public List<Entity> getNeighbors(Coordinates coords) {
             // TODO: is this efficient? doesn't is return copies?
             List<Entity> neighbors = new List<Entity>();
-            // TODO: make an iterator for directions
+            // TODO: make an iterator for directions needed here
             Direction[] dirs = new Direction[] {
                 Direction.Up,
                 Direction.Right,
@@ -493,7 +480,7 @@ namespace Pango
         // Select random walkable place (for placing new entities, eg.
         // respawning or placing bonuses)
         public Coordinates getRandomWalkablePlace() {
-            if (walkablePlaces <= 0) {
+            if (walkablePlacesCount <= 0) {
                 return Coordinates.invalid;
             }
             Random rand = new Random();
@@ -673,8 +660,8 @@ namespace Pango
             return sb.ToString();
         }
 
-        // TODO: Read multiple maps from one file
-        // and put them into Config as Game.map.1, Game.map.2, ...
+        // Read multiple maps from one file and put them
+        // into Config as Game.map.1, Game.map.2, ...
         public static void loadMapsFromFile(string fileName) {
             Reader r = new Reader(fileName);
             int count = 0;

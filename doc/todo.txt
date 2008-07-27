@@ -4,13 +4,13 @@
 *- promyslet grafické rozhraní a jeho napojení na knihovnu
 
 - herní stavy
-	- intro+help, *pøechody mezi levely, *nová hra, ...
+	*- intro+help, *pøechody mezi levely, *nová hra, ...
 	*- chvíli èekat po konci levelu	
 
 - bonusové peníze za úspìšné ukonèení kola
-- po zabití všech potvor poèkat na vybrání všech bonusù (nejvýš ale limit)
+*- po zabití všech potvor poèkat na vybrání všech bonusù (nejvýš ale limit)
 
-- nápovìda, informace o klávesách
+*- nápovìda, informace o klávesách
 
 - mapy
 	- sestavit sadu map
@@ -26,11 +26,11 @@
 
 - dokumentace
 	- vylepšit a vyèistit (sjednotit) komentáøe ve zdrojácích
-		- použít #regions
+		- použít #regions (možná)
 	- vyrobit "docbook" komentáøe
 	*- sepsat celkový pohled na architekturu a programátorskou dokumentaci
 	- napsat uživatelskou dokumentaci
-		- zakomponovat do programu
+		*- zakomponovat do programu
 
 - balíèky
 	- instalaèní balíèek
