@@ -250,9 +250,12 @@ namespace Pango
             
             // sometimes add bonuses at a random place
             // * the factor could change accoring to level difficulty
-            int bonusAddProbability = Config.Instance.getInt("Game.bonusAddProbability");
-            if (random.Next(bonusAddProbability) == 0) {
-                addRandomBonus();
+            // * don't add bonuses, when finishing (ie. all monsters are killed)
+            if (map.Monsters.Count > 0) {
+                int bonusAddProbability = Config.Instance.getInt("Game.bonusAddProbability");
+                if (random.Next(bonusAddProbability) == 0) {
+                    addRandomBonus();
+                }
             }
 
             schedule.increaseTime();
@@ -285,7 +288,7 @@ namespace Pango
                 bonus = new LiveBonus();
             }
             if (bonus != null) {
-                map.add(bonus, map.getRandomWalkablePlace());
+                map.add(bonus, map.getRandomWalkableCoords());
             }
         }
     }

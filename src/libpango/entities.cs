@@ -140,11 +140,11 @@ namespace Pango
             return true;
         }
 
-        public void respawn(LiveEntity newborn) {
+        public static void respawn(LiveEntity newborn) {
             // move to random (walkable) place
             Map map = Game.Instance.Map;
             if (map != null) {
-                if (!map.add(newborn, map.getRandomWalkablePlace())
+                if (!map.add(newborn, map.getRandomWalkableCoords())
                     && newborn is PlayerEntity) {
                     // no free place for player, giving up
                     Game.Instance.endGame();
@@ -345,9 +345,9 @@ namespace Pango
 
         // ----- properties --------------------
 
-        public bool Active {
-            get { return (state != States.Egg); }
-        }
+        //public bool Active {
+        //    get { return (state != States.Egg); }
+        //}
 
         // ----- methods --------------------
 
@@ -423,12 +423,17 @@ namespace Pango
         public override void die() {
             // it died, give money to the player
             Game.Instance.receiveMoney(moneyForKilling);
-            //// schedule respawning, make new entity
-            //if ((state == States.Normal) || (state == States.Stunned)) {
-            //    Schedule.Instance.add(delegate() {
-            //        respawn(new MonsterEntity());
-            //    }, timeToRespawn);
-            //}
+            // schedule respawning, make new entity
+            if ((state == States.Normal) || (state == States.Stunned)) {
+                if (Game.Instance.Schedule != null) {
+                    Game.Instance.Schedule.add(delegate() {
+                        // don't respawn if all other monsters are killed
+                        if (Game.Instance.Map.Monsters.Count > 0) {
+                            respawn(new MonsterEntity());
+                        }
+                    }, timeToRespawn);
+                }
+            }
             vanish();
         }
 

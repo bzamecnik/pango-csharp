@@ -222,7 +222,7 @@ namespace Pango
         // ----- fields --------------------
 
         Place[,] map;
-        // count number of walkable places (for getRandomWalkablePlace())]
+        // count number of walkable places (for getRandomWalkableCoords())]
         int walkablePlacesCount;
         // count various entity types - MonsterEntity, BonusEntity
         List<MonsterEntity> monsters;
@@ -285,17 +285,18 @@ namespace Pango
 
         public List<BonusEntity> Bonuses { get { return bonuses; } }
         
-        public int ActiveMonsters {
-            get {
-                int count = 0;
-                if (monsters != null) {
-                    foreach (MonsterEntity monster in monsters) {
-                        if (monster.Active) { count++; }
-                    }
-                }
-                return count;
-            }
-        }
+        //// for future use - sleeping eggs need to be specified in the map
+        //public int ActiveMonsters {
+        //    get {
+        //        int count = 0;
+        //        if (monsters != null) {
+        //            foreach (MonsterEntity monster in monsters) {
+        //                if (monster.Active) { count++; }
+        //            }
+        //        }
+        //        return count;
+        //    }
+        //}
 
         public int WalkablePlacesCount {
             get { return walkablePlacesCount; }
@@ -479,7 +480,7 @@ namespace Pango
 
         // Select random walkable place (for placing new entities, eg.
         // respawning or placing bonuses)
-        public Coordinates getRandomWalkablePlace() {
+        public Coordinates getRandomWalkableCoords() {
             if (walkablePlacesCount <= 0) {
                 return Coordinates.invalid;
             }
