@@ -51,11 +51,11 @@ x- multiplayer - zatím NE
 *- vyøesit omráèení potvor, to nastane, když:
 	*- hráè kopne do stìny, vedle níž stojí potvora
 	*- hráè seøadí diamanty do øady
-- naèítání map
-	- uložit více map do jednoho souboru a z nìj to rozkouskovat a naèíst
-	- podle velikosti mapy nastavit velikost okna (+limit)
+*- naèítání map
+	*- uložit více map do jednoho souboru a z nìj to rozkouskovat a naèíst
+	*- podle velikosti mapy nastavit velikost okna (+limit)
 *- v kroku hry jednou za èas náhodnì umístit nìjaký bonus
-- rozmyslet - potvory
+*- rozmyslet - potvory
 	- 1. budou se líhnout z pøedem pøipravených vajec
 		-  potvora se pøi vytvoøení chvíli líhne a není aktivní
 		- konec hry, když hráè všechny vybije (+chvíle zpoždìní jako bonus)

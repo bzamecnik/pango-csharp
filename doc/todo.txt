@@ -1,37 +1,51 @@
 ===== Pango TODO =====
 
-- prozoumat XNA
-*- promyslet grafické rozhraní a jeho napojení na knihovnu
-
-- herní stavy
-	*- intro+help, *pøechody mezi levely, *nová hra, ...
-	*- chvíli èekat po konci levelu	
-
-- bonusové peníze za úspìšné ukonèení kola
-*- po zabití všech potvor poèkat na vybrání všech bonusù (nejvýš ale limit)
-
-*- nápovìda, informace o klávesách
+- balíèky
+	*- instalaèní balíèek
+	   - NSIS	
+		   - ikona na plochu a do start menu
+			 - spustit z instalátoru
+			 - uninstall
+			 - (?) instalovat i zdrojové kódy (volitelnì)
+		 - napsat skript pro tvorbu balíèku, z nìhož se kompiluje instalátor
+	*- vývojáøský balíèek (snad by staèilo zabalit checkout ze SVN) 
 
 - mapy
-	- sestavit sadu map
+	- sestavit více map
 	*- naèítání více map ze souboru
 
 - lepší algoritmus chození potvor
 
-- GUI
-	*- 1. fáze - vylepšit stávající GUI s WinForms + text
-		- ovládací tlaèítka
-	*- 2. fáze - Windows Forms + obrázky
-	- 3. fáze (?) - XNA
+*- bonusové peníze za úspìšné ukonèení kola
+
+- animace
 
 - dokumentace
 	- vylepšit a vyèistit (sjednotit) komentáøe ve zdrojácích
 		- použít #regions (možná)
 	- vyrobit "docbook" komentáøe
 	*- sepsat celkový pohled na architekturu a programátorskou dokumentaci
-	- napsat uživatelskou dokumentaci
+	- dopsat uživatelskou dokumentaci
 		*- zakomponovat do programu
 
-- balíèky
-	- instalaèní balíèek
-	- vývojáøský balíèek (snad by staèilo zabalit checkout ze SVN) 
+*- promyslet grafické rozhraní a jeho napojení na knihovnu
+
+*- herní stavy
+	*- intro+help, *pøechody mezi levely, *nová hra, ...
+	*- chvíli èekat po konci levelu	
+
+
+*- po zabití všech potvor poèkat na vybrání všech bonusù (nejvýš ale limit)
+
+*- nápovìda, informace o klávesách
+
+- GUI
+	*- 1. fáze - vylepšit stávající GUI s WinForms + text
+		- ovládací tlaèítka
+	*- 2. fáze - Windows Forms + obrázky
+	- 3. fáze (?) - XNA
+	  - prozoumat XNA
+
+- zvyšující se obtížnost
+
+- editor map

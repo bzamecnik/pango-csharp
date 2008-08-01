@@ -184,9 +184,11 @@ namespace Pango
             } else {
                 // all monsters were killed (and all remaining bonuses collected?)
                 // TODO: give a bonus money for completing a level
+                int moneyForLevel = Config.Instance.getInt("Game.moneyForLevel");
                 Game.Instance.Schedule.add(delegate() {
                     state = States.Finished;
                     nextLevel();
+                    receiveMoney(moneyForLevel);
                 }, timeBeforeLevel);
             }
         }

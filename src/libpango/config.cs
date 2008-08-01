@@ -53,6 +53,7 @@ namespace Pango
             values["Game.mapFile"] = "maps.txt";
             addInt("Game.stepInterval", 150);
             addInt("Game.timeBeforeLevel", 10);
+            addInt("Game.moneyForLevel", 200);
         }
 
         // ----- properties --------------------

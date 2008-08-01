@@ -3,6 +3,8 @@ Bohumír Zámeèník
 
 2D bludištì s potvorami. Remake hry Pango, což byl klon videohry Pengo
 
+Pozn.: Toto je originální odevzdaná specifikace. Aktuální informace najdete na stránce projektu: http://zamecnik.org/projekty/pango
+
 - hraje se na kola (levely)
 	- tahy hráèù v pravidelných intervalech (spojitá simulace)
 	- levely postupnì nabírají na obtížnosti
