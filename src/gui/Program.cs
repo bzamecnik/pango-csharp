@@ -27,7 +27,7 @@ namespace Pango
                 Config.Instance["Game.mapFile"] = args[0];
             }
             string fileName = Config.Instance["Game.mapFile"];
-            string map = string.Empty;
+            string map = string.Empty; // TODO: delete this as it is never used
             try {
                 MapPersistence.loadMapsFromFile(fileName);
             }

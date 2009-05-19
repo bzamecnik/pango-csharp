@@ -7,15 +7,21 @@ using System.Text;
 namespace Pango
 {
     // ----- class Entity ----------------------------------------
+    /// <summary>
+    /// Entity is a character or thing located on the map. This is an abstract
+    /// base class for all entities.
+    /// </summary>
     public abstract class Entity
     {
         // ----- fields --------------------
 
-        // Coordinates will be both in map and in entity.
-        // It's synchronized in Map.add().
         protected Coordinates coords;
-        // Prevent multiple turn() calls in one step for entities
-        // which moved forward.
+
+        /// <summary>
+        /// True if the entity made its action in current turn. It is to
+        /// prevent multiple turn() calls in one step for entities which
+        /// already moved forward.
+        /// </summary>
         public bool turnDone;
 
         // ----- constructors --------------------
@@ -26,7 +32,12 @@ namespace Pango
         }
 
         // ----- properties --------------------
-        
+
+        /// <summary>
+        /// Coordinates locating the entity on the map.
+        /// They are present both in the map and in the entity and are
+        /// synchronized in Map.add() function.
+        /// </summary>
         public Coordinates Coords {
             get { return coords; }
             set { coords = value; }
@@ -34,9 +45,22 @@ namespace Pango
         
         // ----- methods --------------------
 
-        // returns true if something was done
+        /// <summary>
+        /// Entity action on its turn.
+        /// </summary>
+        /// <returns>true if something was done</returns>
         public abstract bool turn();
+        
+        /// <summary>
+        /// Accept attack from an attacker who calls this function.
+        /// </summary>
+        /// <param name="sender">attacker entity</param>
+        /// <param name="hitcount">ammount of damage</param>
         public abstract void acceptAttack(Entity sender, int hitcount);
+
+        /// <summary>
+        /// Immediately destroy the entity and remove it from the map.
+        /// </summary>
         public void vanish() {
             Game.Instance.Map.remove(this, coords);
         }
@@ -44,10 +68,14 @@ namespace Pango
     }
 
     // ----- class MovableEntity ----------------------------------------
+    /// <summary>
+    /// Movable entity is able to move, either by its own will or by an outer
+    /// intervention.
+    /// </summary>
     public abstract class MovableEntity : Entity
     {
-        // NOTE: Better would be to use iterfaces in place of abstract classes,
-        // but how to incorporate new fields into an interface?
+        // NOTE: It would be better to use iterfaces in place of abstract
+        // classes, but how to incorporate new fields into an interface?
 
         // ----- fields --------------------
 
@@ -61,6 +89,9 @@ namespace Pango
 
         // ----- properties --------------------
 
+        /// <summary>
+        /// Current direction.
+        /// </summary>
         public Direction Direction {
             get { return direction; }
             set { direction = value; }
@@ -68,7 +99,10 @@ namespace Pango
 
         // ----- methods --------------------
 
-        // returns true, if a step was made
+        /// <summary>
+        /// Try to make a step in current direction if it is possible.
+        /// </summary>
+        /// <returns>true if the step was actually made</returns>
         public bool go() {
             Map map = Game.Instance.Map;
             Coordinates step = coords.step(direction);
@@ -80,22 +114,33 @@ namespace Pango
             return false;
         }
 
+        /// <summary>
+        /// Check whether it is possible to move to given coordinates.
+        /// </summary>
+        /// <param name="coords">coordinates to move to</param>
+        /// <returns>true if such a movement is possible</returns>
         public virtual bool canGo(Coordinates coords) {
             Map map = Game.Instance.Map;
             return map.isWalkable(coords);
         }
 
+        /// <summary>
+        /// Change the current direction using a given rotation.
+        /// </summary>
+        /// <param name="rot">rotation angle</param>
         public void rotate(Rotation rot) {
             direction = DirectionUtils.rotate(direction, rot);
         }
     }
 
     // ----- class LiveEntity ----------------------------------------
-
+    /// <summary>
+    /// Live entity has health and lives, it can be hurt or killed and it is
+    /// possibly able to respawn if it died (up to the its number of lives).
+    /// </summary>
     public abstract class LiveEntity : MovableEntity
     {
         // ----- fields --------------------
-
         protected int health;
         protected int maxHealth;
         protected int lives;
@@ -116,15 +161,24 @@ namespace Pango
         }
 
         // ----- methods --------------------
-
+        
+        /// <summary>
+        /// Die. An action which happens when the entity is killed. Various
+        /// entities can respond to death in different ways. Eg. they can
+        /// schedule their respawning, etc.
+        /// </summary>
         public abstract void die();
 
-        // change < 0 ... hurt
-        // change > 0 ... stimpack
-        // Take care of correct lives count when health goes through 0 or maxHealth.
-        // Returns true, if still alive.
-        // TODO: maybe better would be to make this an accessor (get/set)
+        /// <summary>
+        /// Change health by given amount of damage or health care.
+        /// It can influence the number of remaining lives (respawns).
+        /// Take care of correct lives count when health goes through 0 or maxHealth. 
+        /// </summary>
+        /// <param name="change">negative change means hurting,
+        /// positive one means a stimpack (health bonus)</param>
+        /// <returns>true, if still alive</returns>
         public virtual bool changeHealth(int change) {
+            // TODO: maybe better would be to make this an accessor (get/set)
             health += change;
             if (health > maxHealth) {
                 lives += health / maxHealth;
@@ -140,6 +194,12 @@ namespace Pango
             return true;
         }
 
+        /// <summary>
+        /// Respawn the given entity, ie. put the killed and reborn entity
+        /// on a random place on the map. If it is the player and there is
+        /// no place for it the game finishes.
+        /// </summary>
+        /// <param name="newborn">respawned entity</param>
         public static void respawn(LiveEntity newborn) {
             // move to random (walkable) place
             Map map = Game.Instance.Map;
@@ -154,16 +214,23 @@ namespace Pango
     }
 
     // ----- class WalkableEntity ----------------------------------------
+    /// <summary>
+    /// For other entities it is possible to walk through a walkable entity.
+    /// It is useful or example when a monster goes through a bonus but
+    /// we don't want it to actually take the bonus.
+    /// This is an abstract base class for various bonuses and things.
+    /// This class adds no methods or properties, its purpose is just to
+    /// identify walkable entities using the <c>is</c> keyword.
+    /// </summary>
     public abstract class WalkableEntity : Entity
-    {
-        // Other entities can walk through this one.
-        //
-        // This class adds no methods or properties,
-        // its purpose is just to identify walkable entities
-        // using 'is' keyword.
+    { 
     }
 
     // ----- class PlayerEntity ----------------------------------------
+    /// <summary>
+    /// Player entity. Currently Pango is a single-player game, so there is
+    /// only one instance of Player class.
+    /// </summary>
     public class PlayerEntity : LiveEntity
     {
         // ----- fields --------------------
@@ -292,13 +359,20 @@ namespace Pango
             }
         }
 
-        // this will be called when an arrow key is pressed
+        /// <summary>
+        /// Request movement in next turn. This will be called when an
+        /// arrow key is pressed.
+        /// </summary>
+        /// <param name="dir">direction of the requested movement</param>
         public void requestMovement(Direction dir) {
             requestedMovement = true;
             requestedDirection = dir;
         }
 
-        // this will be called when ATTACK key is pressed
+        /// <summary>
+        /// Request attack in the next turn. This will be called when ATTACK
+        /// key is pressed.
+        /// </summary>
         public void requestAttack() {
             requestedAttack = true;
         }
@@ -315,6 +389,13 @@ namespace Pango
     }
 
     // ----- class MonsterEntity ----------------------------------------
+    /// <summary>
+    /// Monster entities are player's rival in the game. They try to kill him.
+    /// Monsters currently don't chase the player in an AI way. They just
+    /// walk through the labyrith using an algoritm from Programming II
+    /// lessons. Monsters movement is slowed down by the
+    /// <c>MonsterEntity.slowFactor</c>.
+    /// </summary>
     public class MonsterEntity : LiveEntity
     {
         // THINK: maybe think of multiple types of mosters
@@ -437,6 +518,11 @@ namespace Pango
             vanish();
         }
 
+        /// <summary>
+        /// Get stunned for a given period of time. A stunned monster does
+        /// nothing and can be killed easilly. A monster egg can't be stunned.
+        /// </summary>
+        /// <param name="time">period of time to be stunned</param>
         public void stun(int time) {
             if (state == States.Egg) { return; }
             state = States.Stunned;
@@ -447,6 +533,9 @@ namespace Pango
             }
         }
 
+        /// <summary>
+        /// Attack the player if they are neighbors.
+        /// </summary>
         private void attack() {
             // turn in player's direction if they are neighbors
             if ((Game.Instance == null) || (Game.Instance.Player == null)) { return; }
@@ -481,15 +570,19 @@ namespace Pango
     }
 
     // ----- class StoneBlock ----------------------------------------
+    /// <summary>
+    /// A stone block acts as a fixed barrier which can't be moved or
+    /// destroyed.
+    /// It can be also used for building a border around the map.
+    /// It does not interact much, except it is non-walkable and when
+    /// attacked while in the border wall it stuns monsters along.
+    /// </summary>
     public class StoneBlock : Entity
     {
-        // It is used for building a border around the map.
-        // It does not interact much, except it is non-walkable and when
-        // attacked while in the border wall it stuns monsters along.
-
         // ----- methods --------------------
 
         public override bool turn() { return false; } // empty
+
         public override void acceptAttack(Entity sender, int hitcount) {
             Map map = Game.Instance.Map;
             List<Entity> monsters = new List<Entity>();
@@ -512,6 +605,17 @@ namespace Pango
             }
         }
 
+        /// <summary>
+        /// Get a list of monsters along the border wall. A section of the
+        /// wall is specified in an interesting way: one coordinate is given
+        /// in <c>coordX</c> or <c>coordY</c> the other is iterated between
+        /// <c>from</c> and <c>to</c>. The other <c>coord*</c> must be null.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="coordX">X coordinate or null</param>
+        /// <param name="coordY">Y coordinate or null</param>
+        /// <returns></returns>
         private List<Entity> getMonstersAlongWall(
             int from, int to,
             Nullable<int> coordX, Nullable<int> coordY)
@@ -536,6 +640,10 @@ namespace Pango
     }
 
     // ----- class MovableBlock ----------------------------------------
+    /// <summary>
+    /// An entity which can't be walked through but can be moved.
+    /// It is useful for ice block and diamonds which player can kick to.
+    /// </summary>
     public abstract class MovableBlock : MovableEntity
     {
         // ----- fields --------------------
@@ -550,6 +658,11 @@ namespace Pango
 
         // ----- methods --------------------
 
+        /// <summary>
+        /// When moving kill all live entities on the way. Stop in front of
+        /// an inanimate entity.
+        /// </summary>
+        /// <returns>true if moved</returns>
         public override bool turn() {
             if (state == States.Movement) {
                 Coordinates step = coords.step(direction);
@@ -582,6 +695,11 @@ namespace Pango
             return map.isSmitable(coords);
         }
 
+        /// <summary>
+        /// Player can start its movement on attack.
+        /// </summary>
+        /// <param name="sender">attacker</param>
+        /// <param name="hitcount">amount of attack - not used</param>
         public override void acceptAttack(Entity sender, int hitcount) {
             Map map = Game.Instance.Map;
 
@@ -600,16 +718,26 @@ namespace Pango
             }
         }
 
+        /// <summary>
+        /// A hook that is called when the entity can't go when accepting
+        /// an attack.
+        /// </summary>
         protected abstract void acceptAttackCantGoHook();
 
+        /// <summary>
+        /// A hook that is called when the entity can't go when on turn.
+        /// </summary>
         protected abstract void turnCantGoHook();
     }
 
     // ----- class DiamondBlock ----------------------------------------
+    /// <summary>
+    /// A diamond block behaves like an ice block, except is does not melt
+    /// when attacked. Alingning three diamonds in a line also gives the
+    /// player money and stuns all the monsters.
+    /// </summary>
     public class DiamondBlock : MovableBlock
     {
-        // Alingning Diamonds gives money and stuns monsters
-
         // ----- fields --------------------
 
         protected new enum States { Normal, Movement, Active };
@@ -617,13 +745,17 @@ namespace Pango
 
         // ----- methods --------------------
 
+        /// <summary>
+        /// Empty - DiamondBlock doesn't melt.
+        /// </summary>
         protected override void acceptAttackCantGoHook() {
-            // empty - DiamondBlock doesn't melt
         }
 
+        /// <summary>
+        /// Check diamonds alingning. If three diamonds are aligned to a line
+        /// stun all monsters and give money to the player.
+        /// </summary>
         protected override void turnCantGoHook() {
-            // Check diamonds alingning. If aligned,
-            // stun all monsters and give money to the player
             Map map = Game.Instance.Map;
             foreach (Entity neighbor1 in map.getNeighbors(coords)) {
                 if (!(neighbor1 is DiamondBlock)
@@ -662,6 +794,10 @@ namespace Pango
     }
 
     // ----- class IceBlock ----------------------------------------
+    /// <summary>
+    /// Ice block can be moved when attacked by the player. If the block is
+    /// attacked and can't move it melts.
+    /// </summary>
     public class IceBlock : MovableBlock
     {
         // ----- fields --------------------
@@ -670,14 +806,19 @@ namespace Pango
 
         // ----- methods --------------------
 
+        /// <summary>
+        /// IceBlock melts when attacked having no place to go.
+        /// </summary>
         protected override void acceptAttackCantGoHook() {
-            // IceBlock melts when attacked having no place to go
             state = States.Melt;
             int timeToMelt = Config.Instance.getInt("IceBlock.timeToMelt");
             Game.Instance.Schedule.add(delegate() { vanish(); }, timeToMelt);
         }
 
-        protected override void turnCantGoHook() { } // empty
+        /// <summary>
+        /// Empty.
+        /// </summary>
+        protected override void turnCantGoHook() { }
 
         public override string ToString() {
             string s = state.ToString().ToLower();
@@ -687,10 +828,12 @@ namespace Pango
     }
 
     // ----- class BonusEntity ----------------------------------------
+    /// <summary>
+    /// A bonus in form of money, health, additional respawn lives.
+    /// Base class for various bonuses. Bonuses have time-limited existence.
+    /// </summary>
     public abstract class BonusEntity : WalkableEntity
     {
-        // Base class for various bonuses
-
         // ----- constructors --------------------
 
         public BonusEntity() {
@@ -709,11 +852,18 @@ namespace Pango
         
         public override void acceptAttack(Entity sender, int hitcount) { } // empty
         
-        // Player detects stepping on the bonus himself in his turn.
+        /// <summary>
+        /// Player detects stepping on the bonus himself in his turn and uses
+        /// this function to take it.
+        /// </summary>
+        /// <param name="player"></param>
         public abstract void giveBonus(PlayerEntity player);
     }
 
     // ----- class MoneyBonus ----------------------------------------
+    /// <summary>
+    /// A bonus in form of money.
+    /// </summary>
     public class MoneyBonus : BonusEntity
     {
         // ----- methods --------------------
@@ -730,6 +880,9 @@ namespace Pango
     }
 
     // ----- class HealthBonus ----------------------------------------
+    /// <summary>
+    /// A bonus in form of extra health.
+    /// </summary>
     public class HealthBonus: BonusEntity
     {
         // ----- methods --------------------
@@ -747,6 +900,9 @@ namespace Pango
     }
 
     // ----- class LiveBonus ----------------------------------------
+    /// <summary>
+    /// A bonus in form of extra respawn life.
+    /// </summary>
     public class LiveBonus : BonusEntity
     {
         // ----- methods --------------------

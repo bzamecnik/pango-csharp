@@ -15,8 +15,8 @@ namespace Pango
 
         // ----- fields --------------------
 
-        // NOTE: both key and value is of type string.
-        // There may be some values of other types than int.
+        // NOTE: both key and value are of string type.
+        // There might be some values of other types than int.
         private Dictionary<string, string> values;
         private static Config instance;
 
@@ -28,7 +28,7 @@ namespace Pango
             // Default values
             addInt("PlayerEntity.maxHealth", 100);
             addInt("PlayerEntity.defaultLives", 3);
-            addInt("PlayerEntity.timeToRespawn", 7);
+            addInt("PlayerEntity.timeToRespawn", 7); // in game ticks
             addInt("PlayerEntity.attackHitcount", 25);
             addInt("PlayerEntity.timeToVanishDead", 5);
 
@@ -37,23 +37,23 @@ namespace Pango
             addInt("MonsterEntity.maxHealth", 75);
             addInt("MonsterEntity.moneyForKilling", 100);
             addInt("MonsterEntity.slowFactor", 2);
-            addInt("MonsterEntity.timeToIncubate", 5);
-            addInt("MonsterEntity.timeToRespawn", 25);
-            addInt("MonsterEntity.timeToWakeupDiamond", 30);
-            addInt("MonsterEntity.timeToWakeupWall", 10);
+            addInt("MonsterEntity.timeToIncubate", 5); // in game ticks
+            addInt("MonsterEntity.timeToRespawn", 25); // in game ticks
+            addInt("MonsterEntity.timeToWakeupDiamond", 30); // in game ticks
+            addInt("MonsterEntity.timeToWakeupWall", 10); // in game ticks
 
-            addInt("Bonus.timeToLive", 40);
+            addInt("Bonus.timeToLive", 40); // in game ticks
             addInt("MoneyBonus.bonusMoney", 20);
             addInt("HealthBonus.changeHealthPercent", 25);
-            addInt("IceBlock.timeToMelt", 1);
+            addInt("IceBlock.timeToMelt", 1); // in game ticks
             addInt("DiamondBlock.bonusMoney", 1000);
 
-            addInt("Game.bonusAddProbability", 15);
-            addInt("Game.mapCount", 0);
+            addInt("Game.bonusAddProbability", 15); // probabilitiy: 1/bonusAddProbability
+            addInt("Game.mapCount", 0); // number of levels in the map
             values["Game.mapFile"] = "maps.txt";
-            addInt("Game.stepInterval", 150);
-            addInt("Game.timeBeforeLevel", 10);
-            addInt("Game.moneyForLevel", 200);
+            addInt("Game.stepInterval", 150); // in milliseconds
+            addInt("Game.timeBeforeLevel", 10); // in game ticks
+            addInt("Game.moneyForLevel", 200); // money bonus for level completion
         }
 
         // ----- properties --------------------

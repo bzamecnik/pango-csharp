@@ -17,6 +17,8 @@ namespace Pango
         // priority queue
         SortedList<int, Queue<EventDelegate>> pqueue;
 
+        // TODO: checking for (pqueue != null) is not necessary
+
         // ----- constructors --------------------
 
         public Schedule() {
@@ -64,6 +66,8 @@ namespace Pango
             } else {
                 return true;
             }
+            // nicer:
+            //return (pqueue == null) || (pqueue.Count <= 0);
         }
 
         public void clear() {
