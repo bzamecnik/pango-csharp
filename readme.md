@@ -1,4 +1,4 @@
-===== Pango =====
+# Pango
 
 Author: [Bohumír Zámečník](http://zamecnik.me)
 
@@ -11,13 +11,13 @@ We played this game with my [brother](http://pango.cz) about 20 years ago as chi
 
 The game is rewritten from scratch in C#/.NET. The artwork is from the original Pango.
 
-Controls:
+## Controls
 * arrows - move the player
 * space - run the game, attack enemies (by hitting the wall)
 * P - pause
 * Esc - quit the game
 
-Command-line arguments:
+## Command-line arguments
 
 ```
 pango.exe [MAP_FILE]
