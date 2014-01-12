@@ -1,24 +1,24 @@
 ===== Pango =====
 
-Autor: Bohumír Zámeèník (http://zamecnik.org)
-Stránka projektu: http://zamecnik.org/projekty/pango
+Autor: BohumÃ­r ZÃ¡meÄnÃ­k (http://zamecnik.org)
+StrÃ¡nka projektu: http://zamecnik.org/projekty/pango
 
 Hra Pango je:
-  * 2D bludištì s potvorami
-  * zápoètovı program na Programování II
-  * remake hry Pango z roku 1983, co byl klon konzolové hry Pengo (http://en.wikipedia.org/wiki/Pengo)
+  * 2D bludiÅ¡tÄ› s potvorami
+  * zÃ¡poÄtovÃ½ program na ProgramovÃ¡nÃ­ II
+  * remake hry Pango z roku 1983, coÅ¾ byl klon konzolovÃ© hry Pengo (http://en.wikipedia.org/wiki/Pengo)
 
-Cíl hry:
-Pobít všechny potvory, sbírat bonusy, pøeít co nejdéle.
+CÃ­l hry:
+PobÃ­t vÅ¡echny potvory, sbÃ­rat bonusy, pÅ™eÅ¾Ã­t co nejdÃ©le.
 
-Ovládání:
-  * šipky - pohyb hráèe
-  * mezerník - spuštìní hry, útoèení
+OvlÃ¡dÃ¡nÃ­:
+  * Å¡ipky - pohyb hrÃ¡Äe
+  * mezernÃ­k - spuÅ¡tÄ›nÃ­ hry, ÃºtoÄenÃ­
   * P - pauza
   * Esc - konec hry
 
 Argumenty programu:
- * název souboru s mapami (není-li zadáno, maps.txt)
+ * nÃ¡zev souboru s mapami (nenÃ­-li zadÃ¡no, maps.txt)
 
 Detaily:
-Zatím viz specifikaci.
+ZatÃ­m viz specifikaci.

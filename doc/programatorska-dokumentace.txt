@@ -1,40 +1,40 @@
-====== Pango - programátorská dokumentace ======
+====== Pango - programÃ¡torskÃ¡ dokumentace ======
 
 ===== Architektura =====
 
-Program Pango se skládá ze dvou hlavních èástí, a to knihovny a grafického rozhraní. Knihovna poskytuje kompletní objektovou reprezentaci hry. Její sluby vyuívá grafické rozhraní (Windows Forms aplikace), která zajišuje zpracování podnìtù od uivatele a zobrazení aktuálního stavu hry. Herní smyèka probíhá a v grafickém rozhraní. Knihovna i GUI leí v namespace Pango.
+Program Pango se sklÃ¡dÃ¡ ze dvou hlavnÃ­ch ÄÃ¡stÃ­, a to knihovny a grafickÃ©ho rozhranÃ­. Knihovna poskytuje kompletnÃ­ objektovou reprezentaci hry. JejÃ­ sluÅ¾by vyuÅ¾Ã­vÃ¡ grafickÃ© rozhranÃ­ (Windows Forms aplikace), kterÃ¡ zajiÅ¡Å¥uje zpracovÃ¡nÃ­ podnÄ›tÅ¯ od uÅ¾ivatele a zobrazenÃ­ aktuÃ¡lnÃ­ho stavu hry. HernÃ­ smyÄka probÃ­hÃ¡ aÅ¾ v grafickÃ©m rozhranÃ­. Knihovna i GUI leÅ¾Ã­ v namespace Pango.
 
 ==== Knihovna libpango ====
 
-=== Pøehled ===
+=== PÅ™ehled ===
 
-Oznaèení:
-  * hra - skládá se z levelù; konèí, kdy hráè umøe a ji nemá volné ivoty
-  * level - má svou mapu; konèí, kdy hráè zabije všechna monstra
+OznaÄenÃ­:
+  * hra - sklÃ¡dÃ¡ se z levelÅ¯; konÄÃ­, kdyÅ¾ hrÃ¡Ä umÅ™e a jiÅ¾ nemÃ¡ volnÃ© Å¾ivoty
+  * level - mÃ¡ svou mapu; konÄÃ­, kdyÅ¾ hrÃ¡Ä zabije vÅ¡echna monstra
 
-Hra je reprezentována tøídou Game, jednotlivé levely stavy této tøídy. Bìhem jednoho bìhu programu mùe probìhnout více her. Game obsahuje mapu (instance tøídy Map), simulaèní kalendáø (singleton instance tøídy Schedule), stav získanıch penìz a nìkolik eventù.
+Hra je reprezentovÃ¡na tÅ™Ã­dou Game, jednotlivÃ© levely stavy tÃ©to tÅ™Ã­dy. BÄ›hem jednoho bÄ›hu programu mÅ¯Å¾e probÄ›hnout vÃ­ce her. Game obsahuje mapu (instance tÅ™Ã­dy Map), simulaÄnÃ­ kalendÃ¡Å™ (singleton instance tÅ™Ã­dy Schedule), stav zÃ­skanÃ½ch penÄ›z a nÄ›kolik eventÅ¯.
 
-Základem levelu je mapa, ve které se vyskytují rùzné pøedmìty nebo postavy, souhrnnì entity, které tvoøí celou hieararchii tøíd. Mapa vyuívá objektù pomocnıch tøíd Coordinates a Place. Pro naèítání mapy ze souboru a pro konverzi mezi Map a string slouí tøída MapPersistence, která okrajové vyuívá knihovnu Reader projektu CodEx.
+ZÃ¡kladem levelu je mapa, ve kterÃ© se vyskytujÃ­ rÅ¯znÃ© pÅ™edmÄ›ty nebo postavy, souhrnnÄ› entity, kterÃ© tvoÅ™Ã­ celou hieararchii tÅ™Ã­d. Mapa vyuÅ¾Ã­vÃ¡ objektÅ¯ pomocnÃ½ch tÅ™Ã­d Coordinates a Place. Pro naÄÃ­tÃ¡nÃ­ mapy ze souboru a pro konverzi mezi Map a string slouÅ¾Ã­ tÅ™Ã­da MapPersistence, kterÃ¡ okrajovÃ© vyuÅ¾Ã­vÃ¡ knihovnu Reader projektu CodEx.
 
-Kalendáø Schedule sleduje herní èas a pøedevším poskytuje monost entitám a jinım objektù naplánovat nìjakou akci na danı herní èas.
+KalendÃ¡Å™ Schedule sleduje hernÃ­ Äas a pÅ™edevÅ¡Ã­m poskytuje moÅ¾nost entitÃ¡m a jinÃ½m objektÅ¯ naplÃ¡novat nÄ›jakou akci na danÃ½ hernÃ­ Äas.
 
-Tøída Config slouí k oddìlení nastavení (vìtšinou rùznıch èíselnıch parametrù) od samotného kódu. Nastavení tak mùe leet i mimo program a zmìny mohou bıt persistentnì uloeny.
+TÅ™Ã­da Config slouÅ¾Ã­ k oddÄ›lenÃ­ nastavenÃ­ (vÄ›tÅ¡inou rÅ¯znÃ½ch ÄÃ­selnÃ½ch parametrÅ¯) od samotnÃ©ho kÃ³du. NastavenÃ­ tak mÅ¯Å¾e leÅ¾et i mimo program a zmÄ›ny mohou bÃ½t persistentnÄ› uloÅ¾eny.
 
 === Game ===
 
-Tøída Game reprezentuje hru a její levely. Je pouit návrhovı vzor Singleton, jediná instance staèí a je jednoduše pøístupná.
+TÅ™Ã­da Game reprezentuje hru a jejÃ­ levely. Je pouÅ¾it nÃ¡vrhovÃ½ vzor Singleton, jedinÃ¡ instance staÄÃ­ a je jednoduÅ¡e pÅ™Ã­stupnÃ¡.
 
-Stavy hry: Intro, Prepared, Running, Paused, Finishing, Finished. Game obsahuje mapu, rozvrh (simulaèní kalendáø), level, stav penìního skóre a odkaz na entitu hráèe (zatím pouze single-player). Game nabízí nìkolik eventù, na které se mohou navìsit funkce z grafického rozhraní.
+Stavy hry: Intro, Prepared, Running, Paused, Finishing, Finished. Game obsahuje mapu, rozvrh (simulaÄnÃ­ kalendÃ¡Å™), level, stav penÄ›Å¾nÃ­ho skÃ³re a odkaz na entitu hrÃ¡Äe (zatÃ­m pouze single-player). Game nabÃ­zÃ­ nÄ›kolik eventÅ¯, na kterÃ© se mohou navÄ›sit funkce z grafickÃ©ho rozhranÃ­.
 
-Pouití:
-  * do Config.Instance["Game.map"] se vloí mapa jako text
-  * pouije se instance Game.Instance
-  * pomocí Game.Instance.loadMap() se vytvoøí mapa z configu
-  * na eventy se zavìsí vlastní funkce
-  * kroky smyèky se volají pøes step()
+PouÅ¾itÃ­:
+  * do Config.Instance["Game.map"] se vloÅ¾Ã­ mapa jako text
+  * pouÅ¾ije se instance Game.Instance
+  * pomocÃ­ Game.Instance.loadMap() se vytvoÅ™Ã­ mapa z configu
+  * na eventy se zavÄ›sÃ­ vlastnÃ­ funkce
+  * kroky smyÄky se volajÃ­ pÅ™es step()
   
-Rohzraní:
-  * static Game Instance - pøístup k singleton instanci
+RohzranÃ­:
+  * static Game Instance - pÅ™Ã­stup k singleton instanci
   * Map Map
   * Schedule Schedule
   * States State
@@ -42,16 +42,16 @@ Rohzraní:
   * int Money
   * int Level
   * PlayerEntity Player
-  * void loadMap() - naète mapu z Config a nastaví odkaz na hráèe
-  * void start() - spustí hru, event onStart
-  * void endLevel() - konec levelu; pøechod dál, nebo konec hry, event onEnd
+  * void loadMap() - naÄte mapu z Config a nastavÃ­ odkaz na hrÃ¡Äe
+  * void start() - spustÃ­ hru, event onStart
+  * void endLevel() - konec levelu; pÅ™echod dÃ¡l, nebo konec hry, event onEnd
   * void endGame() - konec hry, event onEnd
-  * void pause() - pozastavení nebo opìtovné spuštìní hry, event OnPause
+  * void pause() - pozastavenÃ­ nebo opÄ›tovnÃ© spuÅ¡tÄ›nÃ­ hry, event OnPause
   * bool step()
-    - krok herní smyèky, event onLoopStep
-    - vrací true, kdy aspoò jedna entita nìco provede
-    - asi nejdùleitìjší èást tøídy Game
-  * void receiveMoney(int) - pøidá hráèi danou èástku penìz
+    - krok hernÃ­ smyÄky, event onLoopStep
+    - vracÃ­ true, kdyÅ¾ aspoÅˆ jedna entita nÄ›co provede
+    - asi nejdÅ¯leÅ¾itÄ›jÅ¡Ã­ ÄÃ¡st tÅ™Ã­dy Game
+  * void receiveMoney(int) - pÅ™idÃ¡ hrÃ¡Äi danou ÄÃ¡stku penÄ›z
   * eventy:
     * onLoopStep
     * onStart
@@ -59,67 +59,67 @@ Rohzraní:
     * onEnd
     * onLoadMap
     
-Pomocné vìci:
-  * void addRandomBonuses() - na náhodné prùchozí políèko pøidá náhodnı bonus
+PomocnÃ© vÄ›ci:
+  * void addRandomBonuses() - na nÃ¡hodnÃ© prÅ¯chozÃ­ polÃ­Äko pÅ™idÃ¡ nÃ¡hodnÃ½ bonus
   * void newGame()
   * void nextLevel()
 
-=== Map a její pomocné tøídy ===
+=== Map a jejÃ­ pomocnÃ© tÅ™Ã­dy ===
 
 == Map ==
 
-Mapa jednoho levelu. Obsahuje políèka s entitami. Rovnì si pamatuje poèet prùchozích políèek a seznamy monster a bonusù, pro rychlejší procházení.
+Mapa jednoho levelu. Obsahuje polÃ­Äka s entitami. RovnÄ›Å¾ si pamatuje poÄet prÅ¯chozÃ­ch polÃ­Äek a seznamy monster a bonusÅ¯, pro rychlejÅ¡Ã­ prochÃ¡zenÃ­.
 
-Rozhraní:
-  * Map(int width, int height) - vytvoøí prázdnou mapu dané velikosti
-  * Map(Entity[,]) - vytvoøí mapu z pole entit (napø. naèteného ze souboru)
+RozhranÃ­:
+  * Map(int width, int height) - vytvoÅ™Ã­ prÃ¡zdnou mapu danÃ© velikosti
+  * Map(Entity[,]) - vytvoÅ™Ã­ mapu z pole entit (napÅ™. naÄtenÃ©ho ze souboru)
   * Place[,] Places
   * int Height
   * int Width
   * List<MonsterEntity> Monsters - seznam monster
-  * List<BonusEntity> Bonuses - seznam bonusovıch entit
-  * bool add(Entity, Coordinates) - pøidá entitu na dané souøadnice
-  * bool add(Entity, Place) - pøidá entitu na dané políèko
-  * bool remove(Entity, Coordinates) - odstraní entitu z daného políèka
-  * bool remove(Entity) - odstraní entitu z mapy
-  * bool isWalkable(Coordinates) - true, je-li pole prùchozí
-  * bool isSmitable(Coordinates) - true, pokud lze pole prosvištìt ledem
-  * bool move(Entity, Coordinates from, Coordinates to) - pøesune entitu
-  * Coordinates find(Entity) - najde danou entitu v mapì, nebo vrátí neplatné souøadnice
-  * bool hasEntity(Entity) - true, pokud se daná entita vyskytuje nìkde v mapì
-  * bool hasEntity(Entity, Coordinates) true, pokud se daná entita vyskytuje na daném políèku
-  * IEnumerator<Entity> GetEnumerator() - iterátor entitami v mapì
-  * Place getPlace(Coordinates) - vrátí políèko na danıch souøadnicích
-  * List<Entity> getNeighbors(Coordinates) - vrátí seznam sousedních entit
-  * bool areValidCoordinates(Coordinates) - true, leí-li souøadnice na mapì
-  * Coordinates getRandomWalkablePlace() - vrátí náhodné souøadnice na mapì
-  * string ToString() - pøevod na textovou reprezentaci
+  * List<BonusEntity> Bonuses - seznam bonusovÃ½ch entit
+  * bool add(Entity, Coordinates) - pÅ™idÃ¡ entitu na danÃ© souÅ™adnice
+  * bool add(Entity, Place) - pÅ™idÃ¡ entitu na danÃ© polÃ­Äko
+  * bool remove(Entity, Coordinates) - odstranÃ­ entitu z danÃ©ho polÃ­Äka
+  * bool remove(Entity) - odstranÃ­ entitu z mapy
+  * bool isWalkable(Coordinates) - true, je-li pole prÅ¯chozÃ­
+  * bool isSmitable(Coordinates) - true, pokud lze pole prosviÅ¡tÄ›t ledem
+  * bool move(Entity, Coordinates from, Coordinates to) - pÅ™esune entitu
+  * Coordinates find(Entity) - najde danou entitu v mapÄ›, nebo vrÃ¡tÃ­ neplatnÃ© souÅ™adnice
+  * bool hasEntity(Entity) - true, pokud se danÃ¡ entita vyskytuje nÄ›kde v mapÄ›
+  * bool hasEntity(Entity, Coordinates) true, pokud se danÃ¡ entita vyskytuje na danÃ©m polÃ­Äku
+  * IEnumerator<Entity> GetEnumerator() - iterÃ¡tor entitami v mapÄ›
+  * Place getPlace(Coordinates) - vrÃ¡tÃ­ polÃ­Äko na danÃ½ch souÅ™adnicÃ­ch
+  * List<Entity> getNeighbors(Coordinates) - vrÃ¡tÃ­ seznam sousednÃ­ch entit
+  * bool areValidCoordinates(Coordinates) - true, leÅ¾Ã­-li souÅ™adnice na mapÄ›
+  * Coordinates getRandomWalkablePlace() - vrÃ¡tÃ­ nÃ¡hodnÃ© souÅ™adnice na mapÄ›
+  * string ToString() - pÅ™evod na textovou reprezentaci
 
 == MapPersistence ==
 
-Slouí pro pøevod mezi Map a string, tj. naèítání mapy ze souboru a textové zobrazení mapy. Obsahuje vlastní pøevodní tabulky.
+SlouÅ¾Ã­ pro pÅ™evod mezi Map a string, tj. naÄÃ­tÃ¡nÃ­ mapy ze souboru a textovÃ© zobrazenÃ­ mapy. Obsahuje vlastnÃ­ pÅ™evodnÃ­ tabulky.
 
-Rozhraní:
-  * static Map FromString(string) - pøevod textu na mapu
-  * static string ToString(Map) - pøevod mapy na text
-  * static string readMapFromFile(string) - ètení mapy ze souboru
+RozhranÃ­:
+  * static Map FromString(string) - pÅ™evod textu na mapu
+  * static string ToString(Map) - pÅ™evod mapy na text
+  * static string readMapFromFile(string) - ÄtenÃ­ mapy ze souboru
 
 == Coordinates ==
 
-Objekty této tøídy reprezentují dvourozmìrné souøadnice v mapì, pøípadnì neplatné souøadnice. Pomocí nich se adresují políèka mapy a kadá entita si pomocí nich navíc udruje svoji pozici.
+Objekty tÃ©to tÅ™Ã­dy reprezentujÃ­ dvourozmÄ›rnÃ© souÅ™adnice v mapÄ›, pÅ™Ã­padnÄ› neplatnÃ© souÅ™adnice. PomocÃ­ nich se adresujÃ­ polÃ­Äka mapy a kaÅ¾dÃ¡ entita si pomocÃ­ nich navÃ­c udrÅ¾uje svoji pozici.
 
-Souøadnice se poèítají od nuly, x je vertikální sloka (smìrem shora dolù), y horizontální (smìrem zleva doprava).
+SouÅ™adnice se poÄÃ­tajÃ­ od nuly, x je vertikÃ¡lnÃ­ sloÅ¾ka (smÄ›rem shora dolÅ¯), y horizontÃ¡lnÃ­ (smÄ›rem zleva doprava).
 
-Coordinates nabízí i jednoduchou aritmetiku mezi souøadnicemi a smìry.
-Rozhraní:
-  * int x, y - sloky souøadnic
-  * bool inInvalid - pøíznak neplatné souøadnice
-  * static Coordinates invalid - neplatné souøadnice
+Coordinates nabÃ­zÃ­ i jednoduchou aritmetiku mezi souÅ™adnicemi a smÄ›ry.
+RozhranÃ­:
+  * int x, y - sloÅ¾ky souÅ™adnic
+  * bool inInvalid - pÅ™Ã­znak neplatnÃ© souÅ™adnice
+  * static Coordinates invalid - neplatnÃ© souÅ™adnice
   * Coordinates(int, int)
   * static Coordinates operator +(Coordinates, Coordinates)
   * static Coordinates operator -(Coordinates, Coordinates)
   * static Nullable<Direction> diffDirection(Coordinates, Coordinates)
-    - smìr jako rozdíl dvou sousedních souøadnic, jinak null
+    - smÄ›r jako rozdÃ­l dvou sousednÃ­ch souÅ™adnic, jinak null
   * bool Equals(Coordinates)
   * static bool areNeighbors(Coordinates, Coordinates)
   * bool isNeighbor(Coordinates)
@@ -128,39 +128,39 @@ Rozhraní:
 
 == Place ==
 
-Reprezentuje jedno políèko na mapì. Zajímavé je, e mùe obsahovat a dvì entity - jednu prùchozí (walkable - potomka tøídy WalkableEntity) a jednu neprùchozí. To se napø. hodí, jakmile mostrum (non-walkable) chce projít pøes bonus (walkable), ale nebude jej sbírat. Zøejmì staèí nejvıš jedna entita kadého druhu, jinak by nastal na mapì zmatek a hra by se stala dosti neintuitivní.
+Reprezentuje jedno polÃ­Äko na mapÄ›. ZajÃ­mavÃ© je, Å¾e mÅ¯Å¾e obsahovat aÅ¾ dvÄ› entity - jednu prÅ¯chozÃ­ (walkable - potomka tÅ™Ã­dy WalkableEntity) a jednu neprÅ¯chozÃ­. To se napÅ™. hodÃ­, jakmile mostrum (non-walkable) chce projÃ­t pÅ™es bonus (walkable), ale nebude jej sbÃ­rat. ZÅ™ejmÄ› staÄÃ­ nejvÃ½Å¡ jedna entita kaÅ¾dÃ©ho druhu, jinak by nastal na mapÄ› zmatek a hra by se stala dosti neintuitivnÃ­.
 
-Rozhraní:
-  * Walkable, NonWalable - properties pro pøístup k entitám
-  * bool add(Entity) - pøidá entitu (a správnì zaøadí podle druhu)
-  * bool remove(Entity) - vymae zadanou entitu, pokud byla na políèku
+RozhranÃ­:
+  * Walkable, NonWalable - properties pro pÅ™Ã­stup k entitÃ¡m
+  * bool add(Entity) - pÅ™idÃ¡ entitu (a sprÃ¡vnÄ› zaÅ™adÃ­ podle druhu)
+  * bool remove(Entity) - vymaÅ¾e zadanou entitu, pokud byla na polÃ­Äku
   * bool isWalkable()
   * bool contains(Entity)
-  * IEnumerator<Entity> GetEnumerator() - iterátor pøes entity na políèku
+  * IEnumerator<Entity> GetEnumerator() - iterÃ¡tor pÅ™es entity na polÃ­Äku
 
 == enum Direction ==
 
-Reprezentuje smìr. Lze pøevést na int a zpìt.
+Reprezentuje smÄ›r. Lze pÅ™evÃ©st na int a zpÄ›t.
 Up = 0, Right, Down, Left.
 
 == enum Rotation ==
 
-Reprezentuje úhel rotace. Lze pøevést na int a zpìt.
+Reprezentuje Ãºhel rotace. Lze pÅ™evÃ©st na int a zpÄ›t.
 Forward = 0, CW, Backwards, CCW.
 
 == DirectionUtils ==
 
-Umoòuje provádìt rotaci smìru a pøevod smìru na souøadnice. Direction i Rotation jsou vıètového typu, protoe je nenároèné je pøevádìt na èíslo a zpìt. Jejich hodnot je jen konstatnì mnoho (resp. málo) tudí není nutné pro nì neustále vytváøet a rušit stejné objekty.
+UmoÅ¾Åˆuje provÃ¡dÄ›t rotaci smÄ›ru a pÅ™evod smÄ›ru na souÅ™adnice. Direction i Rotation jsou vÃ½ÄtovÃ©ho typu, protoÅ¾e je nenÃ¡roÄnÃ© je pÅ™evÃ¡dÄ›t na ÄÃ­slo a zpÄ›t. Jejich hodnot je jen konstatnÄ› mnoho (resp. mÃ¡lo) tudÃ­Å¾ nenÃ­ nutnÃ© pro nÄ› neustÃ¡le vytvÃ¡Å™et a ruÅ¡it stejnÃ© objekty.
 
-Rozhraní:
-  * static int Count - poèet smìrù (pro prùchod smìry)
-  * static Direction rotate(Direction, Rotation) - otoèí danı smìr o danou rotaci
+RozhranÃ­:
+  * static int Count - poÄet smÄ›rÅ¯ (pro prÅ¯chod smÄ›ry)
+  * static Direction rotate(Direction, Rotation) - otoÄÃ­ danÃ½ smÄ›r o danou rotaci
   * static Coordinates step(Direction)
-    - pø. smìr Up pøevede na Coordinates (-1,0)
+    - pÅ™. smÄ›r Up pÅ™evede na Coordinates (-1,0)
 
 === Entity a jejich hierarchie ===
 
-Entity reprezentují vìci nebo postavy, které se vyskytují na mapì.
+Entity reprezentujÃ­ vÄ›ci nebo postavy, kterÃ© se vyskytujÃ­ na mapÄ›.
 
 Hierarchie:
 * abstract Entity
@@ -178,180 +178,180 @@ Hierarchie:
       * LiveBonus
   * StoneBlock
 
-Pouity abstraktní tøídy místo rozhraní, kvùli pøidávání dalších fields.
+PouÅ¾ity abstraktnÃ­ tÅ™Ã­dy mÃ­sto rozhranÃ­, kvÅ¯li pÅ™idÃ¡vÃ¡nÃ­ dalÅ¡Ã­ch fields.
 
 == Entity ==
 
-Základ pro všechny entity.
+ZÃ¡klad pro vÅ¡echny entity.
 
-Rozhraní:
-  * Coordinates Coords - udrování pozice uvnitø entity se obèas hodí
-  * bool turnDone - pouívá se, aby v jednom kroku entita nehrála vícekrát
-  * abstract bool turn() - akce, kdy entita dostane "tah" (v kadém kroku)
+RozhranÃ­:
+  * Coordinates Coords - udrÅ¾ovÃ¡nÃ­ pozice uvnitÅ™ entity se obÄas hodÃ­
+  * bool turnDone - pouÅ¾Ã­vÃ¡ se, aby v jednom kroku entita nehrÃ¡la vÃ­cekrÃ¡t
+  * abstract bool turn() - akce, kdyÅ¾ entita dostane "tah" (v kaÅ¾dÃ©m kroku)
   * abstract void acceptAttack(Entity sender, int hitcount)
-    - volá útoèník na entitu, kdy jí napadne
-  * void vanish() - entita se vymae z mapy
+    - volÃ¡ ÃºtoÄnÃ­k na entitu, kdyÅ¾ jÃ­ napadne
+  * void vanish() - entita se vymaÅ¾e z mapy
 
 == MovableEntity ==
 
-Entity, které se mohou pohybovat.
+Entity, kterÃ© se mohou pohybovat.
 
-Rozhraní:
-  * Direction Direction - aktuální smìr pohybu
+RozhranÃ­:
+  * Direction Direction - aktuÃ¡lnÃ­ smÄ›r pohybu
   * bool go()
-    - provedení jednoho kroku v aktuálním smìru
-    - vrátí true, kdy se krok podaøilo provést
-  * virtual bool canGo(Coordinates) - true, pokud lze jít v aktuálním smìru
-  * void rotate(Rotation) - otoèení o danı úhel
+    - provedenÃ­ jednoho kroku v aktuÃ¡lnÃ­m smÄ›ru
+    - vrÃ¡tÃ­ true, kdyÅ¾ se krok podaÅ™ilo provÃ©st
+  * virtual bool canGo(Coordinates) - true, pokud lze jÃ­t v aktuÃ¡lnÃ­m smÄ›ru
+  * void rotate(Rotation) - otoÄenÃ­ o danÃ½ Ãºhel
 
 == LiveEntity ==
 
-ivé entity mající zdraví, ivoty, mohou bıt zranìny, zabity a znovu oít.
+Å½ivÃ© entity majÃ­cÃ­ zdravÃ­, Å¾ivoty, mohou bÃ½t zranÄ›ny, zabity a znovu oÅ¾Ã­t.
 
-Rozhraní:
+RozhranÃ­:
   * int Health
   * int MaxHealth
   * int Lives
-  * abstract void die() - na smrt mohou konkrétní entity reagovat rùznì
-  * virtual bool changeHealth(int change) - zmìna zdraví má vliv jak na zdraví, tak i na poèet volnıch ivotù
-  * void respawn(LiveEntity newborn) - na náhodné místo umístí novou entitu
+  * abstract void die() - na smrt mohou konkrÃ©tnÃ­ entity reagovat rÅ¯znÄ›
+  * virtual bool changeHealth(int change) - zmÄ›na zdravÃ­ mÃ¡ vliv jak na zdravÃ­, tak i na poÄet volnÃ½ch Å¾ivotÅ¯
+  * void respawn(LiveEntity newborn) - na nÃ¡hodnÃ© mÃ­sto umÃ­stÃ­ novou entitu
 
 == WalkableEntity ==
 
-Prùchozí entita. Jiné entity mohou vstoupit na stejné políèko jako tato. Hodí se napøíklad, kdy monstrum vstoupí na bonus, ale nechceme aby jej sebral.
+PrÅ¯chozÃ­ entita. JinÃ© entity mohou vstoupit na stejnÃ© polÃ­Äko jako tato. HodÃ­ se napÅ™Ã­klad, kdyÅ¾ monstrum vstoupÃ­ na bonus, ale nechceme aby jej sebral.
 
-Tato tøída nijak nemìní rozhraní, uívá se pouze pomocí klíèového slova 'is'.
+Tato tÅ™Ã­da nijak nemÄ›nÃ­ rozhranÃ­, uÅ¾Ã­vÃ¡ se pouze pomocÃ­ klÃ­ÄovÃ©ho slova 'is'.
 
 == MovableBlock ==
 
-Neprùchozí entita, která se za urèitıch podmínek mùe pohybovat. Hodí se pro bloky ledové bloky a diamanty, do nich mùe hráè kopat.
+NeprÅ¯chozÃ­ entita, kterÃ¡ se za urÄitÃ½ch podmÃ­nek mÅ¯Å¾e pohybovat. HodÃ­ se pro bloky ledovÃ© bloky a diamanty, do nichÅ¾ mÅ¯Å¾e hrÃ¡Ä kopat.
 
-Má dva stavy: Normal a Movement.
+MÃ¡ dva stavy: Normal a Movement.
 
 Implementuje:
-  * bool turn() - pøi pohybu zabije ivé entity po cestì a zastaví se a o neivou entitu
-  * bool canGo(Coordinates) - pokraèovat lze, splòuje-li políèko isSmitable()
+  * bool turn() - pÅ™i pohybu zabije Å¾ivÃ© entity po cestÄ› a zastavÃ­ se aÅ¾ o neÅ¾ivou entitu
+  * bool canGo(Coordinates) - pokraÄovat lze, splÅˆuje-li polÃ­Äko isSmitable()
   * void acceptAttack(Entity sender, int hitcount)
 
-Rozhraní:
+RozhranÃ­:
   * protected abstract void acceptAttackCantGoHook()
   * protected abstract void turnCantGoHook()
 
 == PlayerEntity ==
 
-Hráè. Zatím je hra Pango navrena pouze pro single-player.
+HrÃ¡Ä. ZatÃ­m je hra Pango navrÅ¾ena pouze pro single-player.
 
 Implementuje:
-  * bool turn() - zpracuje poadavky uivatele a provádí interakci s ostatními entitami na políèku
+  * bool turn() - zpracuje poÅ¾adavky uÅ¾ivatele a provÃ¡dÃ­ interakci s ostatnÃ­mi entitami na polÃ­Äku
   * void acceptAttack(Entity sender, int hitcount)
-  * void die() - respawnuje hráèe nebo ukonèí celou hru
+  * void die() - respawnuje hrÃ¡Äe nebo ukonÄÃ­ celou hru
 
-Rozhraní:
+RozhranÃ­:
   * public PlayerEntity()
-  * layerEntity(PlayerEntity) - copy constructor se hodí pøi respawnu nebo pøechodu do nového levelu
-  * void requestMovement(Direction) - volá obsluha klávesovıch stiskù
+  * layerEntity(PlayerEntity) - copy constructor se hodÃ­ pÅ™i respawnu nebo pÅ™echodu do novÃ©ho levelu
+  * void requestMovement(Direction) - volÃ¡ obsluha klÃ¡vesovÃ½ch stiskÅ¯
   * void requestAttack()
 
 == MonsterEntity ==
 
-Monstra, protivníci hráèe. Stavy: Normal, Stunned, Egg (Monstrum se líhne z vejce a lze jej omráèit). Pro chùzi je nyní pouit algoritmus ze cvièení Programování II s pøidanou náhodnou rotací.
+Monstra, protivnÃ­ci hrÃ¡Äe. Stavy: Normal, Stunned, Egg (Monstrum se lÃ­hne z vejce a lze jej omrÃ¡Äit). Pro chÅ¯zi je nynÃ­ pouÅ¾it algoritmus ze cviÄenÃ­ ProgramovÃ¡nÃ­ II s pÅ™idanou nÃ¡hodnou rotacÃ­.
 
 Implementuje:
-  * bool turn() - zde monstrum chodí po bludišti a zkouší zaútoèit na hráèe
+  * bool turn() - zde monstrum chodÃ­ po bludiÅ¡ti a zkouÅ¡Ã­ zaÃºtoÄit na hrÃ¡Äe
   * void acceptAttack(Entity sender, int hitcount)
   * void die()
 
-Rozhraní:
-  * MonsterEntity() - naplánuje vylíhnutí
-  * void stun(int time) - mostrum se na chvíli omráèí
+RozhranÃ­:
+  * MonsterEntity() - naplÃ¡nuje vylÃ­hnutÃ­
+  * void stun(int time) - mostrum se na chvÃ­li omrÃ¡ÄÃ­
 
 == DiamondBlock ==
 
-Diamant. Chová se jako ledovı blok, ale netaje. Nìkolik diamantù poskládanıch do øady dá bonus a omráèí všechna monstra.
+Diamant. ChovÃ¡ se jako ledovÃ½ blok, ale netaje. NÄ›kolik diamantÅ¯ posklÃ¡danÃ½ch do Å™ady dÃ¡ bonus a omrÃ¡ÄÃ­ vÅ¡echna monstra.
 
 Implementuje:
-  * void acceptAttackCantGoHook() - nic nedìlá
-  * void turnCantGoHook() - kontroluje poskládání do øady
+  * void acceptAttackCantGoHook() - nic nedÄ›lÃ¡
+  * void turnCantGoHook() - kontroluje posklÃ¡dÃ¡nÃ­ do Å™ady
 
 == IceBlock ==
 
-Ledovı blok. Hráè do nìj mùe kopnout a tím jej uvést do pohybu. Nemá-li kam jít, roztaje.
+LedovÃ½ blok. HrÃ¡Ä do nÄ›j mÅ¯Å¾e kopnout a tÃ­m jej uvÃ©st do pohybu. NemÃ¡-li kam jÃ­t, roztaje.
 
 Implementuje:
-  * void acceptAttackCantGoHook() - tání
-  * void turnCantGoHook() - nic nedìlá
+  * void acceptAttackCantGoHook() - tÃ¡nÃ­
+  * void turnCantGoHook() - nic nedÄ›lÃ¡
 
 == BonusEntity ==
 
-Základ pro všechny bonusové entity. Má omezenou ivotnost (int timeToLive).
+ZÃ¡klad pro vÅ¡echny bonusovÃ© entity. MÃ¡ omezenou Å¾ivotnost (int timeToLive).
 
-Rozhraní:
-  * abstract void giveBonus(PlayerEntity) - hráè si vyzvedne bonus, kdy na nìj narazí
+RozhranÃ­:
+  * abstract void giveBonus(PlayerEntity) - hrÃ¡Ä si vyzvedne bonus, kdyÅ¾ na nÄ›j narazÃ­
 
 == MoneyBonus, HealthBonus, LiveBonus ==
 
-Bonusy ve formì penìz, zdraví resp. volnıch ivotù. Rùznì implementují giveBonus().
+Bonusy ve formÄ› penÄ›z, zdravÃ­ resp. volnÃ½ch Å¾ivotÅ¯. RÅ¯znÄ› implementujÃ­ giveBonus().
 
 === Schedule ===
 
-Udruje herní èas (poèítanı v krocích) a slouí pro plánování akcí, které se mají provést po urèitém poètu herních krokù. Obsahuje prioritní frontu, kde prioritou je právì herní krok. Akce, vìtšinou definované jako anonymní funkce, se ukládají jako C# delegate (obdoba ukazatele na funkci).
+UdrÅ¾uje hernÃ­ Äas (poÄÃ­tanÃ½ v krocÃ­ch) a slouÅ¾Ã­ pro plÃ¡novÃ¡nÃ­ akcÃ­, kterÃ© se majÃ­ provÃ©st po urÄitÃ©m poÄtu hernÃ­ch krokÅ¯. Obsahuje prioritnÃ­ frontu, kde prioritou je prÃ¡vÄ› hernÃ­ krok. Akce, vÄ›tÅ¡inou definovanÃ© jako anonymnÃ­ funkce, se uklÃ¡dajÃ­ jako C# delegate (obdoba ukazatele na funkci).
 
-Dùleité prvky rozhraní:
-  *  void add(EventDelegate eh, int timeoffset) - naplánuje akci
-  *  void callCurrentEvents() - provede akce pro aktuální èas
-  *  int Time - aktuální èas
+DÅ¯leÅ¾itÃ© prvky rozhranÃ­:
+  *  void add(EventDelegate eh, int timeoffset) - naplÃ¡nuje akci
+  *  void callCurrentEvents() - provede akce pro aktuÃ¡lnÃ­ Äas
+  *  int Time - aktuÃ¡lnÃ­ Äas
 
 === Config ===
 
-Slouí pro správu nastavení. Obsahuje slovník párù <string,string> pro snadné adresování. Tøída pouívá návrhovı vzor Singleton a je tak snadno pøístupná.
+SlouÅ¾Ã­ pro sprÃ¡vu nastavenÃ­. Obsahuje slovnÃ­k pÃ¡rÅ¯ <string,string> pro snadnÃ© adresovÃ¡nÃ­. TÅ™Ã­da pouÅ¾Ã­vÃ¡ nÃ¡vrhovÃ½ vzor Singleton a je tak snadno pÅ™Ã­stupnÃ¡.
 
-==== Grafické rozhraní ====
+==== GrafickÃ© rozhranÃ­ ====
 
-=== Pøehled ===
+=== PÅ™ehled ===
 
-Jde o Windows Forms aplikaci. Má tøi úkoly:
-  * pomocí knihovny inicializovat hru a spouštìt herní smyèku
-  * zpracovávat stisky kláves
-  * zobrazovat mapu a údaje o høe
+Jde o Windows Forms aplikaci. MÃ¡ tÅ™i Ãºkoly:
+  * pomocÃ­ knihovny inicializovat hru a spouÅ¡tÄ›t hernÃ­ smyÄku
+  * zpracovÃ¡vat stisky klÃ¡ves
+  * zobrazovat mapu a Ãºdaje o hÅ™e
   
-Herní smyèka vyuívá èasovaèe z Forms. Na eventy v Game pøipojuje svoje metody pro vykreslování a manipulaci s èasovaèem.
+HernÃ­ smyÄka vyuÅ¾Ã­vÃ¡ ÄasovaÄe z Forms. Na eventy v Game pÅ™ipojuje svoje metody pro vykreslovÃ¡nÃ­ a manipulaci s ÄasovaÄem.
 
-GUI obsahuje dvì tøídy Program a PangoGameForm.
+GUI obsahuje dvÄ› tÅ™Ã­dy Program a PangoGameForm.
 
 === Program ===
 
 === PangoGameForm ===
 
-Form s hlavním oknem aplikace. Z komponent obsahuje PictureBox, do nìj se kreslí mapa, ImageList pro uloení obrázkù entit, StatusStrip pro zobrazení informací o stavu hry. Dále obsahuje obsluhy událostí pro vykreslovaní mapy a zpracování klávesového vstupu.
+Form s hlavnÃ­m oknem aplikace. Z komponent obsahuje PictureBox, do nÄ›jÅ¾ se kreslÃ­ mapa, ImageList pro uloÅ¾enÃ­ obrÃ¡zkÅ¯ entit, StatusStrip pro zobrazenÃ­ informacÃ­ o stavu hry. DÃ¡le obsahuje obsluhy udÃ¡lostÃ­ pro vykreslovanÃ­ mapy a zpracovÃ¡nÃ­ klÃ¡vesovÃ©ho vstupu.
 
-Rozhraní:
+RozhranÃ­:
   * void refreshStatusLabels(object sender, EventArgs e)
   * void repaintMapPictureBox(object sender, EventArgs e)
-  * void refresh() - obnoví mapu i status strip, lze volat pøímo
+  * void refresh() - obnovÃ­ mapu i status strip, lze volat pÅ™Ã­mo
   * void setWindowSize(object sender, EventArgs e)
-    - nastaví velikost okna podle velikosti mapy
+    - nastavÃ­ velikost okna podle velikosti mapy
 
-Další vìci:
+DalÅ¡Ã­ vÄ›ci:
   * private void processKeyboardInput(object sender, KeyEventArgs e)
   * private void mapPictureBox_Paint(object sender, PaintEventArgs e)
-    - pro entity v políèkách vybere z ImageListu vhodnı obrázek podle jejich stringové reprezentace (s pomocí funkce ToString())
+    - pro entity v polÃ­ÄkÃ¡ch vybere z ImageListu vhodnÃ½ obrÃ¡zek podle jejich stringovÃ© reprezentace (s pomocÃ­ funkce ToString())
 
 === Program ===
 
-V této statické tøídì se inicializuje a spustí hra. Tøída obsahuje Timer (z Windows Forms), nìkolik obsluh událostí. Zde je propojena tøída Game s PangoGameForm.
+V tÃ©to statickÃ© tÅ™Ã­dÄ› se inicializuje a spustÃ­ hra. TÅ™Ã­da obsahuje Timer (z Windows Forms), nÄ›kolik obsluh udÃ¡lostÃ­. Zde je propojena tÅ™Ã­da Game s PangoGameForm.
 
-Rozhraní:
+RozhranÃ­:
   * static void Main()
 
-Další vìci:
-  * static Windows.Forms.Timer timer - èasovaè z Windows Forms, kterı bere ohled na vlákna v GUI aplikaci. Lze pouít jednodušeji ne obyèejnı èasovaè.
+DalÅ¡Ã­ vÄ›ci:
+  * static Windows.Forms.Timer timer - ÄasovaÄ z Windows Forms, kterÃ½ bere ohled na vlÃ¡kna v GUI aplikaci. Lze pouÅ¾Ã­t jednoduÅ¡eji neÅ¾ obyÄejnÃ½ ÄasovaÄ.
   * static void initializeGame(PangoGameForm)
     - inicializuje hru
-    - namapuje obsluhy eventù v Game
-  * static void stop() - zastaví èasovaè, lze volat pøímo
+    - namapuje obsluhy eventÅ¯ v Game
+  * static void stop() - zastavÃ­ ÄasovaÄ, lze volat pÅ™Ã­mo
   * static void gameStart(object sender, EventArgs e)
-    - v èasovaèi naplánuje gameStep
+    - v ÄasovaÄi naplÃ¡nuje gameStep
   * static void gamePause(object sender, EventArgs e)
-    - zastaví èasovaè, obsluha eventu
+    - zastavÃ­ ÄasovaÄ, obsluha eventu
   * static void gameStep(object sender, EventArgs e)
-    - provede krok hry a znovu se naplánuje
+    - provede krok hry a znovu se naplÃ¡nuje

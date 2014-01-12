@@ -1,14 +1,14 @@
 Pango - instalace
 
-* Ujistìte se, e máte .NET Framework 2.0
-* Pango hledá mapy v souboru maps.txt v aktuálním adresáøi.
-  * Jinı soubor lze pøi spuštìní specifikovat v argumentu.
+* UjistÄ›te se, Å¾e mÃ¡te .NET Framework 2.0
+* Pango hledÃ¡ mapy v souboru maps.txt v aktuÃ¡lnÃ­m adresÃ¡Å™i.
+  * JinÃ½ soubor lze pÅ™i spuÅ¡tÄ›nÃ­ specifikovat v argumentu.
 
-=== Instalátor ===
+=== InstalÃ¡tor ===
 
-* Spuse instalátor.
+* SpusÅ¥e instalÃ¡tor.
 
-=== Binární balíèek ===
+=== BinÃ¡rnÃ­ balÃ­Äek ===
 
-* Robalte balíèek nìkam.
-* Spuste program pango.exe.
+* Robalte balÃ­Äek nÄ›kam.
+* SpusÅ¥te program pango.exe.

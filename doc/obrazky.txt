@@ -1,4 +1,4 @@
-===== Obr·zky =====
+===== Obr√°zky =====
 
 	* PlayerEntity
 		* Normal - up, right, down, left

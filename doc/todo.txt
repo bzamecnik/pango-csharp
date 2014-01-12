@@ -1,51 +1,51 @@
 ===== Pango TODO =====
 
-- balíèky
-	*- instalaèní balíèek
+- balÃ­Äky
+	*- instalaÄnÃ­ balÃ­Äek
 	   - NSIS	
 		   - ikona na plochu a do start menu
-			 - spustit z instalátoru
+			 - spustit z instalÃ¡toru
 			 - uninstall
-			 - (?) instalovat i zdrojové kódy (volitelnì)
-		 - napsat skript pro tvorbu balíèku, z nìho se kompiluje instalátor
-	*- vıvojáøskı balíèek (snad by staèilo zabalit checkout ze SVN) 
+			 - (?) instalovat i zdrojovÃ© kÃ³dy (volitelnÄ›)
+		 - napsat skript pro tvorbu balÃ­Äku, z nÄ›hoÅ¾ se kompiluje instalÃ¡tor
+	*- vÃ½vojÃ¡Å™skÃ½ balÃ­Äek (snad by staÄilo zabalit checkout ze SVN) 
 
 - mapy
-	- sestavit více map
-	*- naèítání více map ze souboru
+	- sestavit vÃ­ce map
+	*- naÄÃ­tÃ¡nÃ­ vÃ­ce map ze souboru
 
-- lepší algoritmus chození potvor
+- lepÅ¡Ã­ algoritmus chozenÃ­ potvor
 
-*- bonusové peníze za úspìšné ukonèení kola
+*- bonusovÃ© penÃ­ze za ÃºspÄ›Å¡nÃ© ukonÄenÃ­ kola
 
 - animace
 
 - dokumentace
-	- vylepšit a vyèistit (sjednotit) komentáøe ve zdrojácích
-		- pouít #regions (moná)
-	- vyrobit "docbook" komentáøe
-	*- sepsat celkovı pohled na architekturu a programátorskou dokumentaci
-	- dopsat uivatelskou dokumentaci
+	- vylepÅ¡it a vyÄistit (sjednotit) komentÃ¡Å™e ve zdrojÃ¡cÃ­ch
+		- pouÅ¾Ã­t #regions (moÅ¾nÃ¡)
+	- vyrobit "docbook" komentÃ¡Å™e
+	*- sepsat celkovÃ½ pohled na architekturu a programÃ¡torskou dokumentaci
+	- dopsat uÅ¾ivatelskou dokumentaci
 		*- zakomponovat do programu
 
-*- promyslet grafické rozhraní a jeho napojení na knihovnu
+*- promyslet grafickÃ© rozhranÃ­ a jeho napojenÃ­ na knihovnu
 
-*- herní stavy
-	*- intro+help, *pøechody mezi levely, *nová hra, ...
-	*- chvíli èekat po konci levelu	
+*- hernÃ­ stavy
+	*- intro+help, *pÅ™echody mezi levely, *novÃ¡ hra, ...
+	*- chvÃ­li Äekat po konci levelu	
 
 
-*- po zabití všech potvor poèkat na vybrání všech bonusù (nejvıš ale limit)
+*- po zabitÃ­ vÅ¡ech potvor poÄkat na vybrÃ¡nÃ­ vÅ¡ech bonusÅ¯ (nejvÃ½Å¡ ale limit)
 
-*- nápovìda, informace o klávesách
+*- nÃ¡povÄ›da, informace o klÃ¡vesÃ¡ch
 
 - GUI
-	*- 1. fáze - vylepšit stávající GUI s WinForms + text
-		- ovládací tlaèítka
-	*- 2. fáze - Windows Forms + obrázky
-	- 3. fáze (?) - XNA
+	*- 1. fÃ¡ze - vylepÅ¡it stÃ¡vajÃ­cÃ­ GUI s WinForms + text
+		- ovlÃ¡dacÃ­ tlaÄÃ­tka
+	*- 2. fÃ¡ze - Windows Forms + obrÃ¡zky
+	- 3. fÃ¡ze (?) - XNA
 	  - prozoumat XNA
 
-- zvyšující se obtínost
+- zvyÅ¡ujÃ­cÃ­ se obtÃ­Å¾nost
 
 - editor map
